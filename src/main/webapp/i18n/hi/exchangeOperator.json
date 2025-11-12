@@ -1,0 +1,26 @@
+{
+  "rnexchangeApp": {
+    "exchangeOperator": {
+      "home": {
+        "title": "ExchangeOperators",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Exchange Operator बनाएँ",
+        "createOrEditLabel": "Exchange Operator बनाएँ या संपादित करें",
+        "notFound": "No Exchange Operators found"
+      },
+      "created": "एक नया Exchange Operator [identifier: {{ param }}] तैयार है",
+      "updated": "एक Exchange Operator [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Exchange Operator [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Exchange Operator [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Exchange Operator"
+      },
+      "id": "ID",
+      "name": "Name",
+      "user": "User",
+      "exchange": "Exchange"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "rnexchangeApp": {
+    "instrument": {
+      "home": {
+        "title": "Instruments",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Instrument बनाएँ",
+        "createOrEditLabel": "Instrument बनाएँ या संपादित करें",
+        "notFound": "No Instruments found"
+      },
+      "created": "एक नया Instrument [identifier: {{ param }}] तैयार है",
+      "updated": "एक Instrument [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Instrument [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Instrument [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Instrument"
+      },
+      "id": "ID",
+      "symbol": "Symbol",
+      "name": "Name",
+      "assetClass": "Asset Class",
+      "exchangeCode": "Exchange Code",
+      "tickSize": "Tick Size",
+      "lotSize": "Lot Size",
+      "currency": "Currency",
+      "status": "Status",
+      "exchange": "Exchange"
+    }
+  }
+}

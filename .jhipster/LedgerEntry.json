@@ -1,0 +1,55 @@
+{
+  "annotations": {
+    "changelogDate": "20251112130009"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "ts",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "ccy",
+      "fieldType": "Currency",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INR,USD"
+    },
+    {
+      "fieldName": "balanceAfter",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "reference",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "remarks",
+      "fieldType": "String"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "LedgerEntry",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "tradingAccount",
+      "relationshipName": "tradingAccount",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

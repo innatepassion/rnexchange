@@ -1,0 +1,9 @@
+{
+  "rnexchangeApp": {
+    "ExchangeStatus": {
+      "null": "",
+      "ACTIVE": "ACTIVE",
+      "INACTIVE": "INACTIVE"
+    }
+  }
+}

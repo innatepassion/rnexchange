@@ -1,0 +1,26 @@
+{
+  "rnexchangeApp": {
+    "exchangeOperator": {
+      "home": {
+        "title": "Exchange Operators",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Exchange Operator",
+        "createOrEditLabel": "Create or edit a Exchange Operator",
+        "notFound": "No Exchange Operators found"
+      },
+      "created": "A new Exchange Operator is created with identifier {{ param }}",
+      "updated": "A Exchange Operator is updated with identifier {{ param }}",
+      "deleted": "A Exchange Operator is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Exchange Operator {{ id }}?"
+      },
+      "detail": {
+        "title": "Exchange Operator"
+      },
+      "id": "ID",
+      "name": "Name",
+      "user": "User",
+      "exchange": "Exchange"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "rnexchangeApp": {
+    "marginRule": {
+      "home": {
+        "title": "MarginRules",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Margin Rule बनाएँ",
+        "createOrEditLabel": "Margin Rule बनाएँ या संपादित करें",
+        "notFound": "No Margin Rules found"
+      },
+      "created": "एक नया Margin Rule [identifier: {{ param }}] तैयार है",
+      "updated": "एक Margin Rule [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Margin Rule [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Margin Rule [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Margin Rule"
+      },
+      "id": "ID",
+      "scope": "Scope",
+      "initialPct": "Initial Pct",
+      "maintPct": "Maint Pct",
+      "spanJson": "Span Json",
+      "exchange": "Exchange"
+    }
+  }
+}

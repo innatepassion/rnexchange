@@ -1,0 +1,10 @@
+{
+  "rnexchangeApp": {
+    "KycStatus": {
+      "null": "",
+      "PENDING": "PENDING",
+      "APPROVED": "APPROVED",
+      "REJECTED": "REJECTED"
+    }
+  }
+}

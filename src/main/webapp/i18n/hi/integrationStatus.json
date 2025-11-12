@@ -1,0 +1,9 @@
+{
+  "rnexchangeApp": {
+    "IntegrationStatus": {
+      "null": "",
+      "DISABLED": "DISABLED",
+      "ENABLED": "ENABLED"
+    }
+  }
+}

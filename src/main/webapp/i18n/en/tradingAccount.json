@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "tradingAccount": {
+      "home": {
+        "title": "Trading Accounts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Trading Account",
+        "createOrEditLabel": "Create or edit a Trading Account",
+        "notFound": "No Trading Accounts found"
+      },
+      "created": "A new Trading Account is created with identifier {{ param }}",
+      "updated": "A Trading Account is updated with identifier {{ param }}",
+      "deleted": "A Trading Account is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Trading Account {{ id }}?"
+      },
+      "detail": {
+        "title": "Trading Account"
+      },
+      "id": "ID",
+      "type": "Type",
+      "baseCcy": "Base Ccy",
+      "balance": "Balance",
+      "status": "Status",
+      "broker": "Broker",
+      "trader": "Trader"
+    }
+  }
+}

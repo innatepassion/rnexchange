@@ -1,0 +1,28 @@
+{
+  "rnexchangeApp": {
+    "settlementBatch": {
+      "home": {
+        "title": "SettlementBatches",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Settlement Batch बनाएँ",
+        "createOrEditLabel": "Settlement Batch बनाएँ या संपादित करें",
+        "notFound": "No Settlement Batches found"
+      },
+      "created": "एक नया Settlement Batch [identifier: {{ param }}] तैयार है",
+      "updated": "एक Settlement Batch [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Settlement Batch [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Settlement Batch [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Settlement Batch"
+      },
+      "id": "ID",
+      "refDate": "Ref Date",
+      "kind": "Kind",
+      "status": "Status",
+      "remarks": "Remarks",
+      "exchange": "Exchange"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "annotations": {
+    "changelogDate": "20251112125209"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "symbol",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "assetClass",
+      "fieldType": "AssetClass",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "EQUITY,FUTURE,OPTION,COMMODITY,CRYPTO"
+    },
+    {
+      "fieldName": "exchangeCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "tickSize",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "lotSize",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "currency",
+      "fieldType": "Currency",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INR,USD"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Instrument",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "code",
+      "otherEntityName": "exchange",
+      "relationshipName": "exchange",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

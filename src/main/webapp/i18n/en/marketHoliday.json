@@ -1,0 +1,27 @@
+{
+  "rnexchangeApp": {
+    "marketHoliday": {
+      "home": {
+        "title": "Market Holidays",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Market Holiday",
+        "createOrEditLabel": "Create or edit a Market Holiday",
+        "notFound": "No Market Holidays found"
+      },
+      "created": "A new Market Holiday is created with identifier {{ param }}",
+      "updated": "A Market Holiday is updated with identifier {{ param }}",
+      "deleted": "A Market Holiday is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Market Holiday {{ id }}?"
+      },
+      "detail": {
+        "title": "Market Holiday"
+      },
+      "id": "ID",
+      "tradeDate": "Trade Date",
+      "reason": "Reason",
+      "isHoliday": "Is Holiday",
+      "exchange": "Exchange"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "rnexchangeApp": {
+    "corporateAction": {
+      "home": {
+        "title": "CorporateActions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Corporate Action बनाएँ",
+        "createOrEditLabel": "Corporate Action बनाएँ या संपादित करें",
+        "notFound": "No Corporate Actions found"
+      },
+      "created": "एक नया Corporate Action [identifier: {{ param }}] तैयार है",
+      "updated": "एक Corporate Action [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Corporate Action [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Corporate Action [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Corporate Action"
+      },
+      "id": "ID",
+      "type": "Type",
+      "instrumentSymbol": "Instrument Symbol",
+      "exDate": "Ex Date",
+      "payDate": "Pay Date",
+      "ratio": "Ratio",
+      "cashAmount": "Cash Amount",
+      "instrument": "Instrument"
+    }
+  }
+}

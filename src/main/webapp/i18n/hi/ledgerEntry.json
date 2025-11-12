@@ -1,0 +1,31 @@
+{
+  "rnexchangeApp": {
+    "ledgerEntry": {
+      "home": {
+        "title": "LedgerEntries",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Ledger Entry बनाएँ",
+        "createOrEditLabel": "Ledger Entry बनाएँ या संपादित करें",
+        "notFound": "No Ledger Entries found"
+      },
+      "created": "एक नया Ledger Entry [identifier: {{ param }}] तैयार है",
+      "updated": "एक Ledger Entry [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Ledger Entry [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Ledger Entry [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Ledger Entry"
+      },
+      "id": "ID",
+      "ts": "Ts",
+      "type": "Type",
+      "amount": "Amount",
+      "ccy": "Ccy",
+      "balanceAfter": "Balance After",
+      "reference": "Reference",
+      "remarks": "Remarks",
+      "tradingAccount": "Trading Account"
+    }
+  }
+}

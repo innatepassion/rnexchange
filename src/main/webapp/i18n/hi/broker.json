@@ -1,0 +1,28 @@
+{
+  "rnexchangeApp": {
+    "broker": {
+      "home": {
+        "title": "Brokers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Broker बनाएँ",
+        "createOrEditLabel": "Broker बनाएँ या संपादित करें",
+        "notFound": "No Brokers found"
+      },
+      "created": "एक नया Broker [identifier: {{ param }}] तैयार है",
+      "updated": "एक Broker [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Broker [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Broker [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Broker"
+      },
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "status": "Status",
+      "createdDate": "Created Date",
+      "exchange": "Exchange"
+    }
+  }
+}

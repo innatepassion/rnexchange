@@ -1,0 +1,35 @@
+{
+  "rnexchangeApp": {
+    "order": {
+      "home": {
+        "title": "Orders",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Order बनाएँ",
+        "createOrEditLabel": "Order बनाएँ या संपादित करें",
+        "notFound": "No Orders found"
+      },
+      "created": "एक नया Order [identifier: {{ param }}] तैयार है",
+      "updated": "एक Order [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Order [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Order [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Order"
+      },
+      "id": "ID",
+      "side": "Side",
+      "type": "Type",
+      "qty": "Qty",
+      "limitPx": "Limit Px",
+      "stopPx": "Stop Px",
+      "tif": "Tif",
+      "status": "Status",
+      "venue": "Venue",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "tradingAccount": "Trading Account",
+      "instrument": "Instrument"
+    }
+  }
+}

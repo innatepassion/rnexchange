@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "traderProfile": {
+      "home": {
+        "title": "Trader Profiles",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Trader Profile",
+        "createOrEditLabel": "Create or edit a Trader Profile",
+        "notFound": "No Trader Profiles found"
+      },
+      "created": "A new Trader Profile is created with identifier {{ param }}",
+      "updated": "A Trader Profile is updated with identifier {{ param }}",
+      "deleted": "A Trader Profile is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Trader Profile {{ id }}?"
+      },
+      "detail": {
+        "title": "Trader Profile"
+      },
+      "id": "ID",
+      "displayName": "Display Name",
+      "email": "Email",
+      "mobile": "Mobile",
+      "kycStatus": "Kyc Status",
+      "status": "Status",
+      "user": "User"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "execution": {
+      "home": {
+        "title": "Executions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Execution",
+        "createOrEditLabel": "Create or edit a Execution",
+        "notFound": "No Executions found"
+      },
+      "created": "A new Execution is created with identifier {{ param }}",
+      "updated": "A Execution is updated with identifier {{ param }}",
+      "deleted": "A Execution is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Execution {{ id }}?"
+      },
+      "detail": {
+        "title": "Execution"
+      },
+      "id": "ID",
+      "execTs": "Exec Ts",
+      "px": "Px",
+      "qty": "Qty",
+      "liquidity": "Liquidity",
+      "fee": "Fee",
+      "order": "Order"
+    }
+  }
+}

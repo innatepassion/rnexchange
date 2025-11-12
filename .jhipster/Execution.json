@@ -1,0 +1,45 @@
+{
+  "annotations": {
+    "changelogDate": "20251112125709"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "execTs",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "px",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "qty",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "liquidity",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fee",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Execution",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "order",
+      "relationshipName": "order",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

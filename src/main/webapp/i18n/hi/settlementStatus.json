@@ -1,0 +1,10 @@
+{
+  "rnexchangeApp": {
+    "SettlementStatus": {
+      "null": "",
+      "CREATED": "CREATED",
+      "PROCESSED": "PROCESSED",
+      "REVERSED": "REVERSED"
+    }
+  }
+}

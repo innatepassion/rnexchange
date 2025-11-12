@@ -1,0 +1,269 @@
+application {
+  config {
+    applicationType monolith
+    authenticationType jwt
+    baseName rnexchange
+    buildTool maven
+    cacheProvider no
+    clientFramework react
+    clientTheme none
+    databaseType sql
+    devDatabaseType h2Disk
+    enableHibernateCache false
+    enableSwaggerCodegen true
+    enableTranslation true
+    jhipsterVersion "8.11.0"
+    languages [en, hi]
+    nativeLanguage en
+    packageName com.rnexchange
+    prodDatabaseType postgresql
+    reactive false
+    skipUserManagement false
+    testFrameworks [gatling, cucumber, cypress]
+    websocket spring-websocket
+    withAdminUi true
+  }
+  entities *
+}
+
+/* ===== Enums ===== */
+enum AccountStatus { ACTIVE, INACTIVE, SUSPENDED }
+enum AccountType { CASH, MARGIN }
+enum AssetClass { EQUITY, FUTURE, OPTION, COMMODITY, CRYPTO }
+enum ContractType { FUTURE, OPTION }
+enum OptionType { CE, PE }
+enum OrderSide { BUY, SELL }
+enum OrderType { MARKET, LIMIT, STOP, STOP_LIMIT }
+enum OrderStatus { NEW, ACCEPTED, WORKING, PARTIAL, FILLED, CANCELED, REJECTED }
+enum Tif { DAY, IOC, GTC }
+enum CorporateActionType { SPLIT, DIVIDEND, MERGER, SYMBOL_CHANGE }
+enum SettlementKind { EOD, VARIATION, EXPIRY }
+enum SettlementStatus { CREATED, PROCESSED, REVERSED }
+enum KycStatus { PENDING, APPROVED, REJECTED }
+enum AlertType { MARGIN_BREACH, AUTO_SQOFF, EXPOSURE_LIMIT }
+enum ExchangeStatus { ACTIVE, INACTIVE }
+enum IntegrationStatus { DISABLED, ENABLED }
+enum Currency { INR, USD }
+
+/* ===== Exchange & Org ===== */
+entity Exchange {
+  code String required
+  name String required
+  timezone String required
+  status ExchangeStatus required
+}
+
+entity Broker {
+  code String required
+  name String required
+  status String required           // ACTIVE, SUSPENDED, TERMINATED (free text for MVP)
+  createdDate Instant
+}
+
+entity ExchangeIntegration {
+  provider String required         // e.g., KITE
+  apiKey String
+  apiSecret String
+  status IntegrationStatus required
+  lastHeartbeat Instant
+}
+
+entity MarketHoliday {
+  tradeDate LocalDate required
+  reason String
+  isHoliday Boolean required
+}
+
+/* ===== Users & Profiles (link to built-in User) ===== */
+entity BrokerDesk { name String required }
+entity ExchangeOperator { name String required }
+
+entity TraderProfile {
+  displayName String required
+  email String required
+  mobile String
+  kycStatus KycStatus required
+  status AccountStatus required
+}
+
+/* ===== Market & Instruments ===== */
+entity Instrument {
+  symbol String required
+  name String
+  assetClass AssetClass required
+  exchangeCode String required
+  tickSize BigDecimal required
+  lotSize Long required
+  currency Currency required
+  status String required           // active, halted, delisted
+}
+
+entity Contract {
+  instrumentSymbol String required
+  contractType ContractType required
+  expiry LocalDate required
+  strike BigDecimal
+  optionType OptionType
+  segment String required          // NSE_EQ, NSE_FO, MCX, etc.
+}
+
+entity DailySettlementPrice {
+  refDate LocalDate required
+  instrumentSymbol String required
+  settlePrice BigDecimal required
+}
+
+/* ===== Trading Core ===== */
+entity TradingAccount {
+  type AccountType required
+  baseCcy Currency required
+  balance BigDecimal required
+  status AccountStatus required
+}
+
+entity Order {
+  side OrderSide required
+  type OrderType required
+  qty BigDecimal required
+  limitPx BigDecimal
+  stopPx BigDecimal
+  tif Tif required
+  status OrderStatus required
+  venue String required            // SIM_EQ, SIM_FO, etc.
+  createdAt Instant
+  updatedAt Instant
+}
+
+entity Execution {
+  execTs Instant required
+  px BigDecimal required
+  qty BigDecimal required
+  liquidity String
+  fee BigDecimal
+}
+
+entity Position {
+  qty BigDecimal required
+  avgCost BigDecimal required
+  lastPx BigDecimal
+  unrealizedPnl BigDecimal
+  realizedPnl BigDecimal
+}
+
+entity Lot {
+  openTs Instant required
+  openPx BigDecimal required
+  qtyOpen BigDecimal required
+  qtyClosed BigDecimal required
+  method String                    // FIFO/LIFO/AVG
+}
+
+entity LedgerEntry {
+  ts Instant required
+  type String required             // trade, deposit, withdrawal, margin, fee, dividend, settlement
+  amount BigDecimal required
+  ccy Currency required
+  balanceAfter BigDecimal
+  reference String
+  remarks String
+}
+
+/* ===== Margin & Risk ===== */
+entity MarginRule {
+  scope String required            // EQUITY/FUTURE/OPTION or by symbol/segment
+  initialPct BigDecimal
+  maintPct BigDecimal
+  spanJson TextBlob
+}
+
+entity RiskAlert {
+  alertType AlertType required
+  description String
+  createdAt Instant
+}
+
+/* ===== Corporate Actions & Settlement ===== */
+entity CorporateAction {
+  type CorporateActionType required
+  instrumentSymbol String required
+  exDate LocalDate required
+  payDate LocalDate
+  ratio BigDecimal
+  cashAmount BigDecimal
+}
+
+entity SettlementBatch {
+  refDate LocalDate required
+  kind SettlementKind required
+  status SettlementStatus required
+  remarks String
+}
+
+/* ===== Relationships ===== */
+
+/* Profiles bound to built-in User (JWT + skipUserManagement=false) */
+relationship OneToOne {
+  TraderProfile{user(login)} to User with builtInEntity
+  BrokerDesk{user(login)} to User with builtInEntity
+  ExchangeOperator{user(login)} to User with builtInEntity
+}
+
+/* Org structure */
+relationship ManyToOne {
+  Broker{exchange(code)} to Exchange
+  BrokerDesk{broker(code)} to Broker
+  ExchangeOperator{exchange(code)} to Exchange
+}
+
+/* Integrations & calendar */
+relationship ManyToOne {
+  ExchangeIntegration{exchange(code)} to Exchange
+  MarketHoliday{exchange(code)} to Exchange
+}
+
+/* Instruments & contracts */
+relationship ManyToOne {
+  Instrument{exchange(code)} to Exchange
+  Contract{instrument(symbol)} to Instrument
+  DailySettlementPrice{instrument(symbol)} to Instrument
+}
+
+/* Accounts & ownership */
+relationship ManyToOne {
+  TradingAccount{broker(code)} to Broker
+  TradingAccount{trader(displayName)} to TraderProfile
+}
+
+/* Trading */
+relationship ManyToOne {
+  Order{tradingAccount} to TradingAccount
+  Order{instrument(symbol)} to Instrument
+  Execution{order} to Order
+}
+
+/* Portfolio & accounting */
+relationship ManyToOne {
+  Position{tradingAccount} to TradingAccount
+  Position{instrument(symbol)} to Instrument
+  Lot{position} to Position
+  LedgerEntry{tradingAccount} to TradingAccount
+}
+
+/* Margin & risk */
+relationship ManyToOne {
+  MarginRule{exchange(code)} to Exchange
+  RiskAlert{tradingAccount} to TradingAccount
+  RiskAlert{trader(displayName)} to TraderProfile
+}
+
+/* Corporate actions & settlements */
+relationship ManyToOne {
+  CorporateAction{instrument(symbol)} to Instrument
+  SettlementBatch{exchange(code)} to Exchange
+}
+
+/* ===== Global generation options ===== */
+dto * with mapstruct
+service * with serviceClass
+paginate * with pagination
+filter *

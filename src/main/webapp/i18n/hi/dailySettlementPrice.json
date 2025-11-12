@@ -1,0 +1,27 @@
+{
+  "rnexchangeApp": {
+    "dailySettlementPrice": {
+      "home": {
+        "title": "DailySettlementPrices",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Daily Settlement Price बनाएँ",
+        "createOrEditLabel": "Daily Settlement Price बनाएँ या संपादित करें",
+        "notFound": "No Daily Settlement Prices found"
+      },
+      "created": "एक नया Daily Settlement Price [identifier: {{ param }}] तैयार है",
+      "updated": "एक Daily Settlement Price [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Daily Settlement Price [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Daily Settlement Price [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Daily Settlement Price"
+      },
+      "id": "ID",
+      "refDate": "Ref Date",
+      "instrumentSymbol": "Instrument Symbol",
+      "settlePrice": "Settle Price",
+      "instrument": "Instrument"
+    }
+  }
+}

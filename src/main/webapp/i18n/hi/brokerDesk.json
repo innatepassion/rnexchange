@@ -1,0 +1,26 @@
+{
+  "rnexchangeApp": {
+    "brokerDesk": {
+      "home": {
+        "title": "BrokerDesks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Broker Desk बनाएँ",
+        "createOrEditLabel": "Broker Desk बनाएँ या संपादित करें",
+        "notFound": "No Broker Desks found"
+      },
+      "created": "एक नया Broker Desk [identifier: {{ param }}] तैयार है",
+      "updated": "एक Broker Desk [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Broker Desk [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Broker Desk [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Broker Desk"
+      },
+      "id": "ID",
+      "name": "Name",
+      "user": "User",
+      "broker": "Broker"
+    }
+  }
+}

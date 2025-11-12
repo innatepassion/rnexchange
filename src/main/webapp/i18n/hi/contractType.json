@@ -1,0 +1,9 @@
+{
+  "rnexchangeApp": {
+    "ContractType": {
+      "null": "",
+      "FUTURE": "FUTURE",
+      "OPTION": "OPTION"
+    }
+  }
+}

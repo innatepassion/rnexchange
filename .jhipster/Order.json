@@ -1,0 +1,80 @@
+{
+  "annotations": {
+    "changelogDate": "20251112125609"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "entityTableName": "jhi_order",
+  "fields": [
+    {
+      "fieldName": "side",
+      "fieldType": "OrderSide",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "BUY,SELL"
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "OrderType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "MARKET,LIMIT,STOP,STOP_LIMIT"
+    },
+    {
+      "fieldName": "qty",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "limitPx",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "stopPx",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "tif",
+      "fieldType": "Tif",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "DAY,IOC,GTC"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "OrderStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "NEW,ACCEPTED,WORKING,PARTIAL,FILLED,CANCELED,REJECTED"
+    },
+    {
+      "fieldName": "venue",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Order",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "tradingAccount",
+      "relationshipName": "tradingAccount",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "symbol",
+      "otherEntityName": "instrument",
+      "relationshipName": "instrument",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

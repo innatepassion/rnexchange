@@ -1,0 +1,9 @@
+{
+  "rnexchangeApp": {
+    "OrderSide": {
+      "null": "",
+      "BUY": "BUY",
+      "SELL": "SELL"
+    }
+  }
+}

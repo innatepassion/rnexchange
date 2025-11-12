@@ -1,0 +1,7 @@
+export enum AlertType {
+  MARGIN_BREACH = 'MARGIN_BREACH',
+
+  AUTO_SQOFF = 'AUTO_SQOFF',
+
+  EXPOSURE_LIMIT = 'EXPOSURE_LIMIT',
+}

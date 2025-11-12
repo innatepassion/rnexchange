@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "tradingAccount": {
+      "home": {
+        "title": "TradingAccounts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Trading Account बनाएँ",
+        "createOrEditLabel": "Trading Account बनाएँ या संपादित करें",
+        "notFound": "No Trading Accounts found"
+      },
+      "created": "एक नया Trading Account [identifier: {{ param }}] तैयार है",
+      "updated": "एक Trading Account [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Trading Account [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Trading Account [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Trading Account"
+      },
+      "id": "ID",
+      "type": "Type",
+      "baseCcy": "Base Ccy",
+      "balance": "Balance",
+      "status": "Status",
+      "broker": "Broker",
+      "trader": "Trader"
+    }
+  }
+}

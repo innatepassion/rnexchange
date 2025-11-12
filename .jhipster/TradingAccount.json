@@ -1,0 +1,53 @@
+{
+  "annotations": {
+    "changelogDate": "20251112125509"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "AccountType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "CASH,MARGIN"
+    },
+    {
+      "fieldName": "baseCcy",
+      "fieldType": "Currency",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INR,USD"
+    },
+    {
+      "fieldName": "balance",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "AccountStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACTIVE,INACTIVE,SUSPENDED"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "TradingAccount",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "code",
+      "otherEntityName": "broker",
+      "relationshipName": "broker",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "displayName",
+      "otherEntityName": "traderProfile",
+      "relationshipName": "trader",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

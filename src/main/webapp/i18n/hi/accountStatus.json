@@ -1,0 +1,10 @@
+{
+  "rnexchangeApp": {
+    "AccountStatus": {
+      "null": "",
+      "ACTIVE": "ACTIVE",
+      "INACTIVE": "INACTIVE",
+      "SUSPENDED": "SUSPENDED"
+    }
+  }
+}

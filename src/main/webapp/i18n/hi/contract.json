@@ -1,0 +1,30 @@
+{
+  "rnexchangeApp": {
+    "contract": {
+      "home": {
+        "title": "Contracts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Contract बनाएँ",
+        "createOrEditLabel": "Contract बनाएँ या संपादित करें",
+        "notFound": "No Contracts found"
+      },
+      "created": "एक नया Contract [identifier: {{ param }}] तैयार है",
+      "updated": "एक Contract [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Contract [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Contract [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Contract"
+      },
+      "id": "ID",
+      "instrumentSymbol": "Instrument Symbol",
+      "contractType": "Contract Type",
+      "expiry": "Expiry",
+      "strike": "Strike",
+      "optionType": "Option Type",
+      "segment": "Segment",
+      "instrument": "Instrument"
+    }
+  }
+}

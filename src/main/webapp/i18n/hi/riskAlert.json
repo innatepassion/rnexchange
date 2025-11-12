@@ -1,0 +1,28 @@
+{
+  "rnexchangeApp": {
+    "riskAlert": {
+      "home": {
+        "title": "RiskAlerts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Risk Alert बनाएँ",
+        "createOrEditLabel": "Risk Alert बनाएँ या संपादित करें",
+        "notFound": "No Risk Alerts found"
+      },
+      "created": "एक नया Risk Alert [identifier: {{ param }}] तैयार है",
+      "updated": "एक Risk Alert [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Risk Alert [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Risk Alert [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Risk Alert"
+      },
+      "id": "ID",
+      "alertType": "Alert Type",
+      "description": "Description",
+      "createdAt": "Created At",
+      "tradingAccount": "Trading Account",
+      "trader": "Trader"
+    }
+  }
+}

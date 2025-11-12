@@ -1,0 +1,28 @@
+{
+  "rnexchangeApp": {
+    "marginRule": {
+      "home": {
+        "title": "Margin Rules",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Margin Rule",
+        "createOrEditLabel": "Create or edit a Margin Rule",
+        "notFound": "No Margin Rules found"
+      },
+      "created": "A new Margin Rule is created with identifier {{ param }}",
+      "updated": "A Margin Rule is updated with identifier {{ param }}",
+      "deleted": "A Margin Rule is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Margin Rule {{ id }}?"
+      },
+      "detail": {
+        "title": "Margin Rule"
+      },
+      "id": "ID",
+      "scope": "Scope",
+      "initialPct": "Initial Pct",
+      "maintPct": "Maint Pct",
+      "spanJson": "Span Json",
+      "exchange": "Exchange"
+    }
+  }
+}

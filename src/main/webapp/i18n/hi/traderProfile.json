@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "traderProfile": {
+      "home": {
+        "title": "TraderProfiles",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Trader Profile बनाएँ",
+        "createOrEditLabel": "Trader Profile बनाएँ या संपादित करें",
+        "notFound": "No Trader Profiles found"
+      },
+      "created": "एक नया Trader Profile [identifier: {{ param }}] तैयार है",
+      "updated": "एक Trader Profile [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Trader Profile [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Trader Profile [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Trader Profile"
+      },
+      "id": "ID",
+      "displayName": "Display Name",
+      "email": "Email",
+      "mobile": "Mobile",
+      "kycStatus": "Kyc Status",
+      "status": "Status",
+      "user": "User"
+    }
+  }
+}

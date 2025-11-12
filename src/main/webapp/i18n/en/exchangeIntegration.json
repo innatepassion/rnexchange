@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "exchangeIntegration": {
+      "home": {
+        "title": "Exchange Integrations",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Exchange Integration",
+        "createOrEditLabel": "Create or edit a Exchange Integration",
+        "notFound": "No Exchange Integrations found"
+      },
+      "created": "A new Exchange Integration is created with identifier {{ param }}",
+      "updated": "A Exchange Integration is updated with identifier {{ param }}",
+      "deleted": "A Exchange Integration is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Exchange Integration {{ id }}?"
+      },
+      "detail": {
+        "title": "Exchange Integration"
+      },
+      "id": "ID",
+      "provider": "Provider",
+      "apiKey": "Api Key",
+      "apiSecret": "Api Secret",
+      "status": "Status",
+      "lastHeartbeat": "Last Heartbeat",
+      "exchange": "Exchange"
+    }
+  }
+}

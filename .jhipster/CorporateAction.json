@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20251112130309"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "CorporateActionType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "SPLIT,DIVIDEND,MERGER,SYMBOL_CHANGE"
+    },
+    {
+      "fieldName": "instrumentSymbol",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "exDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "payDate",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "ratio",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "cashAmount",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "CorporateAction",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "symbol",
+      "otherEntityName": "instrument",
+      "relationshipName": "instrument",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

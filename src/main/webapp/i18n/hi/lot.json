@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "lot": {
+      "home": {
+        "title": "Lots",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Lot बनाएँ",
+        "createOrEditLabel": "Lot बनाएँ या संपादित करें",
+        "notFound": "No Lots found"
+      },
+      "created": "एक नया Lot [identifier: {{ param }}] तैयार है",
+      "updated": "एक Lot [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Lot [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Lot [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Lot"
+      },
+      "id": "ID",
+      "openTs": "Open Ts",
+      "openPx": "Open Px",
+      "qtyOpen": "Qty Open",
+      "qtyClosed": "Qty Closed",
+      "method": "Method",
+      "position": "Position"
+    }
+  }
+}

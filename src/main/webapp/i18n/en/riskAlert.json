@@ -1,0 +1,28 @@
+{
+  "rnexchangeApp": {
+    "riskAlert": {
+      "home": {
+        "title": "Risk Alerts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Risk Alert",
+        "createOrEditLabel": "Create or edit a Risk Alert",
+        "notFound": "No Risk Alerts found"
+      },
+      "created": "A new Risk Alert is created with identifier {{ param }}",
+      "updated": "A Risk Alert is updated with identifier {{ param }}",
+      "deleted": "A Risk Alert is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Risk Alert {{ id }}?"
+      },
+      "detail": {
+        "title": "Risk Alert"
+      },
+      "id": "ID",
+      "alertType": "Alert Type",
+      "description": "Description",
+      "createdAt": "Created At",
+      "tradingAccount": "Trading Account",
+      "trader": "Trader"
+    }
+  }
+}

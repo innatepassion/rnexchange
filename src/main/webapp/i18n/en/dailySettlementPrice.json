@@ -1,0 +1,27 @@
+{
+  "rnexchangeApp": {
+    "dailySettlementPrice": {
+      "home": {
+        "title": "Daily Settlement Prices",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Daily Settlement Price",
+        "createOrEditLabel": "Create or edit a Daily Settlement Price",
+        "notFound": "No Daily Settlement Prices found"
+      },
+      "created": "A new Daily Settlement Price is created with identifier {{ param }}",
+      "updated": "A Daily Settlement Price is updated with identifier {{ param }}",
+      "deleted": "A Daily Settlement Price is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Daily Settlement Price {{ id }}?"
+      },
+      "detail": {
+        "title": "Daily Settlement Price"
+      },
+      "id": "ID",
+      "refDate": "Ref Date",
+      "instrumentSymbol": "Instrument Symbol",
+      "settlePrice": "Settle Price",
+      "instrument": "Instrument"
+    }
+  }
+}

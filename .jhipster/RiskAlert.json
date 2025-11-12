@@ -1,0 +1,43 @@
+{
+  "annotations": {
+    "changelogDate": "20251112130209"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "alertType",
+      "fieldType": "AlertType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "MARGIN_BREACH,AUTO_SQOFF,EXPOSURE_LIMIT"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "RiskAlert",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "tradingAccount",
+      "relationshipName": "tradingAccount",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "displayName",
+      "otherEntityName": "traderProfile",
+      "relationshipName": "trader",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

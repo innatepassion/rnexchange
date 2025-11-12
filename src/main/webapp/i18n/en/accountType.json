@@ -1,0 +1,9 @@
+{
+  "rnexchangeApp": {
+    "AccountType": {
+      "null": "",
+      "CASH": "CASH",
+      "MARGIN": "MARGIN"
+    }
+  }
+}

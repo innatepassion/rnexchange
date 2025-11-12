@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "execution": {
+      "home": {
+        "title": "Executions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Execution बनाएँ",
+        "createOrEditLabel": "Execution बनाएँ या संपादित करें",
+        "notFound": "No Executions found"
+      },
+      "created": "एक नया Execution [identifier: {{ param }}] तैयार है",
+      "updated": "एक Execution [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Execution [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Execution [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Execution"
+      },
+      "id": "ID",
+      "execTs": "Exec Ts",
+      "px": "Px",
+      "qty": "Qty",
+      "liquidity": "Liquidity",
+      "fee": "Fee",
+      "order": "Order"
+    }
+  }
+}

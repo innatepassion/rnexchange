@@ -1,0 +1,12 @@
+{
+  "rnexchangeApp": {
+    "AssetClass": {
+      "null": "",
+      "EQUITY": "EQUITY",
+      "FUTURE": "FUTURE",
+      "OPTION": "OPTION",
+      "COMMODITY": "COMMODITY",
+      "CRYPTO": "CRYPTO"
+    }
+  }
+}

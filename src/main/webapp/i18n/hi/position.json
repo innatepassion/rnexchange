@@ -1,0 +1,30 @@
+{
+  "rnexchangeApp": {
+    "position": {
+      "home": {
+        "title": "Positions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Position बनाएँ",
+        "createOrEditLabel": "Position बनाएँ या संपादित करें",
+        "notFound": "No Positions found"
+      },
+      "created": "एक नया Position [identifier: {{ param }}] तैयार है",
+      "updated": "एक Position [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Position [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Position [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Position"
+      },
+      "id": "ID",
+      "qty": "Qty",
+      "avgCost": "Avg Cost",
+      "lastPx": "Last Px",
+      "unrealizedPnl": "Unrealized Pnl",
+      "realizedPnl": "Realized Pnl",
+      "tradingAccount": "Trading Account",
+      "instrument": "Instrument"
+    }
+  }
+}

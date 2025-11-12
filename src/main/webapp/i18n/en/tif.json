@@ -1,0 +1,10 @@
+{
+  "rnexchangeApp": {
+    "Tif": {
+      "null": "",
+      "DAY": "DAY",
+      "IOC": "IOC",
+      "GTC": "GTC"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "rnexchangeApp": {
+    "SettlementKind": {
+      "null": "",
+      "EOD": "EOD",
+      "VARIATION": "VARIATION",
+      "EXPIRY": "EXPIRY"
+    }
+  }
+}

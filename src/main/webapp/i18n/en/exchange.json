@@ -1,0 +1,27 @@
+{
+  "rnexchangeApp": {
+    "exchange": {
+      "home": {
+        "title": "Exchanges",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Exchange",
+        "createOrEditLabel": "Create or edit a Exchange",
+        "notFound": "No Exchanges found"
+      },
+      "created": "A new Exchange is created with identifier {{ param }}",
+      "updated": "A Exchange is updated with identifier {{ param }}",
+      "deleted": "A Exchange is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Exchange {{ id }}?"
+      },
+      "detail": {
+        "title": "Exchange"
+      },
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "timezone": "Timezone",
+      "status": "Status"
+    }
+  }
+}

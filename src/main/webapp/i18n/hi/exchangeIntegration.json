@@ -1,0 +1,29 @@
+{
+  "rnexchangeApp": {
+    "exchangeIntegration": {
+      "home": {
+        "title": "ExchangeIntegrations",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "नया Exchange Integration बनाएँ",
+        "createOrEditLabel": "Exchange Integration बनाएँ या संपादित करें",
+        "notFound": "No Exchange Integrations found"
+      },
+      "created": "एक नया Exchange Integration [identifier: {{ param }}] तैयार है",
+      "updated": "एक Exchange Integration [identifier: {{ param }}] का अद्यतन हुआ है",
+      "deleted": "Exchange Integration [identifier: {{ param }}] हटा दिया है",
+      "delete": {
+        "question": "Exchange Integration [id: {{ id }}] हटाने की पुष्टि करें"
+      },
+      "detail": {
+        "title": "Exchange Integration"
+      },
+      "id": "ID",
+      "provider": "Provider",
+      "apiKey": "Api Key",
+      "apiSecret": "Api Secret",
+      "status": "Status",
+      "lastHeartbeat": "Last Heartbeat",
+      "exchange": "Exchange"
+    }
+  }
+}

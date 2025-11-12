@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20251112125809"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "qty",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "avgCost",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "lastPx",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "unrealizedPnl",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "realizedPnl",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Position",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "tradingAccount",
+      "relationshipName": "tradingAccount",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "symbol",
+      "otherEntityName": "instrument",
+      "relationshipName": "instrument",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

@@ -1,0 +1,9 @@
+{
+  "rnexchangeApp": {
+    "Currency": {
+      "null": "",
+      "INR": "INR",
+      "USD": "USD"
+    }
+  }
+}
