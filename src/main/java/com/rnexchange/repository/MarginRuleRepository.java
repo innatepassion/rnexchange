@@ -37,4 +37,6 @@ public interface MarginRuleRepository extends JpaRepository<MarginRule, Long>, J
 
     @Query("select marginRule from MarginRule marginRule left join fetch marginRule.exchange where marginRule.id =:id")
     Optional<MarginRule> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Optional<MarginRule> findOneByExchange_CodeAndScope(String exchangeCode, String scope);
 }

@@ -60,5 +60,6 @@
     <include file="config/liquibase/changelog/20251112130309_added_entity_constraints_CorporateAction.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112130409_added_entity_constraints_SettlementBatch.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
+    <include file="config/liquibase/data/0001-seed-domain-data.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

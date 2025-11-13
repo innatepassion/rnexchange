@@ -37,4 +37,6 @@ public interface InstrumentRepository extends JpaRepository<Instrument, Long>, J
 
     @Query("select instrument from Instrument instrument left join fetch instrument.exchange where instrument.id =:id")
     Optional<Instrument> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Optional<Instrument> findOneBySymbol(String symbol);
 }

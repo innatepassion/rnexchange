@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="baseline-authorities-001" author="assistant" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM jhi_authority WHERE name = 'ROLE_EXCHANGE_OPERATOR'</sqlCheck>
+        </preConditions>
+        <insert tableName="jhi_authority">
+            <column name="name" value="ROLE_EXCHANGE_OPERATOR"/>
+        </insert>
+        <insert tableName="jhi_authority">
+            <column name="name" value="ROLE_BROKER_ADMIN"/>
+        </insert>
+        <insert tableName="jhi_authority">
+            <column name="name" value="ROLE_TRADER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-users-001" author="assistant" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM jhi_user WHERE login = 'exchange-operator'</sqlCheck>
+        </preConditions>
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="exchange-operator"/>
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Exchange"/>
+            <column name="last_name" value="Operator"/>
+            <column name="email" value="exchange.operator@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+        </insert>
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="broker-admin"/>
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Broker"/>
+            <column name="last_name" value="Admin"/>
+            <column name="email" value="broker.admin@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+        </insert>
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="trader-one"/>
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Trader"/>
+            <column name="last_name" value="One"/>
+            <column name="email" value="trader.one@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+        </insert>
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="trader-two"/>
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Trader"/>
+            <column name="last_name" value="Two"/>
+            <column name="email" value="trader.two@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-user-authorities-001" author="assistant" context="baseline">
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'exchange-operator')"/>
+            <column name="authority_name" value="ROLE_EXCHANGE_OPERATOR"/>
+        </insert>
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'broker-admin')"/>
+            <column name="authority_name" value="ROLE_BROKER_ADMIN"/>
+        </insert>
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'trader-one')"/>
+            <column name="authority_name" value="ROLE_TRADER"/>
+        </insert>
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'trader-two')"/>
+            <column name="authority_name" value="ROLE_TRADER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-exchanges-001" author="assistant" context="baseline">
+        <insert tableName="exchange">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="code" value="NSE"/>
+            <column name="name" value="National Stock Exchange"/>
+            <column name="timezone" value="Asia/Kolkata"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="exchange">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="code" value="BSE"/>
+            <column name="name" value="Bombay Stock Exchange"/>
+            <column name="timezone" value="Asia/Kolkata"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="exchange">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="code" value="MCX"/>
+            <column name="name" value="Multi Commodity Exchange"/>
+            <column name="timezone" value="Asia/Kolkata"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-broker-001" author="assistant" context="baseline">
+        <insert tableName="broker">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="code" value="RN_DEMO"/>
+            <column name="name" value="RN DEMO BROKING"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-broker-desk-001" author="assistant" context="baseline">
+        <insert tableName="broker_desk">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="RN DEMO BROKING Desk"/>
+            <column name="broker_id" valueComputed="(SELECT id FROM broker WHERE code = 'RN_DEMO')"/>
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'broker-admin')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-trader-profiles-001" author="assistant" context="baseline">
+        <insert tableName="trader_profile">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="display_name" value="Trader One"/>
+            <column name="email" value="trader.one@rnexchange.test"/>
+            <column name="kyc_status" value="APPROVED"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'trader-one')"/>
+        </insert>
+        <insert tableName="trader_profile">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="display_name" value="Trader Two"/>
+            <column name="email" value="trader.two@rnexchange.test"/>
+            <column name="kyc_status" value="APPROVED"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'trader-two')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-trading-accounts-001" author="assistant" context="baseline">
+        <insert tableName="trading_account">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="type" value="CASH"/>
+            <column name="base_ccy" value="INR"/>
+            <column name="balance" valueNumeric="1000000.00"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="broker_id" valueComputed="(SELECT id FROM broker WHERE code = 'RN_DEMO')"/>
+            <column name="trader_id" valueComputed="(SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test')"/>
+        </insert>
+        <insert tableName="trading_account">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="type" value="CASH"/>
+            <column name="base_ccy" value="INR"/>
+            <column name="balance" valueNumeric="1000000.00"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="broker_id" valueComputed="(SELECT id FROM broker WHERE code = 'RN_DEMO')"/>
+            <column name="trader_id" valueComputed="(SELECT id FROM trader_profile WHERE email = 'trader.two@rnexchange.test')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-instruments-001" author="assistant" context="baseline">
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="RELIANCE"/>
+            <column name="name" value="Reliance Industries"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="HDFCBANK"/>
+            <column name="name" value="HDFC Bank"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="INFY"/>
+            <column name="name" value="Infosys"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="TCS"/>
+            <column name="name" value="Tata Consultancy Services"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="NIFTY50"/>
+            <column name="name" value="NIFTY 50 Index"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="BANKNIFTY"/>
+            <column name="name" value="BANKNIFTY Index"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="RELIANCE_BSE"/>
+            <column name="name" value="Reliance Industries BSE"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="BSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'BSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="SBIN_BSE"/>
+            <column name="name" value="State Bank of India BSE"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="exchange_code" value="BSE"/>
+            <column name="tick_size" valueNumeric="0.05"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'BSE')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="GOLD"/>
+            <column name="name" value="Gold Futures"/>
+            <column name="asset_class" value="COMMODITY"/>
+            <column name="exchange_code" value="MCX"/>
+            <column name="tick_size" valueNumeric="1.00"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'MCX')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="CRUDEOIL"/>
+            <column name="name" value="Crude Oil Futures"/>
+            <column name="asset_class" value="COMMODITY"/>
+            <column name="exchange_code" value="MCX"/>
+            <column name="tick_size" valueNumeric="1.00"/>
+            <column name="lot_size" valueNumeric="10"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'MCX')"/>
+        </insert>
+        <insert tableName="instrument">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="SILVER"/>
+            <column name="name" value="Silver Futures"/>
+            <column name="asset_class" value="COMMODITY"/>
+            <column name="exchange_code" value="MCX"/>
+            <column name="tick_size" valueNumeric="1.00"/>
+            <column name="lot_size" valueNumeric="1"/>
+            <column name="currency" value="INR"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'MCX')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-contracts-001" author="assistant" context="baseline">
+        <insert tableName="contract">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="instrument_symbol" value="NIFTY50_FUT"/>
+            <column name="contract_type" value="FUTURE"/>
+            <column name="expiry" valueDate="2025-12-26"/>
+            <column name="segment" value="NSE_FNO"/>
+        </insert>
+        <update tableName="contract">
+            <column name="instrument_id" valueComputed="(SELECT id FROM instrument WHERE symbol = 'NIFTY50')"/>
+            <where>instrument_symbol = 'NIFTY50_FUT'</where>
+        </update>
+        <insert tableName="contract">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="instrument_symbol" value="BANKNIFTY_FUT"/>
+            <column name="contract_type" value="FUTURE"/>
+            <column name="expiry" valueDate="2025-12-26"/>
+            <column name="segment" value="NSE_FNO"/>
+        </insert>
+        <update tableName="contract">
+            <column name="instrument_id" valueComputed="(SELECT id FROM instrument WHERE symbol = 'BANKNIFTY')"/>
+            <where>instrument_symbol = 'BANKNIFTY_FUT'</where>
+        </update>
+        <insert tableName="contract">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="instrument_symbol" value="RELIANCE_FUT"/>
+            <column name="contract_type" value="FUTURE"/>
+            <column name="expiry" valueDate="2025-12-26"/>
+            <column name="segment" value="NSE_FNO"/>
+        </insert>
+        <update tableName="contract">
+            <column name="instrument_id" valueComputed="(SELECT id FROM instrument WHERE symbol = 'RELIANCE')"/>
+            <where>instrument_symbol = 'RELIANCE_FUT'</where>
+        </update>
+        <insert tableName="contract">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="instrument_symbol" value="NIFTY50_23500_CE"/>
+            <column name="contract_type" value="OPTION"/>
+            <column name="expiry" valueDate="2025-12-26"/>
+            <column name="strike" valueNumeric="23500.00"/>
+            <column name="option_type" value="CE"/>
+            <column name="segment" value="NSE_FNO"/>
+        </insert>
+        <update tableName="contract">
+            <column name="instrument_id" valueComputed="(SELECT id FROM instrument WHERE symbol = 'NIFTY50')"/>
+            <where>instrument_symbol = 'NIFTY50_23500_CE'</where>
+        </update>
+        <insert tableName="contract">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="instrument_symbol" value="NIFTY50_23500_PE"/>
+            <column name="contract_type" value="OPTION"/>
+            <column name="expiry" valueDate="2025-12-26"/>
+            <column name="strike" valueNumeric="23500.00"/>
+            <column name="option_type" value="PE"/>
+            <column name="segment" value="NSE_FNO"/>
+        </insert>
+        <update tableName="contract">
+            <column name="instrument_id" valueComputed="(SELECT id FROM instrument WHERE symbol = 'NIFTY50')"/>
+            <where>instrument_symbol = 'NIFTY50_23500_PE'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="baseline-market-holidays-001" author="assistant" context="baseline">
+        <insert tableName="market_holiday">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="trade_date" valueDate="2025-12-31"/>
+            <column name="reason" value="Year End Trading Holiday"/>
+            <column name="is_holiday" valueBoolean="true"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="market_holiday">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="trade_date" valueDate="2026-01-26"/>
+            <column name="reason" value="Republic Day Holiday"/>
+            <column name="is_holiday" valueBoolean="true"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'BSE')"/>
+        </insert>
+        <insert tableName="market_holiday">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="trade_date" valueDate="2025-12-12"/>
+            <column name="reason" value="Commodity Operations Maintenance"/>
+            <column name="is_holiday" valueBoolean="true"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'MCX')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-margin-rules-001" author="assistant" context="baseline">
+        <insert tableName="margin_rule">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="scope" value="NSE_CASH"/>
+            <column name="initial_pct" valueNumeric="0.20"/>
+            <column name="maint_pct" valueNumeric="0.15"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+        <insert tableName="margin_rule">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="scope" value="NSE_FNO"/>
+            <column name="initial_pct" valueNumeric="0.40"/>
+            <column name="maint_pct" valueNumeric="0.30"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
+

@@ -1,10 +1,15 @@
 package com.rnexchange.web.rest;
 
 import com.rnexchange.repository.OrderRepository;
+import com.rnexchange.security.AuthoritiesConstants;
+import com.rnexchange.security.SecurityUtils;
+import com.rnexchange.service.InsufficientMarginException;
 import com.rnexchange.service.OrderQueryService;
 import com.rnexchange.service.OrderService;
 import com.rnexchange.service.criteria.OrderCriteria;
 import com.rnexchange.service.dto.OrderDTO;
+import com.rnexchange.service.dto.TraderOrderRequest;
+import com.rnexchange.service.dto.TraderOrderResult;
 import com.rnexchange.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +18,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +71,42 @@ public class OrderResource {
         if (orderDTO.getId() != null) {
             throw new BadRequestAlertException("A new order cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.TRADER)) {
+            Supplier<BadRequestAlertException> badRequest = () ->
+                new BadRequestAlertException("Missing required trading details for trader order", ENTITY_NAME, "invalidpayload");
+            String traderLogin = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new BadRequestAlertException("Unable to determine current trader", ENTITY_NAME, "nologin"));
+            if (orderDTO.getInstrument() == null) {
+                throw badRequest.get();
+            }
+            if (orderDTO.getLimitPx() == null) {
+                throw new BadRequestAlertException("Limit price required for trader orders", ENTITY_NAME, "missingprice");
+            }
+
+            TraderOrderRequest request = TraderOrderRequest.builder()
+                .traderLogin(traderLogin)
+                .instrumentId(orderDTO.getInstrument().getId())
+                .instrumentSymbol(orderDTO.getInstrument().getSymbol())
+                .side(orderDTO.getSide())
+                .type(orderDTO.getType())
+                .tif(orderDTO.getTif())
+                .quantity(orderDTO.getQty())
+                .price(orderDTO.getLimitPx())
+                .build();
+            try {
+                TraderOrderResult result = orderService.submitTraderOrder(request);
+                orderDTO = result.order();
+                HttpHeaders headers = HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, orderDTO.getId().toString());
+                if (result.marginAssessment() != null) {
+                    headers.add("X-RNExchange-Margin-Initial", result.marginAssessment().initialRequirement().toPlainString());
+                    headers.add("X-RNExchange-Margin-Remaining", result.marginAssessment().remainingBalance().toPlainString());
+                }
+                return ResponseEntity.created(new URI("/api/orders/" + orderDTO.getId())).headers(headers).body(orderDTO);
+            } catch (InsufficientMarginException ex) {
+                throw new BadRequestAlertException(ex.getMessage(), ENTITY_NAME, "insufficientmargin");
+            }
+        }
+
         orderDTO = orderService.save(orderDTO);
         return ResponseEntity.created(new URI("/api/orders/" + orderDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, orderDTO.getId().toString()))

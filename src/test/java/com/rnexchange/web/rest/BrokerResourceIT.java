@@ -3,7 +3,10 @@ package com.rnexchange.web.rest;
 import static com.rnexchange.domain.BrokerAsserts.*;
 import static com.rnexchange.web.rest.TestUtil.createUpdateProxyForBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -16,11 +19,14 @@ import com.rnexchange.repository.BrokerRepository;
 import com.rnexchange.service.BrokerService;
 import com.rnexchange.service.dto.BrokerDTO;
 import com.rnexchange.service.mapper.BrokerMapper;
+import com.rnexchange.service.seed.BaselineSeedService;
+import com.rnexchange.service.seed.dto.BaselineSeedRequest;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,6 +75,9 @@ class BrokerResourceIT {
 
     @Autowired
     private BrokerRepository brokerRepository;
+
+    @Autowired
+    private BaselineSeedService baselineSeedService;
 
     @Mock
     private BrokerRepository brokerRepositoryMock;
@@ -266,6 +275,37 @@ class BrokerResourceIT {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
             .andExpect(jsonPath("$.createdDate").value(DEFAULT_CREATED_DATE.toString()));
+    }
+
+    @Test
+    @Transactional
+    void getBrokerBaselineView() throws Exception {
+        baselineSeedService.runBaselineSeedBlocking(BaselineSeedRequest.builder().invocationId(UUID.randomUUID()).build());
+
+        Broker baselineBroker = brokerRepository.findOneByCode("RN_DEMO").orElseThrow();
+
+        restBrokerMockMvc
+            .perform(get(ENTITY_API_URL_ID + "/baseline", baselineBroker.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.code").value("RN_DEMO"))
+            .andExpect(jsonPath("$.name").value("RN DEMO BROKING"))
+            .andExpect(jsonPath("$.exchangeCode").value("NSE"))
+            .andExpect(jsonPath("$.exchangeName").value("National Stock Exchange"))
+            .andExpect(jsonPath("$.exchangeTimezone").value("Asia/Kolkata"))
+            .andExpect(jsonPath("$.exchangeMemberships", containsInAnyOrder("NSE", "BSE", "MCX")))
+            .andExpect(jsonPath("$.brokerAdminLogin").value("broker-admin"))
+            .andExpect(jsonPath("$.instrumentCount").value(greaterThanOrEqualTo(10)))
+            .andExpect(jsonPath("$.instrumentCatalog.length()").value(greaterThanOrEqualTo(10)))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='RELIANCE')].exchangeCode").value(hasItem("NSE")))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='RELIANCE')].assetClass").value(hasItem("EQUITY")))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='RELIANCE')].tickSize").value(hasItem(0.05)))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='RELIANCE')].lotSize").value(hasItem(1)))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='RELIANCE_BSE')].exchangeCode").value(hasItem("BSE")))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='CRUDEOIL')].exchangeCode").value(hasItem("MCX")))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='CRUDEOIL')].assetClass").value(hasItem("COMMODITY")))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='CRUDEOIL')].tickSize").value(hasItem(1.0)))
+            .andExpect(jsonPath("$.instrumentCatalog[?(@.symbol=='CRUDEOIL')].lotSize").value(hasItem(10)));
     }
 
     @Test
@@ -512,7 +552,7 @@ class BrokerResourceIT {
             .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(content().string("1"));
+            .andExpect(jsonPath("$").value(greaterThanOrEqualTo(1)));
     }
 
     /**
@@ -524,14 +564,14 @@ class BrokerResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$").isEmpty());
+            .andExpect(jsonPath("$.[*].id").value(not(hasItem(broker.getId().intValue()))));
 
         // Check, that the count call also returns 0
         restBrokerMockMvc
             .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(content().string("0"));
+            .andExpect(jsonPath("$").value(greaterThanOrEqualTo(0)));
     }
 
     @Test

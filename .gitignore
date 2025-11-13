@@ -7,6 +7,8 @@ node_modules/
 npm-debug.log.*
 /.awcache/*
 /.cache-loader/*
+.env
+.env.*
 
 ######################
 # SASS
@@ -73,6 +75,7 @@ out/
 ######################
 /log/
 /target/
+/dist/
 
 ######################
 # Gradle

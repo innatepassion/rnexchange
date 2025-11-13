@@ -22,7 +22,26 @@
       "name": "Name",
       "status": "Status",
       "createdDate": "Created Date",
-      "exchange": "Exchange"
+      "exchange": "Exchange",
+      "baseline": {
+        "title": "Baseline Overview",
+        "name": "Broker Name",
+        "code": "Broker Code",
+        "exchange": "Primary Exchange",
+        "brokerAdmin": "Broker Admin Login",
+        "memberships": "Exchange Memberships",
+        "instrumentCatalog": "Instrument Catalog",
+        "instrumentCount": "{{count}} instrument(s) available",
+        "instrument": {
+          "symbol": "Symbol",
+          "name": "Name",
+          "exchange": "Exchange",
+          "assetClass": "Asset Class",
+          "tickSize": "Tick Size",
+          "lotSize": "Lot Size",
+          "currency": "Currency"
+        }
+      }
     }
   }
 }

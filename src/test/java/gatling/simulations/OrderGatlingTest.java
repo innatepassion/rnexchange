@@ -2,6 +2,7 @@ package gatling.simulations;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.exec;
+import static io.gatling.javaapi.core.CoreDsl.jsonPath;
 import static io.gatling.javaapi.core.CoreDsl.rampUsers;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.header;
@@ -56,13 +57,28 @@ public class OrderGatlingTest extends Simulation {
         .exitHereIfFailed()
         .pause(2)
         .exec(http("Authenticated request").get("/api/account").headers(headersHttpAuthenticated).check(status().is(200)))
+        .exec(
+            http("Load trading accounts")
+                .get("/api/trading-accounts?sort=id,asc")
+                .headers(headersHttpAuthenticated)
+                .check(status().is(200))
+                .check(jsonPath("$[?(@.trader.email=='trader.one@rnexchange.test')].id").find().saveAs("tradingAccountId"))
+        )
+        .exec(
+            http("Load seeded instruments")
+                .get("/api/instruments?sort=id,asc")
+                .headers(headersHttpAuthenticated)
+                .check(status().is(200))
+                .check(jsonPath("$[?(@.symbol=='RELIANCE')].id").find().saveAs("instrumentId"))
+                .check(jsonPath("$[?(@.symbol=='RELIANCE')].exchangeCode").find().saveAs("instrumentVenue"))
+        )
         .pause(10)
         .repeat(2)
         .on(
             exec(http("Get all orders").get("/api/orders").headers(headersHttpAuthenticated).check(status().is(200)))
                 .pause(Duration.ofSeconds(10), Duration.ofSeconds(20))
                 .exec(
-                    http("Create new order")
+                    http("Create seeded baseline order")
                         .post("/api/orders")
                         .headers(headersHttpAuthenticated)
                         .body(
@@ -70,14 +86,16 @@ public class OrderGatlingTest extends Simulation {
                                 "{" +
                                 "\"side\": \"BUY\"" +
                                 ", \"type\": \"MARKET\"" +
-                                ", \"qty\": 0" +
-                                ", \"limitPx\": 0" +
+                                ", \"qty\": 10" +
+                                ", \"limitPx\": 2200" +
                                 ", \"stopPx\": 0" +
                                 ", \"tif\": \"DAY\"" +
                                 ", \"status\": \"NEW\"" +
-                                ", \"venue\": \"SAMPLE_TEXT\"" +
-                                ", \"createdAt\": \"2020-01-01T00:00:00.000Z\"" +
-                                ", \"updatedAt\": \"2020-01-01T00:00:00.000Z\"" +
+                                ", \"venue\": \"${instrumentVenue}\"" +
+                                ", \"createdAt\": \"2025-11-13T00:00:00.000Z\"" +
+                                ", \"updatedAt\": \"2025-11-13T00:00:00.000Z\"" +
+                                ", \"tradingAccount\": {\"id\": ${tradingAccountId}}" +
+                                ", \"instrument\": {\"id\": ${instrumentId}}" +
                                 "}"
                             )
                         )
@@ -96,8 +114,11 @@ public class OrderGatlingTest extends Simulation {
     ScenarioBuilder users = scenario("Test the Order entity").exec(scn);
 
     {
-        setUp(
-            users.injectOpen(rampUsers(Integer.getInteger("users", 100)).during(Duration.ofMinutes(Integer.getInteger("ramp", 1))))
-        ).protocols(httpConf);
+        setUp(users.injectOpen(rampUsers(Integer.getInteger("users", 100)).during(Duration.ofMinutes(Integer.getInteger("ramp", 1)))))
+            .protocols(httpConf)
+            .assertions(
+                io.gatling.javaapi.core.CoreDsl.global().responseTime().percentile(95).lt(250),
+                io.gatling.javaapi.core.CoreDsl.global().successfulRequests().percent().gt(99.0)
+            );
     }
 }

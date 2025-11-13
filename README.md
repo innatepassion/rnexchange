@@ -143,6 +143,32 @@ The application uses H2 disk-based database by default in `dev` profile:
 
 ---
 
+## 🧱 Baseline Seeding Rollout & Verification
+
+This feature introduces the deterministic `baseline` Liquibase context that replaces legacy faker data and drives the end-to-end seed workflow.
+
+- **Preparation**
+
+  - Ensure Spring profiles (`application-dev.yml`, `application-prod.yml`, `src/test/resources/config/application.yml`) reference the `baseline` Liquibase context only.
+  - Confirm faker seed beans remain disabled and `BaselinePrerequisiteValidator` executes at startup to guard destructive truncation.
+  - Review `specs/001-seed-domain-data/data-model.md` for entity relationships inserted by `config/liquibase/data/0001-seed-domain-data.xml`.
+
+- **Execution**
+
+  - Start the application with `SPRING_PROFILES_ACTIVE=dev` to trigger `BaselineSeedCleanupRunner` and replay the baseline changelog.
+  - Trigger a reseed run on demand via `/api/admin/baseline-seed/run` using the `EXCHANGE_OPERATOR` token; monitor job telemetry in `BaselineSeedService`.
+  - Inspect structured JSON logs for cleanup, seeding, and validation phases (fields: `phase`, `entityType`, `status`, `durationMs`, `failureReason`, `actorId`, `actorRole`, `instrument`, `outcome`).
+
+- **Verification Checklist**
+  - Follow the role-specific validation steps captured in `specs/001-seed-domain-data/quickstart.md` → **Role Validation Steps** (EXCHANGE_OPERATOR, BROKER_ADMIN, TRADER).
+  - Validate database invariants (exchange count, broker membership, trader balances) and frictionless RBAC access via integration tests (`BaselineSeedServiceIT`, `BaselineSeedResourceIT`, `BaselineAccessIT`).
+  - Review Cypress artifacts `broker-seed.cy.ts` and `trader-seed.cy.ts` plus Cucumber scenario `baseline_seed.feature` to confirm SLA adherence and trader order acceptance.
+  - Run performance guardrail `OrderGatlingTest` to ensure `<250 ms p95` order latency remains intact after seeding.
+
+For detailed command walkthroughs, see `specs/001-seed-domain-data/quickstart.md`.
+
+---
+
 ## 📖 Project Documentation
 
 ### Core Documents

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, Col, Row } from 'reactstrap';
 import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
@@ -29,6 +29,45 @@ export const OrderUpdate = () => {
   const loading = useAppSelector(state => state.order.loading);
   const updating = useAppSelector(state => state.order.updating);
   const updateSuccess = useAppSelector(state => state.order.updateSuccess);
+  const currentUserLogin = useAppSelector(state => state.authentication.account?.login);
+
+  const seededTradingAccount = useMemo(() => {
+    if (!tradingAccounts || tradingAccounts.length === 0) {
+      return undefined;
+    }
+    const matchByLogin = tradingAccounts.find(account => account.trader?.user?.login === currentUserLogin);
+    if (matchByLogin) {
+      return matchByLogin;
+    }
+    const matchDemoBroker = tradingAccounts.find(account => account.broker?.code === 'RN_DEMO');
+    return matchDemoBroker ?? tradingAccounts[0];
+  }, [tradingAccounts, currentUserLogin]);
+
+  const seededInstrument = useMemo(() => {
+    if (!instruments || instruments.length === 0) {
+      return undefined;
+    }
+    const matchReliance = instruments.find(instrument => instrument.symbol === 'RELIANCE' && instrument.exchangeCode === 'NSE');
+    return matchReliance ?? instruments[0];
+  }, [instruments]);
+
+  const seededInstrumentPrice = useMemo(() => {
+    if (!seededInstrument) {
+      return undefined;
+    }
+    const priceDictionary: Record<string, number> = {
+      'RELIANCE@NSE': 2200,
+      'HDFCBANK@NSE': 1500,
+      'INFY@NSE': 1400,
+      'TCS@NSE': 3400,
+    };
+    const key = `${seededInstrument.symbol}@${seededInstrument.exchangeCode}`;
+    if (priceDictionary[key]) {
+      return priceDictionary[key];
+    }
+    const tickSize = seededInstrument.tickSize ?? 1;
+    return Math.max(100, tickSize * 100);
+  }, [seededInstrument]);
   const orderSideValues = Object.keys(OrderSide);
   const orderTypeValues = Object.keys(OrderType);
   const tifValues = Object.keys(Tif);
@@ -71,6 +110,28 @@ export const OrderUpdate = () => {
     values.createdAt = convertDateTimeToServer(values.createdAt);
     values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
+    if (!values.tradingAccount && seededTradingAccount?.id) {
+      values.tradingAccount = seededTradingAccount.id;
+    }
+
+    const selectedInstrument = instruments.find(instrument => instrument.id?.toString() === values.instrument?.toString());
+    if (selectedInstrument) {
+      values.venue = selectedInstrument.exchangeCode;
+      if (values.limitPx === undefined || Number.isNaN(values.limitPx)) {
+        const fallbackPriceDictionary: Record<string, number> = {
+          'RELIANCE@NSE': 2200,
+          'HDFCBANK@NSE': 1500,
+          'INFY@NSE': 1400,
+          'TCS@NSE': 3400,
+        };
+        const instrumentKey = `${selectedInstrument.symbol}@${selectedInstrument.exchangeCode}`;
+        const fallbackPrice = fallbackPriceDictionary[instrumentKey] ?? Math.max(100, (selectedInstrument.tickSize ?? 1) * 100);
+        values.limitPx = Number(fallbackPrice.toFixed(2));
+      }
+    }
+
+    values.status = 'NEW';
+
     const entity = {
       ...orderEntity,
       ...values,
@@ -85,23 +146,45 @@ export const OrderUpdate = () => {
     }
   };
 
-  const defaultValues = () =>
-    isNew
-      ? {
-          createdAt: displayDefaultDateTime(),
-          updatedAt: displayDefaultDateTime(),
-        }
-      : {
-          side: 'BUY',
-          type: 'MARKET',
-          tif: 'DAY',
-          status: 'NEW',
-          ...orderEntity,
-          createdAt: convertDateTimeFromServer(orderEntity.createdAt),
-          updatedAt: convertDateTimeFromServer(orderEntity.updatedAt),
-          tradingAccount: orderEntity?.tradingAccount?.id,
-          instrument: orderEntity?.instrument?.id,
-        };
+  const seededPriceFormatted = useMemo(
+    () => (seededInstrumentPrice !== undefined ? seededInstrumentPrice.toFixed(2) : undefined),
+    [seededInstrumentPrice],
+  );
+
+  const defaultValues = () => {
+    if (isNew) {
+      const lotSize = seededInstrument?.lotSize ?? 1;
+      return {
+        side: 'BUY',
+        type: 'MARKET',
+        tif: 'DAY',
+        status: 'NEW',
+        qty: lotSize.toString(),
+        limitPx: seededPriceFormatted,
+        venue: seededInstrument?.exchangeCode ?? 'NSE',
+        tradingAccount: seededTradingAccount?.id?.toString(),
+        instrument: seededInstrument?.id?.toString(),
+        createdAt: displayDefaultDateTime(),
+        updatedAt: displayDefaultDateTime(),
+      };
+    }
+    return {
+      side: 'BUY',
+      type: 'MARKET',
+      tif: 'DAY',
+      status: 'NEW',
+      ...orderEntity,
+      createdAt: convertDateTimeFromServer(orderEntity.createdAt),
+      updatedAt: convertDateTimeFromServer(orderEntity.updatedAt),
+      tradingAccount: orderEntity?.tradingAccount?.id?.toString(),
+      instrument: orderEntity?.instrument?.id?.toString(),
+    };
+  };
+
+  const computedDefaults = useMemo(
+    () => defaultValues(),
+    [isNew, orderEntity, seededTradingAccount, seededInstrument, seededPriceFormatted],
+  );
 
   return (
     <div>
@@ -117,7 +200,11 @@ export const OrderUpdate = () => {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
+            <ValidatedForm
+              key={isNew ? `order-new-${computedDefaults.tradingAccount ?? 'pending'}` : `${orderEntity.id ?? 'existing'}`}
+              defaultValues={computedDefaults}
+              onSubmit={saveEntity}
+            >
               {!isNew ? (
                 <ValidatedField
                   name="id"
@@ -180,6 +267,7 @@ export const OrderUpdate = () => {
                 name="status"
                 data-cy="status"
                 type="select"
+                disabled
               >
                 {orderStatusValues.map(orderStatus => (
                   <option value={orderStatus} key={orderStatus}>
@@ -193,6 +281,7 @@ export const OrderUpdate = () => {
                 name="venue"
                 data-cy="venue"
                 type="text"
+                readOnly
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
                 }}

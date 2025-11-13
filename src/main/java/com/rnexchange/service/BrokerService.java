@@ -1,10 +1,17 @@
 package com.rnexchange.service;
 
 import com.rnexchange.domain.Broker;
+import com.rnexchange.repository.BrokerDeskRepository;
 import com.rnexchange.repository.BrokerRepository;
+import com.rnexchange.repository.projection.BrokerInstrumentRow;
+import com.rnexchange.service.dto.BrokerBaselineDTO;
 import com.rnexchange.service.dto.BrokerDTO;
+import com.rnexchange.service.dto.BrokerInstrumentDTO;
 import com.rnexchange.service.mapper.BrokerMapper;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -23,10 +30,13 @@ public class BrokerService {
 
     private final BrokerRepository brokerRepository;
 
+    private final BrokerDeskRepository brokerDeskRepository;
+
     private final BrokerMapper brokerMapper;
 
-    public BrokerService(BrokerRepository brokerRepository, BrokerMapper brokerMapper) {
+    public BrokerService(BrokerRepository brokerRepository, BrokerDeskRepository brokerDeskRepository, BrokerMapper brokerMapper) {
         this.brokerRepository = brokerRepository;
+        this.brokerDeskRepository = brokerDeskRepository;
         this.brokerMapper = brokerMapper;
     }
 
@@ -95,6 +105,61 @@ public class BrokerService {
     public Optional<BrokerDTO> findOne(Long id) {
         LOG.debug("Request to get Broker : {}", id);
         return brokerRepository.findOneWithEagerRelationships(id).map(brokerMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<BrokerBaselineDTO> findBaseline(Long id) {
+        LOG.debug("Request to get Broker baseline view : {}", id);
+        return brokerRepository
+            .findOneWithEagerRelationships(id)
+            .map(broker -> {
+                List<BrokerInstrumentRow> instrumentRows = brokerRepository.findBaselineInstrumentCatalog(id);
+                List<BrokerInstrumentDTO> instrumentCatalog = instrumentRows
+                    .stream()
+                    .map(row ->
+                        new BrokerInstrumentDTO(
+                            row.symbol(),
+                            row.name(),
+                            row.exchangeCode(),
+                            row.assetClass(),
+                            row.tickSize(),
+                            row.lotSize(),
+                            row.currency()
+                        )
+                    )
+                    .toList();
+
+                Set<String> exchangeMemberships = new LinkedHashSet<>();
+                if (broker.getExchange() != null && broker.getExchange().getCode() != null) {
+                    exchangeMemberships.add(broker.getExchange().getCode());
+                }
+                instrumentRows
+                    .stream()
+                    .map(BrokerInstrumentRow::exchangeCode)
+                    .forEach(code -> {
+                        if (code != null) {
+                            exchangeMemberships.add(code);
+                        }
+                    });
+
+                List<String> deskLogins = brokerDeskRepository.findUserLoginsForBroker(id);
+
+                BrokerBaselineDTO dto = new BrokerBaselineDTO();
+                dto.setId(broker.getId());
+                dto.setCode(broker.getCode());
+                dto.setName(broker.getName());
+                dto.setStatus(broker.getStatus());
+                if (broker.getExchange() != null) {
+                    dto.setExchangeCode(broker.getExchange().getCode());
+                    dto.setExchangeName(broker.getExchange().getName());
+                    dto.setExchangeTimezone(broker.getExchange().getTimezone());
+                }
+                dto.setBrokerAdminLogin(deskLogins.stream().findFirst().orElse(null));
+                dto.setInstrumentCatalog(instrumentCatalog);
+                dto.setInstrumentCount(instrumentCatalog.size());
+                dto.setExchangeMemberships(List.copyOf(exchangeMemberships));
+                return dto;
+            });
     }
 
     /**
