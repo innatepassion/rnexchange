@@ -39,9 +39,9 @@ spring:
     hikari:
       poolName: Hikari
       auto-commit: false
-  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+  # Baseline context provides deterministic seed data for production; add 'faker' only for legacy samples
   liquibase:
-    contexts: prod
+    contexts: baseline
   mail:
     host: localhost
     port: 25

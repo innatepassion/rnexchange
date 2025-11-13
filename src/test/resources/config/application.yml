@@ -16,9 +16,9 @@
 spring:
   application:
     name: rnexchange
-  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+  # Baseline context ensures deterministic seeds in tests; add 'faker' only when legacy samples are required
   liquibase:
-    contexts: test
+    contexts: test,baseline
   jackson:
     serialization:
       write-durations-as-timestamps: false

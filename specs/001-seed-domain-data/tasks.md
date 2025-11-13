@@ -19,11 +19,11 @@
 
 **Purpose**: Align Spring profiles with the new `baseline` Liquibase context and disable legacy faker seeding.
 
-- [ ] T000 Add regression test `BaselineProfileConfigIT` ensuring dev/prod/test profiles expose the `baseline` Liquibase context before configuration changes in `src/test/java/com/rnexchange/config/BaselineProfileConfigIT.java`
-- [ ] T000A [P] Add configuration smoke test `BaselineSeedBeanIT` asserting faker seed beans remain disabled before removal in `src/test/java/com/rnexchange/config/BaselineSeedBeanIT.java`
-- [ ] T001 Update Liquibase contexts to `baseline` in `src/main/resources/config/application-dev.yml`
-- [ ] T002 [P] Update Liquibase contexts to `baseline` in `src/main/resources/config/application-prod.yml`
-- [ ] T003 [P] Align embedded test Liquibase contexts to `test,baseline` in `src/test/resources/config/application.yml`
+- [x] T000 Add regression test `BaselineProfileConfigIT` ensuring dev/prod/test profiles expose the `baseline` Liquibase context before configuration changes in `src/test/java/com/rnexchange/config/BaselineProfileConfigIT.java`
+- [x] T000A [P] Add configuration smoke test `BaselineSeedBeanIT` asserting faker seed beans remain disabled before removal in `src/test/java/com/rnexchange/config/BaselineSeedBeanIT.java`
+- [x] T001 Update Liquibase contexts to `baseline` in `src/main/resources/config/application-dev.yml`
+- [x] T002 [P] Update Liquibase contexts to `baseline` in `src/main/resources/config/application-prod.yml`
+- [x] T003 [P] Align embedded test Liquibase contexts to `test,baseline` in `src/test/resources/config/application.yml`
 
 ---
 

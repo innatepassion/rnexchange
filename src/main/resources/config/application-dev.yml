@@ -48,8 +48,8 @@ spring:
       # JHipster uses a custom h2-console initializer
       enabled: true
   liquibase:
-    # Remove 'faker' if you do not want the sample data to be loaded automatically
-    contexts: dev, faker
+    # Baseline context provides deterministic seed data; add 'faker' to re-enable legacy samples
+    contexts: dev,baseline
   mail:
     host: localhost
     port: 25
