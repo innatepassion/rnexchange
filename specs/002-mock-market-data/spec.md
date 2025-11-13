@@ -59,23 +59,26 @@ The trader adds or removes instruments from a chosen watchlist and immediately s
 - What occurs when a trader selects an empty watchlist or a watchlist with instruments from a stopped exchange?
 - How are price movements constrained if the random walk attempts to push values below zero or beyond configured bounds?
 - What feedback is shown when the feed is disabled while a trader is viewing Market Watch?
+- How does the interface signal that quotes are frozen because an exchange is observing a holiday?
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: The platform MUST load all active instruments for NSE, BSE, and MCX at feed initialization and maintain an in-memory state per instrument containing last price, open, high, low, cumulative volume, and last update timestamp.
+- **FR-001**: The platform MUST load all active instruments for NSE, BSE, and MCX at feed initialization and maintain an in-memory state per instrument containing last price, open, high, low, cumulative volume, and last update timestamp. At session open, each instrument's open price MUST be initialized to its last closing price (or a system default if no prior close exists).
 - **FR-002**: The mock generator MUST apply a bounded random-walk adjustment to each instrument’s last price at a configurable interval between 500 ms and 1,000 ms, preventing negative or zero prices.
-- **FR-003**: The system MUST support configurable volatility factors per exchange or asset class that influence price step size.
+- **FR-003**: The system MUST support configurable volatility factors per exchange or asset class that influence price step size, with a default maximum change of 1% of the instrument's open price per tick.
 - **FR-004**: The generator MUST respect MarketHoliday records and any defined trading session windows so that instruments paused for the day do not receive simulated ticks.
 - **FR-005**: The platform MUST publish real-time quote updates for each instrument, containing price, percent change from the session open, rolling volume, and timestamp, over a subscription channel addressable by symbol.
-- **FR-006**: The platform MUST emit one-minute bar summaries per instrument reflecting open, high, low, close, and aggregated volume for the active minute over a distinct subscription channel.
+- **FR-006**: The platform MUST emit one-minute bar summaries per instrument reflecting open (session open), high (session high), low (session low), close (current last price), and aggregated volume for the session over a distinct subscription channel, published every minute.
 - **FR-007**: The Exchange Operator interface MUST expose start, stop, and status REST endpoints that return whether the feed is running, per-exchange last tick timestamps, and active tick rate.
 - **FR-008**: The operator console MUST display a panel listing NSE, BSE, and MCX with feed status (Running/Stopped), last tick time, and ticks per second as reported by the mock service.
 - **FR-009**: The trader Market Watch MUST allow selection among the trader’s existing watchlists and display LTP, percent change, volume, and last update time for each listed instrument.
 - **FR-010**: The trader interface MUST compute percent change and row color-coding locally using successive ticks, with a persistent “Simulated Feed” banner and WebSocket connection status indicator.
 - **FR-011**: The system MUST provide endpoints for traders to add instruments to a watchlist and remove them, providing immediate UI confirmation when the server acknowledges the change.
 - **FR-012**: The client MUST subscribe only to the symbols present in the active watchlist and unsubscribe when instruments are removed to avoid cross-contamination between exchanges.
+- **FR-013**: The simulated feed MUST start automatically during application startup whenever the current exchange calendar permits trading, without requiring manual operator activation.
+- **FR-014**: Market Watch MUST display instruments whose exchanges are closed for holidays with a “Closed/Holiday” badge and frozen last known values until trading resumes.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -93,3 +96,13 @@ The trader adds or removes instruments from a chosen watchlist and immediately s
 - **SC-002**: When the feed is running, traders viewing Market Watch receive refreshed price data for all subscribed instruments at least once every second with no cross-exchange leakage in 99% of observed ticks.
 - **SC-003**: Traders can add or remove an instrument from their watchlist and observe the table update along with live data subscription changes within 3 seconds in 95% of test cases.
 - **SC-004**: When an exchange is on holiday or outside its trading session, no simulated ticks are generated for its instruments, as validated across a full-day simulation with zero violations.
+
+## Clarifications
+
+### Session 2025-11-13
+
+- Q: What should be the default state of the simulated feed when the application starts? → A: Start automatically on startup.
+- Q: How should holiday instruments appear in Market Watch while their exchanges are closed? → A: Show with "Closed/Holiday" badge and freeze values.
+- Q: What is the default volatility factor (maximum price change per tick as a percentage of open price)? → A: 1% of open price per tick.
+- Q: How should the system initialize instrument prices at session open? → A: Reset to last closing price or default if unavailable.
+- Q: Should OHLC values reset per one-minute bar interval or accumulate for the entire session? → A: Maintain OHLC across entire session.
