@@ -35,6 +35,28 @@
 - **Market holidays**: `/api/market-holidays?exchange=NSE` includes `2025-12-31` entry.
 - **Margin rules**: `/api/margin-rules?exchange=NSE` exposes `NSE_CASH (0.20/0.15)` and `NSE_FNO (0.40/0.30)`.
 
+## Role Validation Steps
+
+1. **EXCHANGE_OPERATOR**
+
+   - Generate a JWT for the seeded exchange operator account (reuse existing CI helper or `npm run admin:token` flow).
+   - Trigger a reseed job: `http POST :8080/api/admin/baseline-seed/run Authorization:"Bearer <EXCHANGE_OPERATOR_TOKEN>"`.
+   - Poll job status until it reports `COMPLETED` and confirm no faker data rows reappear: `http GET :8080/api/admin/baseline-seed/status/{jobId} Authorization:"Bearer <EXCHANGE_OPERATOR_TOKEN>"`.
+   - Review structured logs for `phase=VALIDATION` entries capturing `actorRole=EXCHANGE_OPERATOR` with `status=SUCCESS`.
+
+2. **BROKER_ADMIN**
+
+   - Sign in through the web UI as the seeded broker administrator.
+   - Open the Broker workspace and capture the login-to-ready duration (Cypress spec `broker-seed.cy.ts` persists this metric under `cypress/results/broker-seed.json`).
+   - Verify the dashboard lists RN DEMO BROKING with the curated instrument catalog and no legacy demo brokers.
+   - Confirm `/api/brokers/{id}` includes `exchangeMemberships` seeded by Liquibase when called with the broker admin token.
+
+3. **TRADER**
+   - Log in as each seeded trader persona; confirm the landing page shows an active trading account balance of `₹1,000,000`.
+   - Place a buy order for RELIANCE on NSE (respecting seeded tick/lot sizes) and observe acceptance under the Micrometer duration threshold.
+   - Download Cypress artifact `cypress/results/trader-seed.json` to review order flow duration and assertions captured in `trader-seed.cy.ts`.
+   - Inspect structured audit logs (`service=OrderService`, `actorRole=TRADER`) to ensure entries include `instrument`, `outcome`, and `durationMs`.
+
 ## Test Suite Guardrails
 
 - **Integration**: `./mvnw -Dtest=BaselineSeedServiceIT,BaselineSeedFailureIT test` ensures cleanup, reseed deterministic values, and failure paths.

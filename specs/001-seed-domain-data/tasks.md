@@ -129,8 +129,8 @@
 
 **Purpose**: Documentation and hardening tasks impacting multiple stories, reinforcing Educational Transparency and success criteria.
 
-- [ ] T034 [P] Document `EXCHANGE_OPERATOR`/`BROKER_ADMIN`/`TRADER` validation steps in `specs/001-seed-domain-data/quickstart.md`
-- [ ] T035 Summarize baseline seeding rollout and verification checklist in `README.md`
+- [x] T034 [P] Document `EXCHANGE_OPERATOR`/`BROKER_ADMIN`/`TRADER` validation steps in `specs/001-seed-domain-data/quickstart.md`
+- [x] T035 Summarize baseline seeding rollout and verification checklist in `README.md`
 
 ---
 
