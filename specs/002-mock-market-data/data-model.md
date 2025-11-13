@@ -510,9 +510,18 @@ FeedStatusDTO [aggregated from] InstrumentState + MarketHoliday [runtime only]
 
 ## Database Schema Changes
 
-**No Liquibase migrations required**. All new models are in-memory or DTOs. Existing M0 schema for `Instrument`, `MarketHoliday`, `Watchlist`, `WatchlistItem` is sufficient.
+- **Liquibase**: `20251113_add_exchange_volatility_override.xml`
+  - Creates table `exchange_volatility_override`
+    - `id` (bigint, primary key, sequence)
+    - `exchange_code` (varchar(10), NOT NULL)
+    - `asset_class` (varchar(30), NOT NULL DEFAULT 'ALL') — `'ALL'` indicates exchange-wide default
+    - `volatility_pct` (numeric(6,5), NOT NULL) — expressed as decimal (e.g., 0.01000 for 1%)
+    - `last_modified` (timestamp with time zone, default now())
+  - Adds unique constraint `ux_exchange_volatility` on (`exchange_code`, `asset_class`)
+  - Seeds dev profile overrides for NSE/BSE/MCX per research defaults.
+  - Adds foreign key to `exchange(code)` for referential integrity.
 
-**Optional Enhancement (Post-MVP)**: Add `default_volatility` column to `Exchange` table for per-exchange volatility configuration (currently hardcoded in `application.yml`).
+**Optional Enhancement (Post-MVP)**: Add `default_volatility` column to `Exchange` table for per-exchange volatility configuration (currently hardcoded in `application.yml` and overridden via the new lookup).
 
 ---
 

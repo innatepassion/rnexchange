@@ -35,13 +35,15 @@ From `spec.md`:
 graph TD
     Setup[Phase 1: Setup] --> Foundation[Phase 2: Foundational]
     Foundation --> US1[Phase 3: US1 - Feed Control]
-    US1 --> US2[Phase 4: US2 - Market Watch]
+    US1 --> Perf[Phase 3B: Throughput Benchmarking]
+    Perf --> US2[Phase 4: US2 - Market Watch]
     US2 --> US3[Phase 5: US3 - Watchlist Management]
     US3 --> Polish[Phase 6: Polish]
 
     style Setup fill:#e1f5fe
     style Foundation fill:#fff3e0
     style US1 fill:#c8e6c9
+    style Perf fill:#ffe0b2
     style US2 fill:#c8e6c9
     style US3 fill:#c8e6c9
     style Polish fill:#f3e5f5
@@ -50,14 +52,15 @@ graph TD
 **Key Dependencies**:
 
 - Foundation phase MUST complete before any user stories
-- US2 depends on US1 (needs feed running to display quotes)
-- US3 is independent of US1 but builds on US2 (needs Market Watch UI)
+- US1 must deliver a stable feed before throughput benchmarking
+- Phase 3B throughput benchmarking MUST pass before any trader-facing UI (US2 screens, US3 UI) begins.
+- US3 backend work can proceed in parallel once US1 is stable, but releasing trader-facing behaviour remains blocked until the throughput gate is green.
 
-**Parallel Opportunities**:
+**Parallel Opportunities** _(respect Phase 3B throughput gate)_:
 
 - Within each phase, tasks marked `[P]` can run in parallel
-- US1 backend and US2 frontend preparation can overlap
-- US3 backend and frontend can be developed in parallel
+- While Phase 3B is pending, only US1/Phase 3 backend work may proceed; defer all trader-facing UI (US2/US3) until throughput SLAs are green
+- US3 backend and frontend can be developed in parallel once Phase 3B completes
 
 ---
 
@@ -69,7 +72,7 @@ graph TD
 
 ### Tasks
 
-- [ ] T001 Verify M0 baseline seed data is loaded (run `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev,seed` and check logs for "Baseline seed completed successfully")
+- [ ] T001 Verify M0 baseline seed data is loaded with required entities: Instrument, Exchange, MarketHoliday, TraderProfile, Watchlist, WatchlistItem (run `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev,seed` and check logs for "Baseline seed completed successfully")
 - [ ] T002 Verify PostgreSQL database connectivity and M0 schema (`psql -h localhost -U rnexchange -d rnexchange -c "\dt"` should show instrument, exchange, market_holiday, watchlist tables)
 - [ ] T003 Verify JHipster 8.x application runs successfully (`./mvnw spring-boot:run` and check port 8080 accessible)
 - [ ] T004 Verify frontend build tools (`npm install` and `npm run webapp:build:dev` complete without errors)
@@ -89,28 +92,43 @@ graph TD
 
 ### DTOs & State Models
 
-- [ ] T008 [P] Create `QuoteDTO` record in `src/main/java/com/rnexchange/service/dto/QuoteDTO.java` (immutable record with symbol, lastPrice, open, change, changePercent, volume, timestamp fields per data-model.md)
-- [ ] T009 [P] Create `BarDTO` record in `src/main/java/com/rnexchange/service/dto/BarDTO.java` (immutable record with symbol, open, high, low, close, volume, timestamp fields per data-model.md)
-- [ ] T010 [P] Create `FeedStatusDTO` record in `src/main/java/com/rnexchange/service/dto/FeedStatusDTO.java` (globalState, startedAt, exchanges list per data-model.md)
-- [ ] T011 [P] Create `ExchangeStatusDTO` record nested in FeedStatusDTO (exchangeCode, state, lastTickTime, ticksPerSecond, activeInstruments per data-model.md)
-- [ ] T012 [P] Create `FeedState` enum in `src/main/java/com/rnexchange/service/dto/FeedState.java` (values: RUNNING, STOPPED, HOLIDAY)
-- [ ] T013 [P] Create `InstrumentState` class in `src/main/java/com/rnexchange/service/marketdata/InstrumentState.java` (mutable state holder with synchronized updateWithTick method per data-model.md)
+- [ ] T200 Author failing MapStruct unit tests (`QuoteMapperTest`, `FeedStatusMapperTest`) that capture entity ↔ DTO mappings and enforce no manual field wiring before mapper generation occurs.
+- [ ] T201 Generate MapStruct mappers for market data DTOs (`QuoteMapper`, `BarMapper`, `FeedStatusMapper`) following the JHipster pattern (`@Mapper(componentModel = "spring")`) and run `./mvnw generate-sources` to satisfy the previously added tests.
+- [ ] T202 Create `QuoteDTO` record in `src/main/java/com/rnexchange/service/dto/QuoteDTO.java` (immutable record with symbol, lastPrice, open, change, changePercent, volume, timestamp fields per data-model.md). **Begin only after T200–T201 tests are red.**
+- [ ] T203 Create `BarDTO` record in `src/main/java/com/rnexchange/service/dto/BarDTO.java` (immutable record with symbol, open, high, low, close, volume, timestamp fields per data-model.md). **Begin only after T200–T201 tests are red.**
+- [ ] T204 Create `FeedStatusDTO` record in `src/main/java/com/rnexchange/service/dto/FeedStatusDTO.java` (globalState, startedAt, exchanges list per data-model.md). **Begin only after T200–T201 tests are red.**
+- [ ] T205 Create `ExchangeStatusDTO` record nested in FeedStatusDTO (exchangeCode, state, lastTickTime, ticksPerSecond, activeInstruments per data-model.md). **Begin only after T200–T201 tests are red.**
+- [ ] T206 Create `FeedState` enum in `src/main/java/com/rnexchange/service/dto/FeedState.java` (values: RUNNING, STOPPED, HOLIDAY). **Begin only after T200–T201 tests are red.**
+- [ ] T207e Author failing unit tests that cover `InstrumentState` state transitions and event DTO invariants before implementing T207–T207d.
+- [ ] T207 Create `InstrumentState` class in `src/main/java/com/rnexchange/service/marketdata/InstrumentState.java` (mutable state holder with synchronized updateWithTick method per data-model.md). **Requires T207e tests to fail first.**
+- [ ] T207a Create `FeedStartedEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/FeedStartedEvent.java` (include exchange codes, triggeredBy, timestamp per data-model.md). **Requires T207e tests to fail first.**
+- [ ] T207b Create `FeedStoppedEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/FeedStoppedEvent.java` (include exchange codes, triggeredBy, timestamp, reason). **Requires T207e tests to fail first.**
+- [ ] T207c Create `VolatilityGuardTriggeredEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/VolatilityGuardTriggeredEvent.java` (include symbol, exchange, direction, guardState snapshot). **Requires T207e tests to fail first.**
+- [ ] T207d Create `VolatilityGuardReleasedEvent` record capturing the window normalization event with symbol, exchange, and recovery timestamp metadata. **Requires T207e tests to fail first.**
 
-### Price Generation Logic
+### Price Generation Logic (write tests first)
 
-- [ ] T014 Create `PriceGenerator` class in `src/main/java/com/rnexchange/service/marketdata/PriceGenerator.java` (implements Geometric Brownian Motion with bounds per research.md)
-- [ ] T015 Write unit test `PriceGeneratorTest` in `src/test/java/com/rnexchange/service/marketdata/PriceGeneratorTest.java` (test price bounds, volatility, random walk behavior per quickstart.md example)
-- [ ] T016 Implement `PriceGenerator.nextPrice()` method to pass unit tests (apply GBM formula, enforce min/max bounds, round to 2 decimals per research.md)
+- [ ] T208 Write unit test `PriceGeneratorTest` in `src/test/java/com/rnexchange/service/marketdata/PriceGeneratorTest.java` (capture bounded random-walk behavior, volatility cap, min/max price rails, batch emission per quickstart.md example)
+- [ ] T209 Create minimal `PriceGenerator` class in `src/main/java/com/rnexchange/service/marketdata/PriceGenerator.java` (constructor signatures, `nextPrice` stub sufficient for compilation)
+- [ ] T210 Implement `PriceGenerator.nextPrice()` method to satisfy the tests (apply calibrated bounded random walk with volatility multiplier, enforce min/max bounds, support batch-size deltas, round to 2 decimals per research.md)
+- [ ] T210a Write failing `RollingMinuteVolatilityGuardTest` in `src/test/java/com/rnexchange/service/marketdata/RollingMinuteVolatilityGuardTest.java` (assert the ±5% band behavior, guard release, and metric exposure requirements from spec FR-002b before implementation begins).
+- [ ] T210b Create `RollingMinuteVolatilityGuard` class in `src/main/java/com/rnexchange/service/marketdata/RollingMinuteVolatilityGuard.java` (maintain per-symbol rolling windows, expose guard state, and integrate with metrics hooks sufficient for tests to compile).
+- [ ] T210c Implement `RollingMinuteVolatilityGuard` logic so `MockMarketDataService` can query whether upward/downward deltas are permitted, pause offending directions, and publish guard state to status metrics satisfying FR-002b.
+- [ ] T211 Author failing `BarAggregatorTest` in `src/test/java/com/rnexchange/service/marketdata/BarAggregatorTest.java` (assert minute aggregation rules, volume summation, and timestamp bucketing before implementation begins)
 
 ### Bar Aggregation Logic
 
-- [ ] T017 Create `BarAggregator` class in `src/main/java/com/rnexchange/service/marketdata/BarAggregator.java` (session-level OHLC aggregation per research.md)
-- [ ] T018 Implement `BarAggregator.createBar()` method (generates BarDTO from InstrumentState per data-model.md)
+- [ ] T212 Create minimal `BarAggregator` class in `src/main/java/com/rnexchange/service/marketdata/BarAggregator.java` (stub methods and wiring required for tests authored in T211 to compile)
+- [ ] T213 Implement `BarAggregator.createBar()` method (produce OHLC/volume values that satisfy `BarAggregatorTest` expectations per data-model.md)
 
-### WebSocket Configuration
+### Configuration
 
-- [ ] T019 Extend `WebSocketConfig` in `src/main/java/com/rnexchange/config/WebSocketConfig.java` (enable STOMP broker for /topic destinations, register /ws endpoint with SockJS per research.md)
-- [ ] T020 Create `MarketDataWebSocketHandler` service in `src/main/java/com/rnexchange/web/websocket/MarketDataWebSocketHandler.java` (inject SimpMessagingTemplate, implement broadcastQuote() and broadcastBar() methods per quickstart.md)
+- [ ] T214 Update the JDL to include the `exchange_volatility_override` entity (fields, relationships, constraints) and regenerate JHipster artifacts before creating the Liquibase changelog.
+- [ ] T215 Bind application properties `marketdata.mock.intervalMs` (default 750, min 100, max 1000), `marketdata.mock.batchSize` (default 4, max 10), `marketdata.mock.minPrice`, and `marketdata.mock.maxPrice`, plus `marketdata.mock.volatility.*` (per exchange and/or asset class) in a `@ConfigurationProperties` class.
+- [ ] T216 Validate configuration bounds at startup (reject out-of-range interval/batch/price rails by failing fast with a configuration exception, log remediation guidance); implement precedence so DB overrides (if present) take priority over application properties.
+- [ ] T217 Create Liquibase changelog `src/main/resources/config/liquibase/changelog/20251113_add_exchange_volatility_override.xml` to add table `exchange_volatility_override` with unique (`exchange_code`,`asset_class`) constraint and FK to `exchange(code)`.
+- [ ] T218 Seed developer profile data for NSE/BSE/MCX volatility overrides in the new changelog (align with research defaults).
+- [ ] T219 Implement `ExchangeVolatilityOverrideRepository` (Spring Data) and a loader component that merges DB overrides with configuration properties per FR-003 and exposes active volatility alongside clamping metrics.
 
 **Completion Criteria**: All DTOs, state models, core algorithms (price generation, OHLC aggregation), and WebSocket infrastructure implemented and unit tested.
 
@@ -127,46 +145,104 @@ graph TD
 1. Given feed is stopped, When operator issues start command, Then system reports running within 2s and records activation timestamp
 2. Given feed is running, When operator issues stop command, Then system halts price generation, updates status to stopped, preserves last tick time
 
+### Backend: Tests (author before implementation)
+
+- [ ] T034 [US1] Draft failing `MockMarketDataServiceIT` in `src/test/java/com/rnexchange/service/marketdata/MockMarketDataServiceIT.java` (cover start/stop/idempotency/status expectations per quickstart.md). Do not implement service logic until this test is committed.
+- [ ] T035 [US1] Draft failing `MarketDataControlResourceIT` in `src/test/java/com/rnexchange/web/rest/MarketDataControlResourceIT.java` (cover REST endpoints with @WithMockUser EXCHANGE_OPERATOR, RBAC enforcement, and status contract per quickstart.md).
+- [ ] T036 [US1] Draft failing `MarketDataWebSocketIT` in `src/test/java/com/rnexchange/web/websocket/MarketDataWebSocketIT.java` (assert quote broadcast to `/topic/quotes/{symbol}` and bar broadcast stub).
+- [ ] T036b [US1] Extend `MarketDataWebSocketIT` with pending test for 60-second bar broadcast to `/topic/bars/{symbol}` (FR-006 expectations).
+- [ ] T036c [US1] Extend `MarketDataWebSocketIT` with failing test verifying JWT handshake enforcement (CONNECT without token yields 401) per FR-007.
+- [ ] T036d [US1] Extend `MarketDataWebSocketIT` with failing test verifying watchlist-based subscription authorization (reject symbol not owned by trader per FR-017).
+- [ ] T036e [US1] Draft failing test in `MockMarketDataServiceIT` covering auto-start gating: when the current trading calendar marks all exchanges closed, the service MUST remain stopped and log reason (FR-013 & FR-008).
+- [ ] T036f [US1] Extend `MockMarketDataServiceIT` with assertion that start → status transition surfaces `globalState=RUNNING` within 2 seconds (SC-001 Feed Start SLA defined in plan.md) using awaitility/polling before implementation.
+- [ ] T036g [US1] Extend `MockMarketDataServiceIT` (or complementary integration test) with assertions that the ticks-per-second moving average reflects burst traffic accurately (simulate high-frequency ticks to cover FR-005 & FR-016).
+- [ ] T036h [US1] Extend `MockMarketDataServiceIT` with scenarios that trigger min/max clamping and assert that clamp metrics/log records are captured and surfaced through the status endpoint (covers FR-002a).
+- [ ] T036i [US1] Extend `MockMarketDataServiceIT` to verify RollingMinuteVolatilityGuard activation/deactivation, ensuring guard state appears in feed status and respects the ±5% band defined in SC-002/FR-002b.
+- [ ] T036j [US1] Add batch-emission integration test in `MockMarketDataServiceIT` that drives `RollingMinuteVolatilityGuard` under multi-tick bursts, asserting guard suppression, structured logging, and metrics remain correct while batching is enabled (covers FR-002b + T113 interplay).
+- [ ] T036k [US1] Extend `MockMarketDataServiceIT` with a scenario that seeds an instrument lacking a prior close, starts the feed, and asserts the structured audit log entry contains symbol, exchange, and applied default price (validates FR-001/T022a).
+- [ ] T036l [US1] Extend `MockMarketDataServiceIT` (or complementary log-focused integration test) to assert structured INFO logs for volatility source selection and holiday gating include exchange/symbol context (covers NFR-003 alongside T022c/T025b).
+- [ ] T036m [US1] Add failing `MockMarketDataServiceIT` assertions that `FeedStartedEvent` and `FeedStoppedEvent` domain events publish with correct payloads on start/stop/auto-start flows (covers FR-018).
+- [ ] T036n [US1] Add failing integration test ensuring `VolatilityGuardTriggeredEvent` fires when the rolling band suppresses deltas and that subscribers receive guard state metadata (covers FR-018).
+- [ ] T036o [US1] Extend `MockMarketDataServiceIT` (or dedicated audit log integration test) to assert a persisted audit ledger entry is created whenever default pricing is applied, covering FR-001/T022f.
+
 ### Backend: Mock Market Data Service
 
 - [ ] T021 [US1] Create `MockMarketDataService` class in `src/main/java/com/rnexchange/service/marketdata/MockMarketDataService.java` (singleton service with volatile FeedState, ScheduledFuture for tick job, Map<String, InstrumentState> per research.md)
-- [ ] T022 [US1] Implement `MockMarketDataService.start()` method (load active instruments from repository, initialize InstrumentState map, start scheduled executor at 750ms interval, set state to RUNNING, log activation per research.md)
+- [ ] T022 [US1] Implement `MockMarketDataService.start()` method (load active instruments from repository, initialize InstrumentState map with lastPrice from Instrument.lastClose or fallback to `marketdata.mock.defaultPrice` when missing, then schedule updates at configured interval, set state to RUNNING, log activation per research.md)
+- [ ] T022a [US1] Add audit log statement when default price fallback is applied (include instrument symbol, exchange, configured default value) to satisfy FR-001 transparency requirement.
+- [ ] T022b [US1] Emit an initial snapshot quote for instruments initialized via default price so downstream consumers receive non-null data before the first random-walk tick.
+- [ ] T022c [US1] Add INFO-level logs when volatility configuration falls back from DB override to application property (and vice versa) to meet NFR-003 transparency.
+- [ ] T022d [US1] Publish structured metrics and logs whenever price deltas are clamped to min/max rails (include symbol, exchange, unclamped delta, applied clamp) and expose counters for operator dashboards to satisfy FR-002a.
+- [ ] T022e [US1] Inject `ApplicationEventPublisher` (or equivalent) and emit `FeedStartedEvent` during auto-start and manual start flows, populating exchange list, trigger reason, and timestamp per FR-018.
+- [ ] T022f [US1] Persist an audit ledger record whenever default pricing is applied (symbol, exchange, fallback source, timestamp, actor) in accordance with FR-001.
 - [ ] T023 [US1] Implement `MockMarketDataService.stop()` method (cancel scheduled task, set state to STOPPED, log deactivation per research.md)
-- [ ] T024 [US1] Implement `MockMarketDataService.getStatus()` method (aggregate FeedStatusDTO with per-exchange metrics from InstrumentState map per data-model.md)
-- [ ] T025 [US1] Implement `MockMarketDataService.generateTicks()` method (query MarketHoliday for closed exchanges, filter instruments, apply PriceGenerator, update InstrumentState, broadcast QuoteDTO via WebSocketHandler per research.md)
-- [ ] T026 [US1] Add `@PostConstruct` method to auto-start feed on application launch (FR-013 requirement per spec.md)
+- [ ] T023a [US1] Publish `FeedStoppedEvent` when feed stops (manual stop or shutdown) with reason metadata and ensure duplicate stops do not emit duplicate events.
+- [ ] T024 [US1] Implement `MockMarketDataService.getStatus()` method (aggregate FeedStatusDTO with per-exchange metrics from InstrumentState map and include RollingMinuteVolatilityGuard state per data-model.md) to deliver FR-005 and FR-002b fields.
+- [ ] T025 [US1] Implement `MockMarketDataService.generateTicks()` method (query MarketHoliday for closed exchanges, filter instruments, consult RollingMinuteVolatilityGuard before applying PriceGenerator deltas, update InstrumentState, broadcast QuoteDTO via WebSocketHandler per research.md) while honoring FR-002b, FR-006, and FR-008.
+- [ ] T025a [US1] Implement `TradingSessionGuard` helper (or equivalent method) that inspects MarketHoliday and trading session configuration to determine exchange availability; expose method returning list of exchanges allowed to tick.
+- [ ] T025b [US1] Emit structured INFO logs when instruments are skipped due to holidays or closed trading sessions, including exchange and reason, to fulfil FR-008 and NFR-003.
+- [ ] T025c [US1] Emit `VolatilityGuardTriggeredEvent` when the rolling guard suppresses deltas and `VolatilityGuardReleasedEvent` (if defined) when the constraint clears, ensuring payload matches FR-018 contract.
+- [ ] T026 [US1] Add `@PostConstruct` method to auto-start feed on application launch only when `TradingSessionGuard` reports at least one exchange open; otherwise log that feed remains stopped (FR-013 requirement per spec.md)
 - [ ] T027 [US1] Add `@PreDestroy` method to gracefully stop feed on shutdown per research.md best practices
+- [ ] T024a [US1] Compute ticks-per-second as a 5-second moving average per exchange; include in `FeedStatusDTO` and expose via status endpoint (FR-016)
+
+### WebSocket Configuration _(implement after T036 series of tests are in place)_
+
+- [ ] T019 [US1] Extend `WebSocketConfig` in `src/main/java/com/rnexchange/config/WebSocketConfig.java` (enable STOMP broker for /topic destinations, register /ws endpoint with SockJS per research.md)
+- [ ] T020 [US1] Create `MarketDataWebSocketHandler` service in `src/main/java/com/rnexchange/web/websocket/MarketDataWebSocketHandler.java` (inject SimpMessagingTemplate, implement broadcastQuote() and broadcastBar() methods per quickstart.md)
+- [ ] T020a [US1] Add STOMP inbound channel interceptor to validate JWT on CONNECT and authorize `SUBSCRIBE` frames to `/topic/quotes/{symbol}` and `/topic/bars/{symbol}` (traders may only subscribe to symbols in their own watchlists; enforce FR-007, FR-017, and constitution RBAC)
 
 ### Backend: REST Endpoints for Operator Control
 
-- [ ] T028 [US1] Copy `contracts/mock-market-data.openapi.yaml` to `src/main/resources/swagger/api.yml` (merge with existing api.yml if present)
-- [ ] T029 [US1] Run code generation (`./mvnw generate-sources`) to generate `MarketDataControlApiDelegate` interface
-- [ ] T030 [US1] Create `MarketDataControlApiDelegateImpl` in `src/main/java/com/rnexchange/web/rest/delegate/MarketDataControlApiDelegateImpl.java` (inject MockMarketDataService)
-- [ ] T031 [US1] Implement `startMockFeed()` method with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` (call service.start(), return status per quickstart.md)
-- [ ] T032 [US1] Implement `stopMockFeed()` method with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` (call service.stop(), return status per quickstart.md)
-- [ ] T033 [US1] Implement `getMockFeedStatus()` method with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` (return service.getStatus() per quickstart.md)
+- [ ] T028 [US1] Merge `contracts/mock-market-data.openapi.yaml` into `src/main/resources/swagger/api.yml` (add new paths/components without overwriting existing definitions; use OpenAPI merge script documented in quickstart.md) to satisfy FR-004 contract coverage.
+- [ ] T029 [US1] Run code generation (`./mvnw generate-sources`) to generate `MarketDataControlApiDelegate` interface for FR-004.
+- [ ] T030 [US1] Create `MarketDataControlApiDelegateImpl` in `src/main/java/com/rnexchange/web/rest/delegate/MarketDataControlApiDelegateImpl.java` (inject MockMarketDataService) per FR-004.
+- [ ] T031 [US1] Implement `startMockFeed()` method with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` (call service.start(), return status per quickstart.md) ensuring FR-004 latency expectations are testable.
+- [ ] T032 [US1] Implement `stopMockFeed()` method with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` (call service.stop(), return status per quickstart.md) in line with FR-004.
+- [ ] T033 [US1] Implement `getMockFeedStatus()` method with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` (return service.getStatus() per quickstart.md) and include FR-005 fields.
 
-### Backend: Integration Tests
+### Frontend: Exchange Operator Console Panel
 
-- [ ] T034 [US1] Write `MockMarketDataServiceIT` in `src/test/java/com/rnexchange/service/marketdata/MockMarketDataServiceIT.java` (test start, stop, idempotency, status per quickstart.md examples)
-- [ ] T035 [US1] Write `MarketDataResourceIT` in `src/test/java/com/rnexchange/web/rest/MarketDataResourceIT.java` (test REST endpoints with @WithMockUser EXCHANGE_OPERATOR, verify RBAC per quickstart.md examples)
-- [ ] T036 [US1] Write `MarketDataWebSocketIT` in `src/test/java/com/rnexchange/web/websocket/MarketDataWebSocketIT.java` (test quote broadcast over WebSocket per quickstart.md example)
-
-### Frontend: Exchange Console Panel (Optional for MVP)
-
-- [ ] T037 [P] [US1] Create `MarketDataPanel` component in `src/main/webapp/app/modules/exchange-console/market-data-panel.tsx` (display feed status, last tick time, ticks/sec per exchange per quickstart.md)
-- [ ] T038 [P] [US1] Add start/stop buttons to MarketDataPanel (call POST /api/marketdata/mock/start and /stop endpoints per contracts)
-- [ ] T039 [P] [US1] Implement status polling in MarketDataPanel (GET /api/marketdata/mock/status every 2s, display in table per quickstart.md)
+- [ ] T039b [US1] Author failing Jest tests for MarketDataPanel verifying ticks-per-second visualization, volatility-band status indicators, status polling behaviour, and tooltip copy for educational transparency before implementing the component.
+- [ ] T037 [US1] Create `MarketDataPanel` component in `src/main/webapp/app/modules/exchange-console/market-data-panel.tsx` (display feed status, last tick time, ticks/sec per exchange per quickstart.md). **Begin only after T039b tests are red.**
+- [ ] T038 [US1] Add start/stop buttons to MarketDataPanel (call POST /api/marketdata/mock/start and /stop endpoints per contracts). **Begin only after T039b tests are red.**
+- [ ] T039 [US1] Implement status polling in MarketDataPanel (GET /api/marketdata/mock/status every 2s, display per-exchange ticks/sec plus active volatility-band indicators in the table per quickstart.md and FR-002b). **Begin only after T039b tests are red.**
+- [ ] T039a [US1] Add educational tooltips to Operator Console status panel explaining simulated feed, status states, and ticks/sec metric (FR-005, FR-015, FR-016). **Begin only after T039b tests are red.**
 
 ### Validation
 
 - [ ] T040 [US1] Manual test: Login as `exchange_op`, call POST /api/marketdata/mock/start via curl/Postman, verify response shows globalState=RUNNING
-- [ ] T041 [US1] Manual test: Check application logs for "Mock feed started automatically" on startup (FR-013)
+- [ ] T041 [US1] Manual test: With at least one exchange open, check application logs for "Mock feed started automatically" on startup (FR-013)
+- [ ] T041a [US1] Manual test: Mark all exchanges as holiday, restart application, confirm feed does not auto-start and logs reasoning (FR-013 guard)
 - [ ] T042 [US1] Manual test: Call POST /api/marketdata/mock/stop, verify globalState=STOPPED within 2s
 - [ ] T043 [US1] Manual test: Verify idempotency (multiple start calls return success without error)
-- [ ] T044 [US1] Run all backend integration tests (`./mvnw verify -Dtest=MockMarketDataServiceIT,MarketDataResourceIT,MarketDataWebSocketIT`)
+- [ ] T044 [US1] Run all backend integration tests (`./mvnw verify -Dtest=MockMarketDataServiceIT,MarketDataControlResourceIT,MarketDataWebSocketIT`)
 
 **US1 Completion Criteria**: Exchange operator can start/stop feed via REST API, status updates within 2s, feed auto-starts on launch, all integration tests pass. US1 is independently deployable and testable.
+
+---
+
+## Phase 3B: Throughput Benchmarking (NFR-005 Mandatory)
+
+**Goal**: Validate and tune the mock feed so it meets the 10,000 ticks-per-second throughput and latency guarantees before exposing Market Watch to traders.
+
+**Why Mandatory**: NFR-005 is constitutional for real-time architecture. Trader experience (US2/US3) must not proceed until throughput benchmarks are proven in CI.
+
+### Performance Engineering & Tests
+
+- [ ] T113 Implement batch broadcasting in `MockMarketDataService` (queue quotes, flush every 100 ms with deduplication per research.md Section 6.1) to sustain high tick rates.
+- [ ] T124 Run Gatling load test and verify success criteria (aggregate throughput ≥10,000 tick updates/sec sustained, p95 latency <500 ms, <0.1% message loss, <4 GB heap per research.md and constitution).
+- [ ] T124a Extend Gatling or integration telemetry assertions to capture tick cadence (≥10,000 updates/sec across all exchanges) and cross-exchange isolation (≤1% leakage) to satisfy SC-002 and SC-005 metrics outlined in plan.md.
+- [ ] T124b Develop a Gatling scenario targeting `POST /api/marketdata/mock/start` and `POST /api/marketdata/mock/stop` with 1,000 concurrent virtual users to measure p95 latency.
+- [ ] T124c Add automated SLA assertions ensuring operator control endpoints respond within 2 seconds (p95) and fail the pipeline if breached (covers NFR-001).
+- [ ] T124d Extend performance suite to measure WebSocket reconnect duration across virtual users and fail the run if any reconnect exceeds 30 seconds (reinforces NFR-002).
+- [ ] T124e Capture reconnect duration percentiles across 1,000 disconnect cycles and assert 99% complete within 30 seconds; fail the Gatling suite if the percentile breach occurs (formal NFR-002 compliance gate).
+
+### Validation
+
+- [ ] T124f Integrate the Gatling suite into CI and block promotion to Phase 4 until all throughput SLAs pass.
+
+**Phase 3B Completion Criteria**: Batch broadcasting implemented, Gatling suite meets all throughput and SLA targets, CI gate prevents regressions. Only after this phase passes can Market Watch development (Phase 4) begin.
 
 ---
 
@@ -176,7 +252,7 @@ graph TD
 
 **Independent Test**: Can be fully tested by logging in as `trader1`, opening Market Watch, and verifying watchlist instruments update in real-time with accurate calculations and status cues.
 
-**Dependencies**: Requires US1 (feed must be running to generate quotes).
+**Dependencies**: Requires US1 (feed must be running) and Phase 3B throughput benchmarking (NFR-005) to be greenlit.
 
 **Acceptance Criteria** (from spec.md):
 
@@ -185,12 +261,14 @@ graph TD
 
 ### Frontend: WebSocket Service
 
-- [ ] T045 [P] [US2] Create TypeScript model `IQuote` in `src/main/webapp/app/shared/model/quote.model.ts` (symbol, lastPrice, open, change, changePercent, volume, timestamp fields per contracts/websocket-topics.md)
+- [ ] T045 [P] [US2] Create TypeScript model `IQuote` in `src/main/webapp/app/shared/model/quote.model.ts` (symbol, lastPrice, open, change, changePercent, volume, timestamp fields per contracts/websocket-topics.md) to satisfy FR-009.
 - [ ] T046 [P] [US2] Create TypeScript model `IBar` in `src/main/webapp/app/shared/model/bar.model.ts` (symbol, open, high, low, close, volume, timestamp per contracts/websocket-topics.md)
-- [ ] T047 [US2] Create `MarketDataWebSocketService` class in `src/main/webapp/app/modules/market-watch/websocket-service.ts` (wrap @stomp/stompjs Client, implement connect/subscribe/unsubscribe/disconnect per contracts/websocket-topics.md example)
+- [ ] T047 [US2] Create `MarketDataWebSocketService` class in `src/main/webapp/app/modules/market-watch/websocket-service.ts` (wrap @stomp/stompjs Client, implement connect/subscribe/unsubscribe/disconnect per contracts/websocket-topics.md example) to uphold FR-006 and FR-007.
+- [ ] T047a [US2] Create reusable STOMP client wrapper in `src/main/webapp/app/shared/websocket/stomp-client.ts` (centralize configuration, logging, and reconnection hooks per plan.md project structure).
 - [ ] T048 [US2] Implement JWT token extraction in WebSocketService (get token from Storage.local or Storage.session per quickstart.md example)
 - [ ] T049 [US2] Implement reconnection logic with exponential backoff (reconnectDelay: 5000, heartbeat: 10000 per contracts/websocket-topics.md)
 - [ ] T050 [US2] Implement subscription management (Map<symbol, subscription> to track active subscriptions per contracts/websocket-topics.md)
+- [ ] T050a [US2] Refactor MarketDataWebSocketService to delegate stomp client lifecycle to the shared module, preventing drift with other WebSocket consumers.
 
 ### Frontend: Redux State Management
 
@@ -203,27 +281,36 @@ graph TD
 - [ ] T054 [US2] Implement useEffect for connection lifecycle (activate client, subscribe to symbols, cleanup on unmount per contracts/websocket-topics.md)
 - [ ] T055 [US2] Implement symbol change detection (re-subscribe when symbols array changes per contracts/websocket-topics.md)
 
+### Frontend: Component Tests (author before UI implementation)
+
+- [ ] T067 [P] [US2] Draft failing `market-watch.spec.tsx` in `src/test/javascript/spec/app/modules/market-watch/market-watch.spec.tsx` (capture expected rendering, quote updates, empty-state messaging, feed-paused/holiday banners, and tooltip placeholders per acceptance tests).
+- [ ] T068 [P] [US2] Draft failing `market-watch.reducer.spec.ts` for Redux reducer behavior (updateQuote, setConnectionStatus, clearQuotes actions).
+- [ ] T068a [P] [US2] Add pending assertions in `market-watch.spec.tsx` for tooltip copy verification (FR-015) to drive UI implementation.
+- [ ] T068b [P] [US2] Add pending assertions in `market-watch.spec.tsx` validating the "Closed/Holiday" badge rendering and frozen data behaviour (FR-011).
+- [ ] T068c [P] [US2] Add explicit assertions in `market-watch.spec.tsx` that the UI renders the server-provided percent change field without recalculating client-side, ensuring compliance with FR-009/FR-010.
+
 ### Frontend: Market Watch Component
 
 - [ ] T056 [US2] Create `market-watch.tsx` component in `src/main/webapp/app/modules/market-watch/market-watch.tsx` (main Market Watch screen per quickstart.md example)
-- [ ] T057 [US2] Implement watchlist selector dropdown (load trader's watchlists from existing API, display in dropdown)
-- [ ] T058 [US2] Implement quote table (columns: Symbol, LTP, Change, Change %, Volume, Last Updated per spec.md FR-009)
+- [ ] T057 [US2] Implement watchlist selector dropdown (load trader's watchlists from existing API, display in dropdown) to meet FR-012.
+- [ ] T057a [US2] Display meaningful empty state when trader selects a watchlist with zero instruments (include guidance and avoid opening WebSocket subscriptions) per FR-012.
+- [ ] T058 [US2] Implement quote table (columns: Symbol, LTP, Change, Change %, Volume, Last Updated per spec.md FR-009) ensuring Change % displays the value supplied by the QuoteDTO without recomputing client-side.
+- [ ] T058a [US2] Render "Closed/Holiday" badge on rows whose exchanges are closed and freeze quote updates while badge is active (FR-011).
 - [ ] T059 [US2] Implement row color coding (green for positive change, red for negative, gray for neutral per spec.md FR-010)
 - [ ] T060 [US2] Add "SIMULATED FEED" badge at top of Market Watch (persistent badge per spec.md FR-010)
-- [ ] T061 [US2] Add WebSocket connection status indicator (Connected/Reconnecting/Disconnected badge per spec.md FR-010)
+- [ ] T061 [US2] Add WebSocket connection status indicator (bottom-right 16 px traffic-light dot with green/amber/red states representing Connected/Reconnecting/Disconnected per spec.md FR-010)
 - [ ] T062 [US2] Integrate useMarketDataSubscription hook (subscribe to watchlist symbols, dispatch updateQuote on message per quickstart.md)
+- [ ] T062a [US2] Detect feed stop events or closed exchanges and display inline feedback (e.g., banner "Feed paused by operator/holiday" with last update timestamp) while freezing quote updates to satisfy FR-011.
+- [ ] T062b [US2] Extend `market-watch.spec.tsx` coverage to assert "Closed/Holiday" badge behaviour and frozen timestamps (align with T068b expectations and FR-011).
 - [ ] T063 [US2] Implement client-side throttling (throttle Redux dispatch to 200ms per quote per research.md best practices)
 - [ ] T064 [US2] Create `market-watch.scss` styling in `src/main/webapp/app/modules/market-watch/market-watch.scss` (table styling, color classes, badges)
+- [ ] T060a [US2] Add educational tooltips to Market Watch (badge tooltip; column header tooltips for LTP, Change, Change %, Volume) with testable selectors (FR-015)
+- [ ] T061a [US2] Component tests: verify tooltips render with expected copy and appear on hover/focus for each traffic-light state, including accessible status text
 
 ### Frontend: Routing & Navigation
 
 - [ ] T065 [US2] Add Market Watch route in `src/main/webapp/app/routes.tsx` (PrivateRoute path="/market-watch" hasAnyAuthorities={[AUTHORITIES.TRADER]} per quickstart.md)
 - [ ] T066 [US2] Add Market Watch navigation link in trader menu (visible only to TRADER role)
-
-### Frontend: Component Tests
-
-- [ ] T067 [P] [US2] Write `market-watch.spec.tsx` in `src/test/javascript/spec/app/modules/market-watch/market-watch.spec.tsx` (test component rendering, quote updates, color coding per quickstart.md)
-- [ ] T068 [P] [US2] Write `market-watch.reducer.spec.ts` for Redux reducer tests (test updateQuote, setConnectionStatus, clearQuotes actions)
 
 ### Backend: Bar Broadcasting (60-second intervals)
 
@@ -237,6 +324,9 @@ graph TD
 - [ ] T073 [US2] Manual test: Verify prices update automatically every ~1 second (check Last Updated column)
 - [ ] T074 [US2] Manual test: Verify color coding (green for positive change, red for negative)
 - [ ] T075 [US2] Manual test: Disconnect network, verify status shows "DISCONNECTED", reconnect and verify recovery
+- [ ] T075a [US2] Manual test: Stop feed from operator console while viewing Market Watch, confirm banner indicates paused state and quotes freeze with last update timestamp.
+- [ ] T075b [US2] Manual test: Mark an exchange as holiday, refresh Market Watch, verify impacted instruments show "Closed/Holiday" badge and remain static until trading resumes (FR-008 & FR-011).
+- [ ] T075c [US2] Automated test: Simulate WebSocket disconnect and assert reconnection completes within 30 seconds, failing the build if SLA is breached (covers NFR-002).
 - [ ] T076 [US2] Run frontend tests (`npm test -- market-watch.spec.tsx`)
 
 **US2 Completion Criteria**: Trader can view Market Watch with live updating prices, WebSocket connection status indicator works, color coding applies, all component tests pass. US2 is independently testable (requires US1 feed running).
@@ -256,6 +346,12 @@ graph TD
 1. Given trader selects watchlist, When they add eligible instrument, Then instrument appears in table within 2s and begins displaying simulated quotes
 2. Given trader viewing watchlist entry, When they remove instrument, Then it disappears from table and no longer receives live updates
 
+### Backend: Tests (author before implementation)
+
+- [ ] T090 [P] [US3] Draft failing `WatchlistResourceIT` in `src/test/java/com/rnexchange/web/rest/WatchlistResourceIT.java` (cover add/remove, ownership validation, duplicate/invalid symbol responses as per contracts).
+- [ ] T090a [US3] Extend integration coverage with a latency-focused test (e.g., `WatchlistLatencyIT`) that asserts a newly added instrument begins emitting live quotes within 2 seconds of the POST `/api/watchlists/{id}/items` response (FR-014 SLA).
+- [ ] T090b [US3] Extend integration coverage to assert that removing an instrument halts quote delivery and WebSocket broadcasts within 2 seconds of DELETE `/api/watchlists/{id}/items/{symbol}` completing, satisfying the FR-014 removal SLA.
+
 ### Backend: Watchlist API Extensions
 
 - [ ] T077 [P] [US3] Create `WatchlistDTO` record in `src/main/java/com/rnexchange/service/dto/WatchlistDTO.java` (id, name, items list per data-model.md)
@@ -267,41 +363,39 @@ graph TD
 
 ### Backend: Add Item Implementation
 
-- [ ] T083 [US3] Implement `addWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, check symbol exists, check for duplicates, add item, return updated watchlist per quickstart.md example)
+- [ ] T083 [US3] Implement `addWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, check symbol exists, check for duplicates, add item, return updated watchlist per quickstart.md example) to fulfil FR-014.
 - [ ] T084 [US3] Add ownership validation (compare watchlist.trader.user.login to SecurityUtils.getCurrentUserLogin(), return 403 if mismatch per research.md)
 - [ ] T085 [US3] Add instrument existence check (query InstrumentRepository.findBySymbol(), return 400 if not found per quickstart.md)
 - [ ] T086 [US3] Add duplicate check (stream watchlist items, return 400 if symbol already present per quickstart.md)
 
 ### Backend: Remove Item Implementation
 
-- [ ] T087 [US3] Implement `removeWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, find item by symbol, remove from watchlist, return updated watchlist per contracts)
+- [ ] T087 [US3] Implement `removeWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, find item by symbol, remove from watchlist, return updated watchlist per contracts) in alignment with FR-014.
 - [ ] T088 [US3] Add symbol-in-watchlist check (return 404 if symbol not in watchlist per contracts)
 
 ### Backend: Get Watchlist Implementation
 
 - [ ] T089 [US3] Implement `getWatchlist()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, return WatchlistDTO per contracts)
 
-### Backend: Integration Tests
+### Frontend: Component Tests (author before UI implementation)
 
-- [ ] T090 [P] [US3] Write `WatchlistResourceIT` in `src/test/java/com/rnexchange/web/rest/WatchlistResourceIT.java` (test add item, remove item, ownership validation, duplicate rejection per quickstart.md example)
+- [ ] T098 [P] [US3] Draft failing `watchlist-selector.spec.tsx` capturing selection display, empty-state, and API invocation expectations.
+- [ ] T099 [P] [US3] Extend `market-watch.spec.tsx` with pending tests for add/remove flows (mock API responses, subscription adjustments, error messaging).
+- [ ] T099a [US3] Implement an automated SLA assertion in `market-watch.spec.tsx` (or supporting utility) that fails if the UI shows the new instrument’s first quote later than 2 seconds after add/remove completion.
+- [ ] T099b [US3] Extend `market-watch.spec.tsx` (or the subscription hook test) to assert that removed symbols disappear from the table and stop receiving updates within 2 seconds of the delete action completing, matching FR-014.
 
 ### Frontend: Watchlist Management UI
 
 - [ ] T091 [P] [US3] Create `WatchlistSelector` component in `src/main/webapp/app/modules/market-watch/watchlist-selector.tsx` (dropdown to select watchlist, displays name and item count)
-- [ ] T092 [US3] Add "Add Symbol" button/modal to Market Watch (input for symbol, validation, POST to /api/watchlists/{id}/items per contracts)
-- [ ] T093 [US3] Add "Remove" action to each watchlist row (delete icon/button, DELETE to /api/watchlists/{id}/items/{symbol} per contracts)
+- [ ] T092 [US3] Add "Add Symbol" button/modal to Market Watch (input for symbol, validation, POST to /api/watchlists/{id}/items per contracts) to support FR-014.
+- [ ] T093 [US3] Add "Remove" action to each watchlist row (delete icon/button, DELETE to /api/watchlists/{id}/items/{symbol} per contracts) to support FR-014.
 - [ ] T094 [US3] Implement optimistic UI updates (update Redux state immediately, revert on error)
-- [ ] T095 [US3] Update useMarketDataSubscription to handle symbol changes (unsubscribe from removed symbols, subscribe to added symbols per contracts/websocket-topics.md)
-- [ ] T096 [US3] Add error handling for add/remove operations (display toast/alert on validation errors per contracts error responses)
+- [ ] T095 [US3] Update useMarketDataSubscription hook to handle dynamic symbol changes (explicitly unsubscribe from removed symbols via subscription.unsubscribe(), subscribe to newly added symbols, maintain subscriptions Map per contracts/websocket-topics.md) to honour FR-014 and FR-017.
+- [ ] T096 [US3] Add error handling for add/remove operations (display toast/alert on validation errors per contracts error responses) to ensure FR-014 acceptance criteria are met.
 
 ### Frontend: API Integration
 
 - [ ] T097 [P] [US3] Create watchlist API service in `src/main/webapp/app/shared/api/watchlist.api.ts` (functions for addItem, removeItem, getWatchlist wrapping axios calls per contracts)
-
-### Frontend: Component Tests
-
-- [ ] T098 [P] [US3] Write `watchlist-selector.spec.tsx` for WatchlistSelector component tests (test selection, display)
-- [ ] T099 [P] [US3] Update `market-watch.spec.tsx` to test add/remove functionality (mock API calls, verify symbol appears/disappears)
 
 ### Validation
 
@@ -325,16 +419,14 @@ graph TD
 
 ### Edge Cases & Holiday Handling
 
-- [ ] T109 [P] Implement holiday filtering in MockMarketDataService.generateTicks() (query MarketHoliday table, filter out closed exchanges per research.md implementation)
-- [ ] T110 [P] Implement trading hours check (isWithinTradingHours method comparing LocalTime per research.md)
-- [ ] T111 [P] Add "Closed/Holiday" badge display in Market Watch UI (show badge for instruments whose exchange is on holiday per spec.md FR-014)
+- [ ] T109 [P] Verify holiday filtering behavior in MockMarketDataService (execute integration test scenario covering MarketHoliday and trading session gating; ensure logs reflect skipped exchanges) per FR-008 and NFR-003.
+- [ ] T110 [P] Validate `TradingSessionGuard` behaviour with focused integration tests (isWithinTradingHours scenarios comparing LocalTime per research.md); ensure logging matches NFR-003 expectations
 - [ ] T112 [P] Test holiday scenario: Insert test MarketHoliday record for NSE today, restart feed, verify NSE instruments stop ticking
 
 ### Performance Optimization
 
-- [ ] T113 [P] Implement batch broadcasting in MockMarketDataService (queue quotes, flush every 100ms with deduplication per research.md Section 6.1)
 - [ ] T114 [P] Configure Spring task executor thread pools in `application.yml` (scheduling pool size=8, execution pool size=16 per research.md Section 6.2)
-- [ ] T115 [P] Implement client-side throttling in Market Watch (throttle updateQuote dispatch to 200ms per research.md Section 6.3)
+- [ ] T115 [P] Verify client-side throttling effectiveness in Market Watch (assert dispatch throttle ~200ms per symbol; adjust only if perf requires)
 - [ ] T116 [P] Add subscription limit validation (max 50 symbols per client, return ERROR frame if exceeded per contracts/websocket-topics.md)
 
 ### Stale Data Detection
@@ -343,7 +435,7 @@ graph TD
 
 ### Audit Logging
 
-- [ ] T118 [P] Add audit logging for operator start/stop actions (log to TraderAuditLog with user ID, role, action, timestamp per research.md best practices)
+- [ ] T118 [P] Add audit logging listener that subscribes to `FeedStartedEvent`/`FeedStoppedEvent` and persists entries to TraderAuditLog with user ID, role, action, timestamp per research.md best practices
 
 ### Error Handling
 
@@ -357,21 +449,21 @@ graph TD
 
 ### Performance Testing
 
-- [ ] T123 Create Gatling load test scenario (`src/test/gatling/MarketWatchSimulation.scala` per quickstart.md: 1,000 traders subscribing to 10 symbols each)
-- [ ] T124 Run Gatling test and verify success criteria (p95 latency <500ms, <0.1% message loss, <4GB heap per research.md)
+- [ ] T123 Create Gatling load test scenario (`src/test/gatling/MarketWatchSimulation.scala` per quickstart.md: 1,000 traders subscribing to 10 symbols each, high-frequency tick mode enabled)
 
 ### Documentation
 
 - [ ] T125 [P] Update main README.md with Market Watch feature section (add navigation instructions, screenshots)
 - [ ] T126 [P] Document environment variables/configuration in README (volatility factors, tick intervals, thread pool sizes)
 - [ ] T127 [P] Add troubleshooting section to quickstart.md (based on manual testing findings)
+- [ ] T126a [P] Add tooltip copy and placement to quickstart.md/README (SIMULATED FEED badge, column headers, Operator Console status panel) per Educational Transparency principle
 
 ### Code Quality
 
 - [ ] T128 Run ESLint on frontend code (`npm run lint` and fix any errors)
 - [ ] T129 Run Checkstyle on backend code (`./mvnw checkstyle:check` and fix violations)
 - [ ] T130 Run SonarQube analysis (`./mvnw sonar:sonar` and address P1 issues)
-- [ ] T131 Verify test coverage targets (90%+ backend via JaCoCo, 80%+ frontend via Jest coverage report)
+- [ ] T131 Configure JaCoCo and Jest coverage thresholds (fail build if backend <90% or frontend <80%) and verify reports stay above targets in CI
 
 ### Deployment Preparation
 
@@ -383,7 +475,7 @@ graph TD
 
 - [ ] T135 Run full test suite (`./mvnw verify && npm test`)
 - [ ] T136 Manual regression test: All acceptance scenarios from spec.md (US1, US2, US3)
-- [ ] T137 Performance validation: Run Gatling scenario, confirm targets met
+- [ ] T137 Performance validation: Re-run the Phase 3B throughput suite (T124-T124e) after integration to confirm targets remain met
 - [ ] T138 Security validation: Verify RBAC on all endpoints (try accessing operator endpoints as trader, expect 403)
 - [ ] T139 Cross-browser test: Verify Market Watch works in Chrome, Firefox, Safari
 - [ ] T140 Mobile responsive test: Check Market Watch layout on mobile viewport (optional)
@@ -396,29 +488,34 @@ graph TD
 
 ### Task Breakdown
 
-| Phase                               | Task Count | Parallelizable | Story         |
-| ----------------------------------- | ---------- | -------------- | ------------- |
-| Phase 1: Setup                      | 7          | 0              | N/A           |
-| Phase 2: Foundational               | 13         | 9              | N/A           |
-| Phase 3: US1 - Feed Control         | 24         | 4              | US1 (P1)      |
-| Phase 4: US2 - Market Watch         | 32         | 10             | US2 (P2)      |
-| Phase 5: US3 - Watchlist Management | 32         | 11             | US3 (P3)      |
-| Phase 6: Polish                     | 32         | 18             | Cross-cutting |
-| **Total**                           | **140**    | **52**         | **3 stories** |
+| Phase                               | Task Count | Parallelizable | Story               |
+| ----------------------------------- | ---------- | -------------- | ------------------- |
+| Phase 1: Setup                      | 7          | 0              | N/A                 |
+| Phase 2: Foundational               | 20         | 13             | N/A                 |
+| Phase 3: US1 - Feed Control         | 44         | 7              | US1 (P1)            |
+| Phase 3B: Throughput Benchmarking   | 7          | 2              | NFR-005 (Mandatory) |
+| Phase 4: US2 - Market Watch         | 46         | 13             | US2 (P2)            |
+| Phase 5: US3 - Watchlist Management | 32         | 11             | US3 (P3)            |
+| Phase 6: Polish                     | 30         | 18             | Cross-cutting       |
+| **Total**                           | **186**    | **64**         | **3 stories + NFR** |
 
 ### Parallel Execution Opportunities
 
 **Within Phase 2 (Foundational)**:
 
-- T008-T013 (DTOs/enums) can all run in parallel (different files)
+- T202-T207 (DTOs/enums) can all run in parallel (different files)
 
 **Within Phase 3 (US1)**:
 
 - T037-T039 (frontend console panel) can run in parallel with T034-T036 (backend tests)
 
-**Within Phase 4 (US2)**:
+**Within Phase 3B (Throughput Benchmarking)**:
 
-- T045-T046 (TypeScript models), T051-T052 (Redux), T067-T068 (tests) can run in parallel
+- T113 (batching implementation) can begin while Gatling suite scaffolding (T124, T124a-T124d) is prepared; final CI gate (T124e) requires all preceding tasks green.
+
+**Within Phase 4 (US2)** _(begin only after Phase 3B throughput benchmarks pass)_:
+
+- Once T124-T124e are green, T045-T046 (TypeScript models), T051-T052 (Redux), and T067-T068 (tests) can run in parallel
 
 **Within Phase 5 (US3)**:
 
@@ -430,35 +527,37 @@ graph TD
 
 ### MVP Scope Recommendation
 
-**Minimum Viable Product**: Complete through Phase 3 (US1) only.
+**Minimum Viable Product**: Complete through Phase 3 (US1) **and** Phase 3B throughput benchmarking.
 
-**Rationale**: US1 provides core value - operators can control the simulated feed, quotes are generated and broadcast over WebSocket. This is independently deployable and testable. US2 and US3 add UI convenience but aren't blocking for feed functionality.
+**Rationale**: US1 provides the core operator controls and real-time feed, while Phase 3B proves NFR-005 throughput before exposing traders. Without the throughput gate, the feature would violate the Real-Time Architecture principle.
 
 **Incremental Rollout**:
 
 1. **Sprint 1**: Phase 1-3 (Setup + Foundation + US1) → Deploy to staging, validate feed control
-2. **Sprint 2**: Phase 4 (US2) → Add Market Watch UI, validate trader experience
-3. **Sprint 3**: Phase 5 (US3) → Add watchlist management, full feature complete
-4. **Sprint 4**: Phase 6 (Polish) → Performance tuning, E2E tests, production deploy
+2. **Sprint 1 Gate**: Phase 3B throughput benchmarking → Block promotion until Gatling suite passes
+3. **Sprint 2**: Phase 4 (US2) → Add Market Watch UI, validate trader experience
+4. **Sprint 3**: Phase 5 (US3) → Add watchlist management, full feature complete
+5. **Sprint 4**: Phase 6 (Polish) → Performance tuning, E2E tests, production deploy
 
 ### Independent Testing Per Story
 
-| Story   | Test Without Others     | Test Data Needed                   | Test User     |
-| ------- | ----------------------- | ---------------------------------- | ------------- |
-| **US1** | ✅ Yes                  | M0 baseline (Instrument, Exchange) | `exchange_op` |
-| **US2** | ✅ Requires US1 running | M0 baseline + US1 feed active      | `trader1`     |
-| **US3** | ✅ Requires US2 UI      | M0 baseline + trader's watchlists  | `trader1`     |
+| Story / NFR            | Test Without Others        | Test Data Needed                                        | Test User / Env |
+| ---------------------- | -------------------------- | ------------------------------------------------------- | --------------- |
+| **US1**                | ✅ Yes                     | M0 baseline (Instrument, Exchange)                      | `exchange_op`   |
+| **Phase 3B** (NFR-005) | ✅ Requires US1 feed       | Gatling simulation data, load profiles from research.md | CI runner       |
+| **US2**                | ✅ Requires US1 + Phase 3B | M0 baseline + US1 feed active                           | `trader1`       |
+| **US3**                | ✅ Requires US2 UI         | M0 baseline + trader's watchlists                       | `trader1`       |
 
 ### Constitution Compliance Checklist
 
 Per plan.md Constitution Check:
 
-- [x] **TDD**: Contract tests before implementation (T015, T034-T036, T067-T068, T090, T098-T099, T121-T122)
+- [x] **TDD**: Contract tests before implementation (T208, T034-T036, T067-T068, T090, T098-T099, T121-T122)
 - [x] **JHipster Conventions**: OpenAPI-first (T028-T029, T080-T081), layered architecture (Service → Resource → Delegate)
 - [x] **RBAC**: `@PreAuthorize` on all endpoints (T031-T033, T083, T087, T089)
 - [x] **Real-Time Architecture**: WebSocket/STOMP implementation (T019-T020, T047-T050, T069)
-- [x] **Educational Transparency**: UI badges (T060-T061, T111)
-- [x] **DDD**: Domain services (T021-T027), value objects (T008-T012), business logic in services not controllers
+- [x] **Educational Transparency**: UI badges (T039a, T060, T060a, T061a)
+- [x] **DDD**: Domain services (T021-T027), value objects (T202-T206), business logic in services not controllers
 - [x] **API-First**: OpenAPI contracts before code generation (T028, T080)
 
 ---
@@ -472,42 +571,46 @@ Per plan.md Constitution Check:
 git checkout 002-mock-market-data
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev,seed  # Verify M0 baseline
 
-# 2. Foundation phase (T008-T020)
+# 2. Foundation phase (T202-T219)
 # Implement DTOs, PriceGenerator, BarAggregator, WebSocket config
 
 # 3. US1 phase (T021-T044)
 # Implement MockMarketDataService, REST endpoints, integration tests
 
 # 4. Validate US1
-./mvnw verify -Dtest=MockMarketDataServiceIT,MarketDataResourceIT
+./mvnw verify -Dtest=MockMarketDataServiceIT,MarketDataControlResourceIT,MarketDataWebSocketIT
 curl -X POST http://localhost:8080/api/marketdata/mock/start \
   -H "Authorization: Bearer $EXCHANGE_OP_TOKEN"
 
-# 5. MVP complete - deploy to staging
+# 5. Throughput gate (Phase 3B)
+./mvnw gatling:test -Dgatling.simulationClass=com.rnexchange.marketwatch.MarketWatchSimulation
+# Ensure Gatling reports success for T124-T124e before proceeding (CI blocker)
+
+# 6. MVP complete - deploy to staging
 ```
 
 ### Full Feature (All Stories)
 
 ```bash
-# After US1 validated, continue with US2 (T045-T076)
+# After US1 validated and throughput gate passes, continue with US2 (T045-T076)
 # Then US3 (T077-T108)
-# Then Polish (T109-T140)
+# Then Polish (T109-T140) while keeping Gatling suite (T124-T124e) green
 
 # Final validation
 ./mvnw verify && npm test
 npm run e2e
-./mvnw gatling:test
+./mvnw gatling:test  # re-run to confirm no regressions after UI work
 ```
 
 ### Parallel Development Strategy
 
 **Team of 3 developers**:
 
-- **Developer A**: US1 backend (T021-T036)
-- **Developer B**: Foundation (T008-T020) → US1 frontend (T037-T039)
-- **Developer C**: Tests (T015, T034-T036) → US2 prep (T045-T046, T051-T052)
+- **Developer A**: US1 backend (T021-T036) → Throughput batching (T113) → Support Gatling scenarios (T124-T124d)
+- **Developer B**: Foundation (T202-T219) → US1 frontend (T037-T039) → Assist with Gatling CI integration (T124e)
+- **Developer C**: Tests (T208, T034-T036) → Build Gatling suite (T124-T124d) → US2 prep (T045-T046, T051-T052)
 
-**After US1 complete**:
+**After US1 + Phase 3B complete**:
 
 - **Developer A**: US2 backend (T069) → US3 backend (T077-T090)
 - **Developer B**: US2 frontend (T047-T066)
@@ -523,4 +626,4 @@ npm run e2e
 4. **Set up CI/CD** to run tests on each PR (integration tests, lint, coverage)
 5. **Begin implementation** starting with Phase 1 (Setup verification)
 
-**Ready to implement!** 🚀 All 140 tasks are executable, dependency-ordered, and independently testable per user story.
+**Ready to implement!** 🚀 All 181 tasks are executable, dependency-ordered, and independently testable per user story/NFR gate.
