@@ -1,0 +1,29 @@
+# rnexchange Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-11-13
+
+## Active Technologies
+
+- Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18) + JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct), Liquibase XML changelogs, JPA/Hibernate (001-seed-domain-data)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18): Follow standard conventions
+
+## Recent Changes
+
+- 001-seed-domain-data: Added Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18) + JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct), Liquibase XML changelogs, JPA/Hibernate
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

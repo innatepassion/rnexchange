@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: RNExchange Baseline Seeding API
+  version: 0.1.0
+  description: >
+    Administrative endpoints for wiping legacy demo data and applying the curated
+    trading baseline for MVP readiness.
+servers:
+  - url: https://api.rnexchange.local
+    description: Local dev/staging environment
+security:
+  - bearerAuth: []
+paths:
+  /api/admin/baseline-seed/refresh:
+    post:
+      summary: Reset database to curated baseline
+      description: >
+        Truncates non-system tables, replays Liquibase schema, and applies the
+        `0001-seed-domain-data` changelog. Requires `ROLE_ADMIN`.
+      operationId: triggerBaselineSeed
+      tags:
+        - BaselineSeed
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaselineSeedRequest'
+      responses:
+        '202':
+          description: Baseline seed accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaselineSeedResponse'
+        '409':
+          description: A seed job is already running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/admin/baseline-seed/status/{jobId}:
+    get:
+      summary: Retrieve baseline seed job status
+      description: Poll the latest status of an asynchronous seeding job.
+      operationId: getBaselineSeedStatus
+      tags:
+        - BaselineSeed
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaselineSeedStatus'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    BaselineSeedRequest:
+      type: object
+      properties:
+        force:
+          type: boolean
+          default: false
+          description: >
+            If true, truncates tables even when the database appears empty.
+        contexts:
+          type: array
+          items:
+            type: string
+          description: >
+            Optional Liquibase contexts to include (defaults to `baseline`).
+    BaselineSeedResponse:
+      type: object
+      required:
+        - jobId
+        - submittedAt
+      properties:
+        jobId:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+    BaselineSeedStatus:
+      type: object
+      required:
+        - jobId
+        - state
+        - updatedAt
+      properties:
+        jobId:
+          type: string
+        state:
+          type: string
+          enum:
+            - QUEUED
+            - RUNNING
+            - SUCCEEDED
+            - FAILED
+        updatedAt:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key metrics such as row counts by entity.
+        errors:
+          type: array
+          items:
+            type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
