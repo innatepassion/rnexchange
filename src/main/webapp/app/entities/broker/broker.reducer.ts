@@ -2,9 +2,13 @@ import axios from 'axios';
 import { createAsyncThunk, isFulfilled, isPending } from '@reduxjs/toolkit';
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { EntityState, IQueryParams, createEntitySlice, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
-import { IBroker, defaultValue } from 'app/shared/model/broker.model';
+import { IBroker, defaultValue, IBrokerBaseline } from 'app/shared/model/broker.model';
 
-const initialState: EntityState<IBroker> = {
+interface BrokerState extends EntityState<IBroker> {
+  baseline: IBrokerBaseline | null;
+}
+
+const initialState: BrokerState = {
   loading: false,
   errorMessage: null,
   entities: [],
@@ -12,6 +16,7 @@ const initialState: EntityState<IBroker> = {
   updating: false,
   totalItems: 0,
   updateSuccess: false,
+  baseline: null,
 };
 
 const apiUrl = 'api/brokers';
@@ -77,6 +82,15 @@ export const deleteEntity = createAsyncThunk(
   { serializeError: serializeAxiosError },
 );
 
+export const getBaseline = createAsyncThunk(
+  'broker/fetch_baseline',
+  async (id: string | number) => {
+    const requestUrl = `${apiUrl}/${id}/baseline`;
+    return axios.get<IBrokerBaseline>(requestUrl);
+  },
+  { serializeError: serializeAxiosError },
+);
+
 // slice
 
 export const BrokerSlice = createEntitySlice({
@@ -87,6 +101,10 @@ export const BrokerSlice = createEntitySlice({
       .addCase(getEntity.fulfilled, (state, action) => {
         state.loading = false;
         state.entity = action.payload.data;
+      })
+      .addCase(getBaseline.fulfilled, (state, action) => {
+        state.loading = false;
+        (state as unknown as BrokerState).baseline = action.payload.data;
       })
       .addCase(deleteEntity.fulfilled, state => {
         state.updating = false;
@@ -109,7 +127,7 @@ export const BrokerSlice = createEntitySlice({
         state.updateSuccess = true;
         state.entity = action.payload.data;
       })
-      .addMatcher(isPending(getEntities, getEntity), state => {
+      .addMatcher(isPending(getEntities, getEntity, getBaseline), state => {
         state.errorMessage = null;
         state.updateSuccess = false;
         state.loading = true;

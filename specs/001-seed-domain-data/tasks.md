@@ -86,15 +86,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Add Cypress spec `broker-seed.cy.ts` verifying broker desk view, capturing login-to-ready duration, persisting the metric artifact, and asserting ≤60 s readiness in `src/test/javascript/cypress/e2e/broker/broker-seed.cy.ts`
-- [ ] T023 [P] [US2] Add Spring MVC test `BrokerResourceIT` covering enriched broker DTO in `src/test/java/com/rnexchange/web/rest/BrokerResourceIT.java`
+- [x] T022 [P] [US2] Add Cypress spec `broker-seed.cy.ts` verifying broker desk view, capturing login-to-ready duration, persisting the metric artifact, and asserting ≤60 s readiness in `src/test/javascript/cypress/e2e/broker/broker-seed.cy.ts`
+- [x] T023 [P] [US2] Add Spring MVC test `BrokerResourceIT` covering enriched broker DTO in `src/test/java/com/rnexchange/web/rest/BrokerResourceIT.java`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Extend broker repository query to eager load exchange + instrument relations in `src/main/java/com/rnexchange/repository/BrokerRepository.java`
-- [ ] T025 [US2] Expose enriched broker DTO via `src/main/java/com/rnexchange/web/rest/BrokerResource.java`
-- [ ] T026 [US2] Render seeded exchange membership & instrument metadata in `src/main/webapp/app/entities/broker/broker-detail.tsx`
-- [ ] T027 [US2] Add display strings for broker baseline data in `src/main/webapp/i18n/en/broker.json`
+- [x] T024 [P] [US2] Extend broker repository query to eager load exchange + instrument relations in `src/main/java/com/rnexchange/repository/BrokerRepository.java`
+- [x] T025 [US2] Expose enriched broker DTO via `src/main/java/com/rnexchange/web/rest/BrokerResource.java`
+- [x] T026 [US2] Render seeded exchange membership & instrument metadata in `src/main/webapp/app/entities/broker/broker-detail.tsx`
+- [x] T027 [US2] Add display strings for broker baseline data in `src/main/webapp/i18n/en/broker.json`
 
 **Checkpoint**: Broker workstation ready, independent from trader flow and maintaining US1 integrity.
 

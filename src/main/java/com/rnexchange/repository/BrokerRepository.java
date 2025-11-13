@@ -1,6 +1,7 @@
 package com.rnexchange.repository;
 
 import com.rnexchange.domain.Broker;
+import com.rnexchange.repository.projection.BrokerInstrumentRow;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -37,4 +38,24 @@ public interface BrokerRepository extends JpaRepository<Broker, Long>, JpaSpecif
 
     @Query("select broker from Broker broker left join fetch broker.exchange where broker.id =:id")
     Optional<Broker> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Optional<Broker> findOneByCode(String code);
+
+    @Query(
+        """
+            select new com.rnexchange.repository.projection.BrokerInstrumentRow(
+                instrument.symbol,
+                instrument.name,
+                instrument.exchangeCode,
+                instrument.assetClass,
+                instrument.tickSize,
+                instrument.lotSize,
+                instrument.currency
+            )
+            from Broker broker, Instrument instrument
+            where broker.id = :brokerId and instrument.status = 'ACTIVE'
+            order by instrument.symbol
+        """
+    )
+    List<BrokerInstrumentRow> findBaselineInstrumentCatalog(@Param("brokerId") Long brokerId);
 }

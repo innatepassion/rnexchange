@@ -39,4 +39,7 @@ public interface BrokerDeskRepository extends JpaRepository<BrokerDesk, Long>, J
         "select brokerDesk from BrokerDesk brokerDesk left join fetch brokerDesk.user left join fetch brokerDesk.broker where brokerDesk.id =:id"
     )
     Optional<BrokerDesk> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("select brokerDesk.user.login from BrokerDesk brokerDesk where brokerDesk.broker.id = :brokerId")
+    List<String> findUserLoginsForBroker(@Param("brokerId") Long brokerId);
 }

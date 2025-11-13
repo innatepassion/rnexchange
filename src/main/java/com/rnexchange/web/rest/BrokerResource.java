@@ -4,6 +4,7 @@ import com.rnexchange.repository.BrokerRepository;
 import com.rnexchange.service.BrokerQueryService;
 import com.rnexchange.service.BrokerService;
 import com.rnexchange.service.criteria.BrokerCriteria;
+import com.rnexchange.service.dto.BrokerBaselineDTO;
 import com.rnexchange.service.dto.BrokerDTO;
 import com.rnexchange.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
@@ -182,6 +183,19 @@ public class BrokerResource {
         LOG.debug("REST request to get Broker : {}", id);
         Optional<BrokerDTO> brokerDTO = brokerService.findOne(id);
         return ResponseUtil.wrapOrNotFound(brokerDTO);
+    }
+
+    /**
+     * {@code GET  /brokers/:id/baseline} : get the baseline view for the "id" broker.
+     *
+     * @param id the id of the broker baseline to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the baseline DTO, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/{id}/baseline")
+    public ResponseEntity<BrokerBaselineDTO> getBrokerBaseline(@PathVariable("id") Long id) {
+        LOG.debug("REST request to get Broker baseline : {}", id);
+        Optional<BrokerBaselineDTO> baselineDTO = brokerService.findBaseline(id);
+        return ResponseUtil.wrapOrNotFound(baselineDTO);
     }
 
     /**
