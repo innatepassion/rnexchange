@@ -73,9 +73,9 @@ Follow-up TODOs: None
 
 **Role Hierarchy**:
 
-- **TRADER**: Can view/manage only own account, orders, positions, ledger
-- **BROKER_ADMIN**: Can view/manage all traders under their broker; cannot access other brokers
-- **EXCHANGE_OPERATOR**: Full system authority; can view/manage all brokers, traders, and system settings
+- **TRADER** (Mobile First App): Can view/manage only own account, orders, positions, ledger
+- **BROKER_ADMIN**(Desktop First App): Can view/manage all traders under their broker; cannot access other brokers
+- **EXCHANGE_OPERATOR**(Desktop First App): Full system authority; can view/manage all brokers, traders, and system settings
 
 **Rationale**: RNExchange simulates a hierarchical brokerage ecosystem. Strict RBAC prevents unauthorized access, data leakage, and privilege escalation—critical for educational trust and realistic governance modeling.
 
@@ -101,14 +101,12 @@ Follow-up TODOs: None
 
 **Rules**:
 
-- All market data displays MUST show "SIMULATED" or "DELAYED" badges prominently
 - UI MUST include tooltips explaining training/educational context
-- Terms of Use MUST clarify no real money is involved
 - Reports and statements MUST include disclaimer: "This is a simulated environment"
 - Error messages MUST be human-readable and educational (e.g., "Invalid price – must be multiple of ₹0.05")
 - Documentation MUST emphasize learning objectives
 
-**Rationale**: RNExchange is a learning and experimentation platform. Transparency prevents confusion, builds trust, and reinforces the educational mission. Users must never mistake simulated trading for real financial transactions.
+**Rationale**: RNExchange is a learning and experimentation platform. Transparency prevents confusion, builds trust, and reinforces the educational mission.
 
 ---
 
