@@ -41,4 +41,6 @@ public interface TradingAccountRepository extends JpaRepository<TradingAccount, 
         "select tradingAccount from TradingAccount tradingAccount left join fetch tradingAccount.broker left join fetch tradingAccount.trader where tradingAccount.id =:id"
     )
     Optional<TradingAccount> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Optional<TradingAccount> findFirstByTrader_User_LoginOrderByIdAsc(String login);
 }

@@ -108,18 +108,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Add Cucumber scenario `baseline_seed.feature` for trader order flow in `src/test/resources/com/rnexchange/cucumber/baseline_seed.feature`
-- [ ] T029 [P] [US3] Add margin rule integration test in `src/test/java/com/rnexchange/service/MarginServiceIT.java`
-- [ ] T030 [P] [US3] Add Cypress spec `trader-seed.cy.ts` validating trader order path across three consecutive runs in `src/test/javascript/cypress/e2e/trader/trader-seed.cy.ts`
-- [ ] T038 [P] [US3] Add trader audit logging integration test `TraderAuditLogIT` ensuring structured audit entries emit actor, role, instrument, and outcome in `src/test/java/com/rnexchange/service/TraderAuditLogIT.java`
-- [ ] T040 [US3] Extend Gatling order latency scenario in `src/test/java/gatling/simulations/OrderGatlingTest.java` to assert `<250 ms p95` after seeding and make it a blocking exit check for User Story 3
+- [x] T028 [P] [US3] Add Cucumber scenario `baseline_seed.feature` for trader order flow in `src/test/resources/com/rnexchange/cucumber/baseline_seed.feature`
+- [x] T029 [P] [US3] Add margin rule integration test in `src/test/java/com/rnexchange/service/MarginServiceIT.java`
+- [x] T030 [P] [US3] Add Cypress spec `trader-seed.cy.ts` validating trader order path across three consecutive runs in `src/test/javascript/cypress/e2e/trader/trader-seed.cy.ts`
+- [x] T038 [P] [US3] Add trader audit logging integration test `TraderAuditLogIT` ensuring structured audit entries emit actor, role, instrument, and outcome in `src/test/java/com/rnexchange/service/TraderAuditLogIT.java`
+- [x] T040 [US3] Extend Gatling order latency scenario in `src/test/java/gatling/simulations/OrderGatlingTest.java` to assert `<250 ms p95` after seeding and make it a blocking exit check for User Story 3
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Load seeded `MarginRule` data inside `src/main/java/com/rnexchange/service/MarginService.java`
-- [ ] T032 [US3] Ensure `OrderService` enforces margin outcomes using seeded accounts in `src/main/java/com/rnexchange/service/OrderService.java`
-- [ ] T033 [US3] Default order ticket to seeded instruments & respect tick/lot sizes in `src/main/webapp/app/entities/order/order-update.tsx`
-- [ ] T039 [US3] Emit structured audit logs for trader order submissions in `src/main/java/com/rnexchange/service/OrderService.java` and ensure they persist via existing audit infrastructure
+- [x] T031 [US3] Load seeded `MarginRule` data inside `src/main/java/com/rnexchange/service/MarginService.java`
+- [x] T032 [US3] Ensure `OrderService` enforces margin outcomes using seeded accounts in `src/main/java/com/rnexchange/service/OrderService.java`
+- [x] T033 [US3] Default order ticket to seeded instruments & respect tick/lot sizes in `src/main/webapp/app/entities/order/order-update.tsx`
+- [x] T039 [US3] Emit structured audit logs for trader order submissions in `src/main/java/com/rnexchange/service/OrderService.java` and ensure they persist via existing audit infrastructure
 
 **Checkpoint**: Trader journey demonstrates seeded trading experience without regressing US1 or US2 outcomes.
 
