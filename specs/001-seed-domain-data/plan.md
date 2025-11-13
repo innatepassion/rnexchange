@@ -3,89 +3,139 @@
 **Branch**: `001-seed-domain-data` | **Date**: 2025-11-13 | **Spec**: `/specs/001-seed-domain-data/spec.md`
 **Input**: Feature specification from `/specs/001-seed-domain-data/spec.md`
 
-**Note**: This plan is generated via `/speckit.plan`. Follow sections in order; later phases depend on earlier outputs.
-
 ## Summary
 
-Create an idempotent Liquibase changelog that wipes legacy demo content and seeds production-like trading data (exchanges, broker, instruments, contracts, holidays, margin rules, user/account ties) so admin, broker, and trader roles can immediately exercise MVP workflows. Implementation hinges on aligning JDL entities with realistic seed rows, validating role mappings, and ensuring automated reset scripts cover both H2 (dev) and PostgreSQL (staging/prod) profiles.
+- Establish a clean trading baseline by validating prerequisites, then truncating legacy demo data, replaying Liquibase migrations, seeding deterministic exchange/broker/instrument datasets aligned with MVP needs, and instrumenting structured observability and audit trails end-to-end.
+- Deliver API-first orchestration (`BaselineSeedResource`) plus background runners to manage cleanup, seeding, validation, and observability of the baseline job.
+- Ensure broker and trader user journeys operate solely on curated data, supported by Cypress, Cucumber, integration, and Gatling coverage mandated by the constitution, with structured logs and audit evidence for every critical flow.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18)  
-**Primary Dependencies**: JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct), Liquibase XML changelogs, JPA/Hibernate  
-**Storage**: Liquibase-managed relational DB (H2 file DB for dev, PostgreSQL 15 for docker/prod)  
-**Testing**: JUnit 5 + Spring Boot integration tests with `@EmbeddedSQL` (Liquibase idempotency + record assertion), Cucumber (Gherkin acceptance), Cypress E2E  
-**Target Platform**: JHipster monolith (backend REST + React frontend) deployed on Linux containers  
-**Project Type**: Web monolith with shared backend/frontend repo  
-**Performance Goals**: Seed execution under 5 minutes on dev hardware; startup verification flows in <1 minute for broker desk per SC-002  
-**Constraints**: Must follow TDD workflow, enforce RBAC mappings, use Liquibase-only migrations, run pre-seed truncation routine to wipe faker/demo datasets before applying new baseline changelog  
-**Scale/Scope**: MVP baseline (3 exchanges, ~15 instruments/contracts, <=5 user accounts) with room for future expansion
+**Language/Version**: Java 17 (Spring Boot 3.4.5) backend, TypeScript 5.x / React 18 frontend (JHipster 8.11.0 scaffold).  
+**Primary Dependencies**: Liquibase, MapStruct, Spring Data JPA, Spring Security, Spring WebSocket, React + Redux Toolkit, Cypress, Jest, Cucumber.  
+**Storage**: H2 (dev/testing) and PostgreSQL 14+ (prod) with Liquibase-managed schema (`master.xml`).  
+**Testing**: JUnit 5 + Spring Boot integration tests, Cucumber BDD features, Cypress E2E specs, Jest/RTL for UI, Gatling performance harness (available if needed).  
+**Target Platform**: JHipster monolith ( Spring Boot service + React SPA ) deployable on Linux containers/VMs.  
+**Project Type**: Web monolith (single repo containing backend + frontend).  
+**Performance Goals**: Baseline seed completes <5 minutes (SC-001); broker desk readiness <60 seconds from login (SC-002); order execution remains under the platform baseline `<250 ms p95` target per spec NFR-006 (no new work in this feature beyond preventing regressions).
+**Constraints**: Liquibase is the single source of truth for migrations; tests precede implementation (TDD non-negotiable); RBAC must enforce `EXCHANGE_OPERATOR`, `BROKER_ADMIN`, `TRADER`; seeding must be idempotent and profile-aware; destructive cleanup only occurs after prerequisite validation succeeds.  
+**Scale/Scope**: MVP dataset (3 exchanges, 1 broker, 5+ cash instruments, derivative set, margin rules, user mappings) impacting order, risk, and UI flows.
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
-
-- **I. TDD (Non-Negotiable)**: PASS — Plan schedules contract + integration tests before Liquibase seeding code merges; quickstart will mandate failing tests that assert seed presence/absence.
-- **II. JHipster Conventions**: PASS — Strategy relies on JDL-aligned entities, Liquibase XML changelog under `config/liquibase/data`, and MapStruct-generated DTOs; no custom ORM shortcuts planned.
-- **III. RBAC**: PASS — Seed data maps broker/trader roles explicitly and calls out verification tests for `@PreAuthorize` scopes.
-- **VI. DDD**: PASS — Seed records align with existing aggregates (Exchange, Broker, TraderProfile, TradingAccount, MarginRule); ubiquitous language preserved.
-- **VII. API-First**: N/A — No new endpoints anticipated; if discovery in Phase 1 reveals API adjustments, OpenAPI update will precede code.
-- **Guardrails**: No violations detected; continue to Phase 0 once clarifications below are resolved in `research.md`.
-- **Post-Phase-1 Review**: PASS — `research.md`, `data-model.md`, `baseline-seed.openapi.yaml`, and `quickstart.md` align with TDD + Liquibase rules; API-first obligations satisfied via new OpenAPI contract stub.
+- **I. Test-Driven Development (TDD)**: Tasks enforce test creation (integration, REST, Cypress, Cucumber) before implementation; plan preserves red-green-refactor cadence.
+- **II. JHipster Conventions & Best Practices**: Uses Liquibase changelog includes, MapStruct DTOs, layered services/resources, generator-aligned project layout.
+- **III. Role-Based Governance (RBAC)**: API endpoints require `EXCHANGE_OPERATOR`; validation runner confirms broker/trader roles and mappings.
+- **VI. Domain-Driven Design (DDD)**: Seed logic scoped to domain services/runners; changelog maintains aggregate invariants; ubiquitous language maintained (`Exchange`, `MarginRule`, etc.).
+- **VII. API-First Development**: `baseline-seed.openapi.yaml` defined prior to implementing `BaselineSeedResource`; code generation planned via `./mvnw generate-sources`.  
+  _Gate Status_: **PASS** — no deviations from constitution requirements detected pre-design.
 
 ## Project Structure
 
-### Documentation (this feature)
+### Documentation (feature)
 
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+specs/001-seed-domain-data/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   └── baseline-seed.openapi.yaml
+└── tasks.md
 ```
 
 ### Source Code (repository root)
 
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
 ```text
-src/
-├── main/
-│   ├── java/com/rnexchange/...        # Spring Boot application, domain/services/resources
-│   └── resources/
-│       ├── config/liquibase/          # Migrations + seed changelogs (new 0001-seed-domain-data.xml)
-│       ├── application-*.yml
-│       └── swagger/api.yml
-└── test/
-    ├── java/com/rnexchange/...        # JUnit + Cucumber tests (add seed verification)
-    └── resources/                     # Gherkin features, test Liquibase configs
+src/main/java/com/rnexchange/
+├── config/                  # Liquibase runners, constants
+├── domain/                  # Existing aggregates (Exchange, Broker, etc.)
+├── repository/              # Spring Data repositories
+├── service/
+│   ├── seed/                # New truncate/seed services & job registry
+│   └── startup/             # Validation runner hooks
+├── service/dto/             # DTO definitions (BaselineSeedJobDTO)
+└── web/rest/                # REST resources (BaselineSeedResource)
 
-src/main/webapp/
-├── app/                               # React entities/modules (ensure seeded data reflected)
-└── content/i18n/                      # Add glossary/tooltips if needed in quickstart
+src/main/resources/config/
+├── application-dev.yml      # Liquibase context alignment (`baseline`)
+├── application-prod.yml     # Prod profile updates
+└── liquibase/
+    ├── master.xml           # Includes `data/0001-seed-domain-data.xml`
+    └── data/                # New deterministic seed changelog
+
+src/test/java/com/rnexchange/
+├── service/seed/            # Integration tests for cleanup + seed lifecycle
+├── web/rest/                # REST contract/integration tests
+├── service/                 # MarginService tests
+└── cucumber/                # Baseline order flow feature glue
+
+src/test/resources/com/rnexchange/cucumber/
+└── baseline_seed.feature    # Trader journey scenario
+
+src/test/javascript/cypress/e2e/
+├── broker/broker-seed.cy.ts # Broker readiness SLA
+└── trader/trader-seed.cy.ts # Trader order simulation
 ```
 
-**Structure Decision**: Continue using the existing JHipster monolith layout; feature work touches Liquibase data under `src/main/resources/config/liquibase`, backend integration tests under `src/test/java`, and documentation under `specs/001-seed-domain-data/`.
+**Structure Decision**: Retain single JHipster monolith; add seed-specific services, runners, and changelog under existing modular folders while extending frontend Cypress suites for broker/trader validation.
+
+## Phase 0 – Research Summary
+
+- Verified Liquibase context strategy (`baseline`) and truncation runner approach, documenting decisions in `research.md`.
+- Catalogued deterministic seed values (tick sizes, lot sizes, derivatives) and RBAC alignment per spec clarifications.
+- Confirmed testing stack (Spring Boot IT, Cypress, Cucumber) and performance targets consistent with constitution mandates.
+
+## Phase 1 – Design & Contracts Outputs
+
+- Data relationships and validation rules captured in `data-model.md` to guide changelog ordering and integrity constraints.
+- `contracts/baseline-seed.openapi.yaml` models asynchronous seed job endpoints gating code generation.
+- `quickstart.md` documents end-to-end validation steps (admin, broker, trader) and troubleshooting aligned with acceptance tests.
+- Agent context refreshed via `.specify/scripts/bash/update-agent-context.sh cursor-agent` to record new technologies/decisions.
+
+## Phase 2 – Implementation Readiness
+
+- Coordinate Phase 1/2 tasks from `tasks.md`: align Liquibase contexts (T001–T006), author deterministic changelog (T019), implement seed services/resources (T012–T021), and extend RBAC-aware validation runners (T020).
+- Ensure UI/backend workstreams respect dependency graph: foundational contexts → seed services → structured logging/audit instrumentation → RBAC validation → broker/trader enhancements.
+- Maintain TDD order: execute test tasks (T007–T011, T022–T023, T028–T030, T036, T038) before touching implementation counterparts, including performance verification via T040 once implementation stabilises.
+
+## Phase 3 – User Story 1 Seed Account Details
+
+- Reuse the constitution-mandated existing RBAC users so FR-003 stays aligned with the spec:
+  - Confirm the current `BROKER_ADMIN` account is mapped to RN DEMO BROKING via the new seed changelog.
+  - Ensure the existing `EXCHANGE_OPERATOR` account remains authoritative for seed orchestration and validation.
+  - Associate the two pre-existing trader personas from the platform bootstrap with the seeded `TraderProfile` + `TradingAccount` rows (status ACTIVE, base currency INR, balance ₹1,000,000).
+- Use the standard JHipster encrypted fixture values already present in prior changelogs where credentials must be referenced.
+- Reference these established user identifiers in startup validation, integration tests, and Cypress/Cucumber flows to keep journeys reproducible across environments without introducing duplicate RBAC users.
+
+### Prerequisite Validation Sequence (FR-010 Alignment)
+
+- Create a lightweight `BaselinePrerequisiteValidator` invoked at startup to confirm RBAC users, timezones, and Liquibase contexts exist before any truncation logic executes.
+- Ensure `BaselineSeedCleanupRunner` depends on the validator outcome; if validation fails, abort the job without touching database contents and surface the failure via structured logs/metrics.
+- Update seed orchestration tests to cover both successful validation leading to cleanup and failure paths that skip destructive actions.
+
+### Structured Logging & Failure Telemetry (NFR-003 & NFR-005 Alignment)
+
+- Extend `BaselineSeedCleanupRunner`, `BaselineSeedService`, and `BaselineValidationRunner` logging to include actor metadata (`actorId`, `actorRole`) and domain context (`instrument`, `outcome`) in addition to the existing `phase`, `entityType`, `status`, `durationMs`, and `failureReason` fields.
+- Ensure `BaselineSeedLoggingIT` and `TraderAuditLogIT` exercise cleanup, seeding, validation, and trader audit flows, covering both success and forced-failure paths, and asserting that each JSON payload carries the expanded field set.
+- Reuse the JHipster structured logging pipeline (SLF4J + JSON layout/Micrometer); do not introduce ad-hoc logging utilities.
+- Surface the telemetry via existing log/metrics sinks so operators can triage failed runs quickly.
+
+### Verification Gates & Idempotency (NFR-003 & NFR-004 Alignment)
+
+- Design deterministic verification gates inside `BaselineSeedService` that compute checksum/invariant assertions after each seeding phase (e.g., exchange, broker, instrument counts) and abort with a descriptive failure if expectations are violated or duplicates appear.
+- Capture verification metadata in structured logs and duration metrics to make rerun behaviour observable.
+- Implement dedicated integration tests that force duplicate/partial data scenarios to ensure the verification gates fail fast and leave the database unchanged.
+- Document the verification strategy in `quickstart.md` to guide operators on interpreting checksum/invariant failures.
+
+### Broker Readiness SLA & Telemetry (SC-002 Alignment)
+
+- Update the `broker-seed.cy.ts` flow to capture the login-to-ready duration, persist the measurement as part of Cypress test artifacts (e.g., JSON fixture or console attachment), and assert that the metric remains ≤60 seconds.
+- Document the persisted metric output location so CI retains the data for trend analysis and SLA enforcement.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
-| -------------------------- | ------------------ | ------------------------------------ |
-| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| --------- | ---------- | ------------------------------------ |
+| _None_    | —          | —                                    |

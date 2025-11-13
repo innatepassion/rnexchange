@@ -1,11 +1,17 @@
-# Data Model — Seed Domain Trading Data Baseline
+# Data Model: Seed Domain Trading Data Baseline
+
+## Overview
+
+This feature introduces deterministic seed data for existing RNExchange domain entities. No new aggregates are created, but the seeded records must respect the following relationships and constraints to ensure idempotent Liquibase execution and realistic trading flows.
+
+## Entity Snapshot (JDL-Aligned)
 
 ## Exchange
 
 - **Purpose**: Authoritative list of trading venues (NSE, BSE, MCX).
-- **Key fields**: `code` (string, unique, required), `name` (string, required), `timezone` (IANA string, required, must match `Asia/Kolkata` for MVP), `status` (`ExchangeStatus`, required — use `ACTIVE`).
-- **Relationships**: One-to-many with `Broker`, `Instrument`, `Contract` (via instrument), `MarketHoliday`, `MarginRule`, `TradingAccount` (indirect via broker).
-- **Validation**: `code` uppercase; `timezone` must map to supported configuration; `status` restricted to enum.
+- **Key fields**: `id` (Long, surrogate PK), `code` (String, unique, required), `name` (String, required), `timezone` (String, required — use `Asia/Kolkata`), `status` (`ExchangeStatus`, required — `ACTIVE`).
+- **Relationships**: One-to-many via JPA to `Broker`, `Instrument`, `MarketHoliday`, `MarginRule`; `Contract` and `TradingAccount` link indirectly through instrument and broker relationships.
+- **Validation**: Enforce uppercase `code`; ensure `timezone` matches supported config; `status` limited to enum values.
 
 ## Broker
 
