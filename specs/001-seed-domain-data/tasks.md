@@ -33,9 +33,9 @@
 
 **⚠️ CRITICAL**: Finish this phase before starting any user-story work.
 
-- [ ] T004 Update `src/main/resources/config/liquibase/master.xml` to include `config/liquibase/data/0001-seed-domain-data.xml` and remove `fake-data` context references
-- [ ] T005 [P] Add `BASELINE_LIQUIBASE_CONTEXT` constant to `src/main/java/com/rnexchange/config/Constants.java`
-- [ ] T006 [P] Remove faker seed bean wiring from `src/main/java/com/rnexchange/config/` to prevent legacy data resurrection
+- [x] T004 Update `src/main/resources/config/liquibase/master.xml` to include `config/liquibase/data/0001-seed-domain-data.xml` and remove `fake-data` context references
+- [x] T005 [P] Add `BASELINE_LIQUIBASE_CONTEXT` constant to `src/main/java/com/rnexchange/config/Constants.java`
+- [x] T006 [P] Remove faker seed bean wiring from `src/main/java/com/rnexchange/config/` to prevent legacy data resurrection
 
 **Checkpoint**: Foundation ready — user stories can now begin (tests first).
 
@@ -49,30 +49,30 @@
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Create integration test `BaselineSeedServiceIT` covering cleanup, deterministic seed values (including exact market holiday dates), rerun idempotency, and asserting exactly two distinct trader profiles with unique user mappings in `src/test/java/com/rnexchange/service/seed/BaselineSeedServiceIT.java`
-- [ ] T007A [P] [US1] Create integration test `BaselinePrerequisiteValidatorIT` ensuring prerequisite failures do not trigger truncation and surface descriptive errors, and that successful validation enables cleanup in `src/test/java/com/rnexchange/service/seed/BaselinePrerequisiteValidatorIT.java`
-- [ ] T008 [P] [US1] Create REST and security contract tests for baseline seed endpoints ensuring only `EXCHANGE_OPERATOR` receives 2xx and other roles receive 403 in `src/test/java/com/rnexchange/web/rest/BaselineSeedResourceIT.java`
-- [ ] T009 [P] [US1] Create integration test `BaselineAccessIT` validating `EXCHANGE_OPERATOR`, `BROKER_ADMIN`, trader logins and absence of demo data in `src/test/java/com/rnexchange/service/seed/BaselineAccessIT.java`
-- [ ] T010 [P] [US1] Add seeding duration metric test `BaselineSeedMetricsIT` ensuring completion under threshold in `src/test/java/com/rnexchange/service/seed/BaselineSeedMetricsIT.java`
-- [ ] T010A [P] [US1] Add verification gate integration test `BaselineSeedVerificationIT` that injects duplicate/partial seed scenarios, asserts checksum/invariant failures, and confirms database remains unchanged in `src/test/java/com/rnexchange/service/seed/BaselineSeedVerificationIT.java`
-- [ ] T011 [P] [US1] Create negative-path integration test `BaselineSeedFailureIT` verifying missing or inactive prerequisites surface descriptive errors without partial data in `src/test/java/com/rnexchange/service/seed/BaselineSeedFailureIT.java`
-- [ ] T036 [P] [US1] Create structured logging integration test `BaselineSeedLoggingIT` asserting cleanup/seeding/validation JSON payloads include phase, entityType, status, durationMs, failureReason, actorId, actorRole, instrument, and outcome fields, covering both success and a forced duplicate-instrument failure path, in `src/test/java/com/rnexchange/service/seed/BaselineSeedLoggingIT.java`
+- [x] T007 [P] [US1] Create integration test `BaselineSeedServiceIT` covering cleanup, deterministic seed values (including exact market holiday dates), rerun idempotency, and asserting exactly two distinct trader profiles with unique user mappings in `src/test/java/com/rnexchange/service/seed/BaselineSeedServiceIT.java`
+- [x] T007A [P] [US1] Create integration test `BaselinePrerequisiteValidatorIT` ensuring prerequisite failures do not trigger truncation and surface descriptive errors, and that successful validation enables cleanup in `src/test/java/com/rnexchange/service/seed/BaselinePrerequisiteValidatorIT.java`
+- [x] T008 [P] [US1] Create REST and security contract tests for baseline seed endpoints ensuring only `EXCHANGE_OPERATOR` receives 2xx and other roles receive 403 in `src/test/java/com/rnexchange/web/rest/BaselineSeedResourceIT.java`
+- [x] T009 [P] [US1] Create integration test `BaselineAccessIT` validating `EXCHANGE_OPERATOR`, `BROKER_ADMIN`, trader logins and absence of demo data in `src/test/java/com/rnexchange/service/seed/BaselineAccessIT.java`
+- [x] T010 [P] [US1] Add seeding duration metric test `BaselineSeedMetricsIT` ensuring completion under threshold in `src/test/java/com/rnexchange/service/seed/BaselineSeedMetricsIT.java`
+- [x] T010A [P] [US1] Add verification gate integration test `BaselineSeedVerificationIT` that injects duplicate/partial seed scenarios, asserts checksum/invariant failures, and confirms database remains unchanged in `src/test/java/com/rnexchange/service/seed/BaselineSeedVerificationIT.java`
+- [x] T011 [P] [US1] Create negative-path integration test `BaselineSeedFailureIT` verifying missing or inactive prerequisites surface descriptive errors without partial data in `src/test/java/com/rnexchange/service/seed/BaselineSeedFailureIT.java`
+- [x] T036 [P] [US1] Create structured logging integration test `BaselineSeedLoggingIT` asserting cleanup/seeding/validation JSON payloads include phase, entityType, status, durationMs, failureReason, actorId, actorRole, instrument, and outcome fields, covering both success and a forced duplicate-instrument failure path, in `src/test/java/com/rnexchange/service/seed/BaselineSeedLoggingIT.java`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Update OpenAPI definition in `src/main/resources/swagger/api.yml` using `specs/001-seed-domain-data/contracts/baseline-seed.openapi.yaml` and run `./mvnw generate-sources`
-- [ ] T012A [US1] Implement `BaselinePrerequisiteValidator` service invoked at startup to confirm RBAC users, timezones, and Liquibase contexts before cleanup in `src/main/java/com/rnexchange/service/seed/BaselinePrerequisiteValidator.java`
-- [ ] T013 [P] [US1] Implement `BaselineSeedCleanupRunner` to trigger truncation only after `BaselinePrerequisiteValidator` succeeds in `src/main/java/com/rnexchange/config/BaselineSeedCleanupRunner.java`
-- [ ] T014 [P] [US1] Implement `BaselineTruncateService` handling non-system table truncation in `src/main/java/com/rnexchange/service/seed/BaselineTruncateService.java`
-- [ ] T015 [US1] Implement `BaselineSeedService` orchestrating Liquibase reruns and job lifecycle in `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java`
-- [ ] T016 [P] [US1] Add job response DTOs in `src/main/java/com/rnexchange/service/dto/BaselineSeedJobDTO.java`
-- [ ] T017 [US1] Implement in-memory job registry/tracker in `src/main/java/com/rnexchange/service/seed/BaselineSeedJobRegistry.java`
-- [ ] T018 [US1] Implement `BaselineSeedResource` exposing `/api/admin/baseline-seed/*` with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` enforcement in `src/main/java/com/rnexchange/web/rest/BaselineSeedResource.java`
-- [ ] T019 [P] [US1] Author Liquibase changelog `0001-seed-domain-data.xml` with exchange/broker/instrument/contract/holiday/margin/trader seeds in `src/main/resources/config/liquibase/data/0001-seed-domain-data.xml`
-- [ ] T020 [US1] Implement startup validation runner ensuring `EXCHANGE_OPERATOR`, `BROKER_ADMIN`, and `TRADER` mappings, verifying each role can access the seeded dataset, and failing if any legacy demo entities are detected in `src/main/java/com/rnexchange/service/startup/BaselineValidationRunner.java`
-- [ ] T021 [P] [US1] Instrument `BaselineSeedService` with Micrometer duration metrics and ensure they surface via `BaselineSeedMetricsIT` in `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java`
-- [ ] T021A [US1] Implement verification gate logic in `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java` (checksums/invariants with descriptive failures) and wire safeguarding helpers in `src/main/java/com/rnexchange/service/seed/BaselineSeedJobRegistry.java`
-- [ ] T037 [US1] Emit structured JSON logs including phase, entityType, status, durationMs, failureReason, actorId, actorRole, instrument, and outcome across cleanup, seeding, and validation flows, emitting the duplicate-instrument failure telemetry exercised in `T036`, in `src/main/java/com/rnexchange/config/BaselineSeedCleanupRunner.java`, `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java`, and `src/main/java/com/rnexchange/service/startup/BaselineValidationRunner.java`
+- [x] T012 [P] [US1] Update OpenAPI definition in `src/main/resources/swagger/api.yml` using `specs/001-seed-domain-data/contracts/baseline-seed.openapi.yaml` and run `./mvnw generate-sources`
+- [x] T012A [US1] Implement `BaselinePrerequisiteValidator` service invoked at startup to confirm RBAC users, timezones, and Liquibase contexts before cleanup in `src/main/java/com/rnexchange/service/seed/BaselinePrerequisiteValidator.java`
+- [x] T013 [P] [US1] Implement `BaselineSeedCleanupRunner` to trigger truncation only after `BaselinePrerequisiteValidator` succeeds in `src/main/java/com/rnexchange/config/BaselineSeedCleanupRunner.java`
+- [x] T014 [P] [US1] Implement `BaselineTruncateService` handling non-system table truncation in `src/main/java/com/rnexchange/service/seed/BaselineTruncateService.java`
+- [x] T015 [US1] Implement `BaselineSeedService` orchestrating Liquibase reruns and job lifecycle in `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java`
+- [x] T016 [P] [US1] Add job response DTOs in `src/main/java/com/rnexchange/service/dto/BaselineSeedJobDTO.java`
+- [x] T017 [US1] Implement in-memory job registry/tracker in `src/main/java/com/rnexchange/service/seed/BaselineSeedJobRegistry.java`
+- [x] T018 [US1] Implement `BaselineSeedResource` exposing `/api/admin/baseline-seed/*` with `@PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")` enforcement in `src/main/java/com/rnexchange/web/rest/BaselineSeedResource.java`
+- [x] T019 [P] [US1] Author Liquibase changelog `0001-seed-domain-data.xml` with exchange/broker/instrument/contract/holiday/margin/trader seeds in `src/main/resources/config/liquibase/data/0001-seed-domain-data.xml`
+- [x] T020 [US1] Implement startup validation runner ensuring `EXCHANGE_OPERATOR`, `BROKER_ADMIN`, and `TRADER` mappings, verifying each role can access the seeded dataset, and failing if any legacy demo entities are detected in `src/main/java/com/rnexchange/service/startup/BaselineValidationRunner.java`
+- [x] T021 [P] [US1] Instrument `BaselineSeedService` with Micrometer duration metrics and ensure they surface via `BaselineSeedMetricsIT` in `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java`
+- [x] T021A [US1] Implement verification gate logic in `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java` (checksums/invariants with descriptive failures) and wire safeguarding helpers in `src/main/java/com/rnexchange/service/seed/BaselineSeedJobRegistry.java`
+- [x] T037 [US1] Emit structured JSON logs including phase, entityType, status, durationMs, failureReason, actorId, actorRole, instrument, and outcome across cleanup, seeding, and validation flows, emitting the duplicate-instrument failure telemetry exercised in `T036`, in `src/main/java/com/rnexchange/config/BaselineSeedCleanupRunner.java`, `src/main/java/com/rnexchange/service/seed/BaselineSeedService.java`, and `src/main/java/com/rnexchange/service/startup/BaselineValidationRunner.java`
 
 **Checkpoint**: User Story 1 delivers MVP baseline and passes all listed tests independently.
 

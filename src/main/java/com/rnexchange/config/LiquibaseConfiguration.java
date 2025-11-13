@@ -1,5 +1,7 @@
 package com.rnexchange.config;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
@@ -57,9 +59,20 @@ public class LiquibaseConfiguration {
             );
         }
         liquibase.setChangeLog("classpath:config/liquibase/master.xml");
+        Set<String> contextsToUse = new LinkedHashSet<>();
         if (!CollectionUtils.isEmpty(liquibaseProperties.getContexts())) {
-            liquibase.setContexts(StringUtils.collectionToCommaDelimitedString(liquibaseProperties.getContexts()));
+            liquibaseProperties
+                .getContexts()
+                .stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .filter(context -> !"faker".equalsIgnoreCase(context))
+                .forEach(contextsToUse::add);
         }
+        if (contextsToUse.isEmpty() || !contextsToUse.contains(Constants.BASELINE_LIQUIBASE_CONTEXT)) {
+            contextsToUse.add(Constants.BASELINE_LIQUIBASE_CONTEXT);
+        }
+        liquibase.setContexts(StringUtils.collectionToCommaDelimitedString(contextsToUse));
         liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
         liquibase.setLiquibaseSchema(liquibaseProperties.getLiquibaseSchema());
         liquibase.setLiquibaseTablespace(liquibaseProperties.getLiquibaseTablespace());
