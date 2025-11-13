@@ -1,0 +1,485 @@
+openapi: 3.0.3
+info:
+  title: Mock Market Data API
+  description: |
+    REST API for controlling simulated market data feed and managing trader watchlists.
+    Part of RNExchange M1 milestone (Mock Market Data & Market Watch).
+  version: 1.0.0
+  contact:
+    name: RNExchange Development Team
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.rnexchange.com
+    description: Production server
+
+tags:
+  - name: Market Data Control
+    description: Exchange Operator endpoints for managing simulated feed
+  - name: Watchlist Management
+    description: Trader endpoints for managing personal watchlists
+
+paths:
+  /api/marketdata/mock/start:
+    post:
+      tags:
+        - Market Data Control
+      summary: Start simulated market data feed
+      description: |
+        Activates the mock market data generator for all exchanges.
+        Idempotent: returns success if feed is already running.
+        Requires EXCHANGE_OPERATOR role.
+      operationId: startMockFeed
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Feed started successfully (or already running)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedStatusDTO'
+        '403':
+          description: Forbidden - requires EXCHANGE_OPERATOR role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error during feed startup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/marketdata/mock/stop:
+    post:
+      tags:
+        - Market Data Control
+      summary: Stop simulated market data feed
+      description: |
+        Halts the mock market data generator for all exchanges.
+        Idempotent: returns success if feed is already stopped.
+        Requires EXCHANGE_OPERATOR role.
+      operationId: stopMockFeed
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Feed stopped successfully (or already stopped)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedStatusDTO'
+        '403':
+          description: Forbidden - requires EXCHANGE_OPERATOR role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/marketdata/mock/status:
+    get:
+      tags:
+        - Market Data Control
+      summary: Get current mock feed status
+      description: |
+        Returns global feed state and per-exchange metrics (tick rate, last tick time).
+        Requires EXCHANGE_OPERATOR role.
+      operationId: getMockFeedStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current feed status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedStatusDTO'
+              examples:
+                running:
+                  summary: Feed running with mixed exchange states
+                  value:
+                    globalState: RUNNING
+                    startedAt: "2025-11-13T09:15:00.000Z"
+                    exchanges:
+                      - exchangeCode: NSE
+                        state: RUNNING
+                        lastTickTime: "2025-11-13T10:32:15.123Z"
+                        ticksPerSecond: 42
+                        activeInstruments: 523
+                      - exchangeCode: BSE
+                        state: HOLIDAY
+                        lastTickTime: "2025-11-12T15:30:00.000Z"
+                        ticksPerSecond: 0
+                        activeInstruments: 0
+                      - exchangeCode: MCX
+                        state: RUNNING
+                        lastTickTime: "2025-11-13T10:32:14.987Z"
+                        ticksPerSecond: 18
+                        activeInstruments: 87
+                stopped:
+                  summary: Feed stopped
+                  value:
+                    globalState: STOPPED
+                    startedAt: null
+                    exchanges:
+                      - exchangeCode: NSE
+                        state: STOPPED
+                        lastTickTime: "2025-11-13T10:00:00.000Z"
+                        ticksPerSecond: 0
+                        activeInstruments: 0
+                      - exchangeCode: BSE
+                        state: STOPPED
+                        lastTickTime: "2025-11-13T10:00:00.000Z"
+                        ticksPerSecond: 0
+                        activeInstruments: 0
+                      - exchangeCode: MCX
+                        state: STOPPED
+                        lastTickTime: "2025-11-13T10:00:00.000Z"
+                        ticksPerSecond: 0
+                        activeInstruments: 0
+        '403':
+          description: Forbidden - requires EXCHANGE_OPERATOR role
+
+  /api/watchlists/{id}/items:
+    post:
+      tags:
+        - Watchlist Management
+      summary: Add instrument to watchlist
+      description: |
+        Adds a new instrument symbol to the specified watchlist.
+        Returns the updated watchlist with all items.
+        Requires TRADER role and watchlist ownership.
+      operationId: addWatchlistItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Watchlist ID
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWatchlistItemRequest'
+            examples:
+              addEquity:
+                summary: Add equity symbol
+                value:
+                  symbol: RELIANCE
+              addCommodity:
+                summary: Add commodity futures symbol
+                value:
+                  symbol: GOLD_FUT_DEC25
+      responses:
+        '200':
+          description: Instrument added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistDTO'
+        '400':
+          description: Bad request - invalid symbol or duplicate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidSymbol:
+                  summary: Symbol does not exist
+                  value:
+                    error: SYMBOL_NOT_FOUND
+                    message: "Instrument with symbol 'INVALID' does not exist"
+                    timestamp: "2025-11-13T10:32:15.123Z"
+                duplicate:
+                  summary: Symbol already in watchlist
+                  value:
+                    error: DUPLICATE_ITEM
+                    message: "Symbol 'RELIANCE' is already in watchlist"
+                    timestamp: "2025-11-13T10:32:15.123Z"
+        '403':
+          description: Forbidden - watchlist does not belong to requesting trader
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Watchlist not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/watchlists/{id}/items/{symbol}:
+    delete:
+      tags:
+        - Watchlist Management
+      summary: Remove instrument from watchlist
+      description: |
+        Removes an instrument symbol from the specified watchlist.
+        Returns the updated watchlist with remaining items.
+        Requires TRADER role and watchlist ownership.
+      operationId: removeWatchlistItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Watchlist ID
+          schema:
+            type: integer
+            format: int64
+            example: 42
+        - name: symbol
+          in: path
+          required: true
+          description: Instrument symbol to remove
+          schema:
+            type: string
+            example: TCS
+      responses:
+        '200':
+          description: Instrument removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistDTO'
+        '403':
+          description: Forbidden - watchlist does not belong to requesting trader
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Watchlist or symbol not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                watchlistNotFound:
+                  summary: Watchlist does not exist
+                  value:
+                    error: WATCHLIST_NOT_FOUND
+                    message: "Watchlist with id 42 does not exist"
+                    timestamp: "2025-11-13T10:32:15.123Z"
+                symbolNotInList:
+                  summary: Symbol not in watchlist
+                  value:
+                    error: SYMBOL_NOT_IN_WATCHLIST
+                    message: "Symbol 'TCS' is not in watchlist 42"
+                    timestamp: "2025-11-13T10:32:15.123Z"
+
+  /api/watchlists/{id}:
+    get:
+      tags:
+        - Watchlist Management
+      summary: Get watchlist with items
+      description: |
+        Retrieves a watchlist with all its instrument symbols.
+        Requires TRADER role and watchlist ownership.
+      operationId: getWatchlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Watchlist ID
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '200':
+          description: Watchlist retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistDTO'
+              examples:
+                mixedSymbols:
+                  summary: Watchlist with equity and commodity symbols
+                  value:
+                    id: 42
+                    name: "My Top Picks"
+                    items:
+                      - symbol: RELIANCE
+                        sortOrder: 1
+                      - symbol: TCS
+                        sortOrder: 2
+                      - symbol: GOLD_FUT_DEC25
+                        sortOrder: 3
+        '403':
+          description: Forbidden - watchlist does not belong to requesting trader
+        '404':
+          description: Watchlist not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from /api/authenticate endpoint.
+        Include in Authorization header as: Bearer <token>
+
+  schemas:
+    FeedStatusDTO:
+      type: object
+      required:
+        - globalState
+        - exchanges
+      properties:
+        globalState:
+          type: string
+          enum: [RUNNING, STOPPED]
+          description: Overall feed state across all exchanges
+          example: RUNNING
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when feed was last started (null if never started)
+          example: "2025-11-13T09:15:00.000Z"
+        exchanges:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeStatusDTO'
+          description: Per-exchange status details
+
+    ExchangeStatusDTO:
+      type: object
+      required:
+        - exchangeCode
+        - state
+        - ticksPerSecond
+        - activeInstruments
+      properties:
+        exchangeCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: 3-letter exchange code
+          example: NSE
+          enum: [NSE, BSE, MCX]
+        state:
+          type: string
+          enum: [RUNNING, STOPPED, HOLIDAY]
+          description: |
+            Exchange-specific state:
+            - RUNNING: Generating ticks
+            - STOPPED: Global feed stopped
+            - HOLIDAY: MarketHoliday record present for today
+          example: RUNNING
+        lastTickTime:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp of most recent tick generated for this exchange
+          example: "2025-11-13T10:32:15.123Z"
+        ticksPerSecond:
+          type: integer
+          minimum: 0
+          description: Rolling 10-second average of ticks per second for this exchange
+          example: 42
+        activeInstruments:
+          type: integer
+          minimum: 0
+          description: Number of active instruments generating ticks for this exchange
+          example: 523
+
+    WatchlistDTO:
+      type: object
+      required:
+        - id
+        - name
+        - items
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Watchlist unique identifier
+          example: 42
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User-defined watchlist name
+          example: "My Top Picks"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WatchlistItemDTO'
+          description: Instruments in this watchlist, sorted by sortOrder
+
+    WatchlistItemDTO:
+      type: object
+      required:
+        - symbol
+        - sortOrder
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Instrument symbol (references Instrument.symbol)
+          example: RELIANCE
+        sortOrder:
+          type: integer
+          minimum: 0
+          description: Display order in watchlist (0-indexed)
+          example: 1
+
+    AddWatchlistItemRequest:
+      type: object
+      required:
+        - symbol
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Instrument symbol to add to watchlist
+          example: RELIANCE
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code
+          example: SYMBOL_NOT_FOUND
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Instrument with symbol 'INVALID' does not exist"
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when error occurred
+          example: "2025-11-13T10:32:15.123Z"
+        details:
+          type: object
+          additionalProperties: true
+          description: Optional additional error context
+          example:
+            field: symbol
+            rejectedValue: INVALID
+
+security:
+  - bearerAuth: []
+

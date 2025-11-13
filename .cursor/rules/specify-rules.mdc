@@ -7,6 +7,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-13
 - Liquibase-managed relational DB (H2 file DB for dev/tests, PostgreSQL 15 for docker/prod) (001-seed-domain-data)
 - Java 17 (Spring Boot 3.4.5) backend, TypeScript 5.x / React 18 frontend (JHipster 8.11.0 scaffold). + Liquibase, MapStruct, Spring Data JPA, Spring Security, Spring WebSocket, React + Redux Toolkit, Cypress, Jest, Cucumber. (001-seed-domain-data)
 - H2 (dev/testing) and PostgreSQL 14+ (prod) with Liquibase-managed schema (`master.xml`). (001-seed-domain-data)
+- Java 21 (backend), TypeScript 5.x (frontend) + Spring Boot 3.x, Spring WebSocket/STOMP, React 18, Redux Toolkit, MapStruct, Liquibase (002-mock-market-data)
+- PostgreSQL (existing instrument, holiday, watchlist tables) (002-mock-market-data)
 
 - Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18) + JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct), Liquibase XML changelogs, JPA/Hibernate (001-seed-domain-data)
 
@@ -26,10 +28,10 @@ npm test && npm run lint
 Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18): Follow standard conventions
 
 ## Recent Changes
+- 002-mock-market-data: Added Java 21 (backend), TypeScript 5.x (frontend) + Spring Boot 3.x, Spring WebSocket/STOMP, React 18, Redux Toolkit, MapStruct, Liquibase
 - 001-seed-domain-data: Added Java 17 (Spring Boot 3.4.5) backend, TypeScript 5.x / React 18 frontend (JHipster 8.11.0 scaffold). + Liquibase, MapStruct, Spring Data JPA, Spring Security, Spring WebSocket, React + Redux Toolkit, Cypress, Jest, Cucumber.
 - 001-seed-domain-data: Added Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18) + JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct, Spring WebFlux/Websocket), Cypress 13, Cucumber JVM
 
-- 001-seed-domain-data: Added Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18) + JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct), Liquibase XML changelogs, JPA/Hibernate
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
