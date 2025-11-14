@@ -419,28 +419,28 @@ graph TD
 
 ### Edge Cases & Holiday Handling
 
-- [ ] T109 [P] Verify holiday filtering behavior in MockMarketDataService (execute integration test scenario covering MarketHoliday and trading session gating; ensure logs reflect skipped exchanges) per FR-008 and NFR-003.
+- [x] T109 [P] Verify holiday filtering behavior in MockMarketDataService (execute integration test scenario covering MarketHoliday and trading session gating; ensure logs reflect skipped exchanges) per FR-008 and NFR-003.
 - [ ] T110 [P] Validate `TradingSessionGuard` behaviour with focused integration tests (isWithinTradingHours scenarios comparing LocalTime per research.md); ensure logging matches NFR-003 expectations
-- [ ] T112 [P] Test holiday scenario: Insert test MarketHoliday record for NSE today, restart feed, verify NSE instruments stop ticking
+- [x] T112 [P] Test holiday scenario: Insert test MarketHoliday record for NSE today, restart feed, verify NSE instruments stop ticking
 
 ### Performance Optimization
 
-- [ ] T114 [P] Configure Spring task executor thread pools in `application.yml` (scheduling pool size=8, execution pool size=16 per research.md Section 6.2)
+- [x] T114 [P] Configure Spring task executor thread pools in `application.yml` (scheduling pool size=8, execution pool size=16 per research.md Section 6.2)
 - [ ] T115 [P] Verify client-side throttling effectiveness in Market Watch (assert dispatch throttle ~200ms per symbol; adjust only if perf requires)
-- [ ] T116 [P] Add subscription limit validation (max 50 symbols per client, return ERROR frame if exceeded per contracts/websocket-topics.md)
+- [x] T116 [P] Add subscription limit validation (max 50 symbols per client, return ERROR frame if exceeded per contracts/websocket-topics.md)
 
 ### Stale Data Detection
 
-- [ ] T117 [P] Implement stale data indicator in Market Watch (track lastMessageTime per symbol, show "Stale" if no message for 10s per contracts/websocket-topics.md)
+- [x] T117 [P] Implement stale data indicator in Market Watch (track lastMessageTime per symbol, show "Stale" if no message for 10s per contracts/websocket-topics.md)
 
 ### Audit Logging
 
-- [ ] T118 [P] Add audit logging listener that subscribes to `FeedStartedEvent`/`FeedStoppedEvent` and persists entries to TraderAuditLog with user ID, role, action, timestamp per research.md best practices
+- [x] T118 [P] Add audit logging listener that subscribes to `FeedStartedEvent`/`FeedStoppedEvent` and persists entries to TraderAuditLog with user ID, role, action, timestamp per research.md best practices
 
 ### Error Handling
 
-- [ ] T119 [P] Implement WebSocket error handling in frontend (onStompError handler, token refresh on Unauthorized per contracts/websocket-topics.md)
-- [ ] T120 [P] Add graceful degradation for broadcast failures (log error, continue broadcasting to other subscribers per research.md best practices)
+- [x] T119 [P] Implement WebSocket error handling in frontend (onStompError handler, token refresh on Unauthorized per contracts/websocket-topics.md)
+- [x] T120 [P] Add graceful degradation for broadcast failures (log error, continue broadcasting to other subscribers per research.md best practices)
 
 ### E2E Tests
 

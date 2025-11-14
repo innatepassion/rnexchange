@@ -9,6 +9,8 @@ export type ConnectionListener = (status: 'connecting' | 'connected' | 'reconnec
 export class MarketDataWebSocketService {
   private client?: Client;
   private subscriptions: Map<string, StompSubscription> = new Map();
+  private statusListener?: ConnectionListener;
+  private reconnectTimeout?: number;
 
   private ensureClient() {
     if (this.client) {
@@ -20,26 +22,49 @@ export class MarketDataWebSocketService {
   }
 
   connect(onStatusChange?: ConnectionListener) {
-    const client = this.ensureClient();
     if (onStatusChange) {
-      client.onConnect = () => onStatusChange('connected');
-      client.onStompError = () => onStatusChange('reconnecting');
-      client.onWebSocketClose = () => onStatusChange('disconnected');
-      client.onDisconnect = () => onStatusChange('disconnected');
+      this.statusListener = onStatusChange;
     }
+    const client = this.ensureClient();
+    client.onConnect = () => this.statusListener?.('connected');
+    client.onStompError = frame => {
+      const errorMessage = frame?.headers?.message?.toLowerCase() ?? '';
+      if (errorMessage.includes('unauthorized')) {
+        this.handleUnauthorized();
+        return;
+      }
+      this.statusListener?.('reconnecting');
+    };
+    client.onWebSocketClose = () => this.statusListener?.('disconnected');
+    client.onDisconnect = () => this.statusListener?.('disconnected');
+    client.onWebSocketError = () => this.statusListener?.('reconnecting');
     if (!client.active) {
-      onStatusChange?.('connecting');
+      this.statusListener?.('connecting');
       client.activate();
     }
   }
 
   disconnect() {
+    if (this.reconnectTimeout) {
+      window.clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = undefined;
+    }
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     this.subscriptions.clear();
     if (this.client) {
       this.client.deactivate();
       this.client = undefined;
     }
+  }
+
+  private handleUnauthorized() {
+    this.statusListener?.('reconnecting');
+    this.disconnect();
+    this.client = undefined;
+    this.reconnectTimeout = window.setTimeout(() => {
+      this.reconnectTimeout = undefined;
+      this.connect(this.statusListener);
+    }, 1000);
   }
 
   subscribe(symbols: string[], onQuote: (quote: IQuote) => void) {

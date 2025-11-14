@@ -390,4 +390,36 @@ describe('MarketWatch component', () => {
     expect(screen.queryByText(/Quote SLA breach/i)).not.toBeInTheDocument();
     jest.useRealTimers();
   });
+
+  it('flags rows as stale after 10 seconds of inactivity', async () => {
+    jest.useFakeTimers();
+    mockAxios.onGet('/api/watchlists').reply(200, [{ id: 1, name: 'Primary', symbols: ['INFY'], symbolCount: 1 }]);
+    const store = createStore();
+    renderWithStore(store);
+
+    const quote: IQuote = {
+      symbol: 'INFY',
+      lastPrice: 100,
+      open: 100,
+      change: 0,
+      changePercent: 0,
+      volume: 0,
+      timestamp: '2025-11-14T10:00:00.000Z',
+      marketStatus: 'OPEN',
+    };
+
+    act(() => {
+      store.dispatch(updateQuote(quote));
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(11000);
+    });
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+
+    await waitFor(() => expect(screen.getAllByText(/Stale/i).length).toBeGreaterThan(0));
+    jest.useRealTimers();
+  });
 });

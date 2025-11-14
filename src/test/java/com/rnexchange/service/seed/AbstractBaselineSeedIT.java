@@ -13,6 +13,8 @@ import com.rnexchange.repository.MarketHolidayRepository;
 import com.rnexchange.repository.TraderProfileRepository;
 import com.rnexchange.repository.TradingAccountRepository;
 import com.rnexchange.repository.UserRepository;
+import com.rnexchange.repository.WatchlistItemRepository;
+import com.rnexchange.repository.WatchlistRepository;
 import com.rnexchange.security.AuthoritiesConstants;
 import java.time.Instant;
 import java.util.Set;
@@ -56,6 +58,12 @@ public abstract class AbstractBaselineSeedIT {
     protected MarketHolidayRepository marketHolidayRepository;
 
     @Autowired
+    protected WatchlistRepository watchlistRepository;
+
+    @Autowired
+    protected WatchlistItemRepository watchlistItemRepository;
+
+    @Autowired
     protected MarginRuleRepository marginRuleRepository;
 
     @Autowired
@@ -75,6 +83,8 @@ public abstract class AbstractBaselineSeedIT {
         marketHolidayRepository.deleteAllInBatch();
         instrumentRepository.deleteAllInBatch();
         brokerDeskRepository.deleteAllInBatch();
+        watchlistItemRepository.deleteAllInBatch();
+        watchlistRepository.deleteAllInBatch();
         traderProfileRepository.deleteAllInBatch();
         brokerRepository.deleteAllInBatch();
         exchangeRepository.deleteAllInBatch();

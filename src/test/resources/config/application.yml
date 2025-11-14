@@ -48,6 +48,10 @@ spring:
   thymeleaf:
     mode: HTML
 
+logging:
+  level:
+    com.rnexchange.web.websocket: DEBUG
+
 server:
   port: 10344
   address: localhost

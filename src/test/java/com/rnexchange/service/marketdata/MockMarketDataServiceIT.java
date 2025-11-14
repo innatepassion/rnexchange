@@ -9,6 +9,7 @@ import com.rnexchange.domain.enumeration.ExchangeStatus;
 import com.rnexchange.repository.ExchangeRepository;
 import com.rnexchange.repository.InstrumentRepository;
 import com.rnexchange.repository.MarketHolidayRepository;
+import com.rnexchange.service.dto.ExchangeStatusDTO;
 import com.rnexchange.service.dto.FeedState;
 import com.rnexchange.service.dto.FeedStatusDTO;
 import com.rnexchange.service.marketdata.events.FeedStartedEvent;
@@ -130,6 +131,85 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
             );
 
         assertThat(mockMarketDataService.getVolatilitySnapshots()).isNotEmpty();
+    }
+
+    @Test
+    void holidayExchangeRemainsInactiveWhileOthersTick() {
+        seedInstrument("NSESTAR", "NSE");
+        seedInstrument("BSESTAR", "BSE");
+        insertHoliday("NSE", LocalDate.now());
+
+        mockMarketDataService.start();
+
+        Awaitility.await()
+            .atMost(5, TimeUnit.SECONDS)
+            .until(() ->
+                mockMarketDataService
+                    .getStatus()
+                    .exchanges()
+                    .stream()
+                    .anyMatch(status -> "BSE".equals(status.exchangeCode()) && status.ticksPerSecond() > 0)
+            );
+
+        FeedStatusDTO status = mockMarketDataService.getStatus();
+        ExchangeStatusDTO nseStatus = status
+            .exchanges()
+            .stream()
+            .filter(exchangeStatus -> "NSE".equals(exchangeStatus.exchangeCode()))
+            .findFirst()
+            .orElseThrow();
+        ExchangeStatusDTO bseStatus = status
+            .exchanges()
+            .stream()
+            .filter(exchangeStatus -> "BSE".equals(exchangeStatus.exchangeCode()))
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(nseStatus.state()).isEqualTo(FeedState.HOLIDAY);
+        assertThat(nseStatus.ticksPerSecond()).isEqualTo(0);
+        assertThat(bseStatus.state()).isEqualTo(FeedState.RUNNING);
+        assertThat(bseStatus.ticksPerSecond()).isGreaterThan(0);
+    }
+
+    @Test
+    void restartAfterNewHolidayPreventsImpactedExchangeFromTicking() {
+        seedInstrument("NIFTY50", "NSE");
+        seedInstrument("BSE100", "BSE");
+
+        mockMarketDataService.start();
+        Awaitility.await()
+            .atMost(5, TimeUnit.SECONDS)
+            .until(() ->
+                mockMarketDataService
+                    .getStatus()
+                    .exchanges()
+                    .stream()
+                    .anyMatch(status -> "NSE".equals(status.exchangeCode()) && status.ticksPerSecond() > 0)
+            );
+        mockMarketDataService.stop();
+
+        insertHoliday("NSE", LocalDate.now());
+        mockMarketDataService.start();
+
+        Awaitility.await()
+            .atMost(5, TimeUnit.SECONDS)
+            .until(() ->
+                mockMarketDataService
+                    .getStatus()
+                    .exchanges()
+                    .stream()
+                    .anyMatch(status -> "BSE".equals(status.exchangeCode()) && status.ticksPerSecond() > 0)
+            );
+
+        FeedStatusDTO status = mockMarketDataService.getStatus();
+        ExchangeStatusDTO nseStatus = status
+            .exchanges()
+            .stream()
+            .filter(exchangeStatus -> "NSE".equals(exchangeStatus.exchangeCode()))
+            .findFirst()
+            .orElseThrow();
+        assertThat(nseStatus.state()).isEqualTo(FeedState.HOLIDAY);
+        assertThat(nseStatus.ticksPerSecond()).isEqualTo(0);
     }
 
     private void seedInstrument(String symbol, String exchangeCode) {

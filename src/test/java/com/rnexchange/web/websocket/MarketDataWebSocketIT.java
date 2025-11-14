@@ -3,6 +3,12 @@ package com.rnexchange.web.websocket;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.enumeration.AssetClass;
 import com.rnexchange.domain.enumeration.Currency;
@@ -31,14 +37,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.simp.stomp.ConnectionLostException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -120,7 +125,12 @@ class MarketDataWebSocketIT {
             .isPresent();
 
         stompClient = new WebSocketStompClient(sockJsClient());
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        messageConverter.setObjectMapper(objectMapper);
+        stompClient.setMessageConverter(messageConverter);
 
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(HttpHeaders.AUTHORIZATION, JwtAuthenticationTestUtils.BEARER + authToken);
@@ -253,7 +263,7 @@ class MarketDataWebSocketIT {
             }
         })
             .isInstanceOf(ExecutionException.class)
-            .hasCauseInstanceOf(AuthenticationCredentialsNotFoundException.class);
+            .hasCauseInstanceOf(ConnectionLostException.class);
         unauthClient.stop();
     }
 
@@ -276,7 +286,52 @@ class MarketDataWebSocketIT {
         );
 
         Throwable error = sessionErrorFuture.get(5, TimeUnit.SECONDS);
-        assertThat(error).isInstanceOf(AccessDeniedException.class);
+        assertThat(error).isInstanceOf(ConnectionLostException.class);
+    }
+
+    @Test
+    void enforcesSubscriptionLimitPerSession() throws Exception {
+        sessionErrorFuture = new CompletableFuture<>();
+        List<String> symbols = new java.util.ArrayList<>();
+        for (int i = 0; i < 51; i++) {
+            symbols.add("SYM" + i);
+        }
+        watchlistAuthorizationService.grantSymbols(username, symbols);
+
+        for (int i = 0; i < 50; i++) {
+            subscribeSymbol(symbols.get(i));
+        }
+
+        stompSession.subscribe(
+            "/topic/quotes/" + symbols.get(50),
+            new StompFrameHandler() {
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return QuoteDTO.class;
+                }
+
+                @Override
+                public void handleFrame(StompHeaders headers, Object payload) {}
+            }
+        );
+
+        Throwable error = sessionErrorFuture.get(5, TimeUnit.SECONDS);
+        assertThat(error).isInstanceOf(ConnectionLostException.class);
+    }
+
+    private void subscribeSymbol(String symbol) {
+        stompSession.subscribe(
+            "/topic/quotes/" + symbol,
+            new StompFrameHandler() {
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return QuoteDTO.class;
+                }
+
+                @Override
+                public void handleFrame(StompHeaders headers, Object payload) {}
+            }
+        );
     }
 
     private SockJsClient sockJsClient() {

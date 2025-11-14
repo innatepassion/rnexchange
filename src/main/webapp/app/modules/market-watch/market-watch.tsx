@@ -19,6 +19,8 @@ type ThrottledQuoteHandler = ((quote: IQuote) => void) & { cancel: () => void };
 const numberFormatter = new Intl.NumberFormat('en-IN');
 const twoDecimalFormatter = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const SLA_WARNING_MS = 2000;
+const STALE_THRESHOLD_MS = 10000;
+const STALE_CHECK_INTERVAL_MS = 5000;
 
 const MarketWatch = () => {
   const dispatch = useAppDispatch();
@@ -33,6 +35,7 @@ const MarketWatch = () => {
   const throttledHandlers = useRef<Map<string, ThrottledQuoteHandler>>(new Map());
   const pendingQuoteTimersRef = useRef<Map<string, number>>(new Map());
   const pendingFirstQuoteRef = useRef<Map<string, number>>(new Map());
+  const [staleSymbols, setStaleSymbols] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -166,6 +169,25 @@ const MarketWatch = () => {
     },
     [],
   );
+
+  useEffect(() => {
+    const evaluateStaleness = () => {
+      const now = Date.now();
+      setStaleSymbols(() => {
+        const next = new Set<string>();
+        subscribedSymbols.forEach(symbol => {
+          const last = lastUpdateBySymbol[symbol];
+          if (last && now - last >= STALE_THRESHOLD_MS) {
+            next.add(symbol);
+          }
+        });
+        return next;
+      });
+    };
+    evaluateStaleness();
+    const intervalId = window.setInterval(evaluateStaleness, STALE_CHECK_INTERVAL_MS);
+    return () => window.clearInterval(intervalId);
+  }, [lastUpdateBySymbol, subscribedSymbols]);
 
   const realtimeStatus = useMarketDataSubscription(subscribedSymbols, throttledQuoteDispatch);
   const previousRealtimeStatus = useRef<string | null>(null);
@@ -402,9 +424,14 @@ const MarketWatch = () => {
               }
               const rowClass = quote.change > 0 ? 'positive' : quote.change < 0 ? 'negative' : 'neutral';
               const isFrozen = quote.marketStatus && quote.marketStatus !== 'OPEN';
+              const isStale = staleSymbols.has(symbol);
               const lastUpdated = dayjs(quote.timestamp).format('HH:mm:ss');
               return (
-                <tr key={symbol} className={`${rowClass}${isFrozen ? ' market-watch__row--frozen' : ''}`}>
+                <tr
+                  key={symbol}
+                  className={`${rowClass}${isFrozen || isStale ? ' market-watch__row--frozen' : ''}`}
+                  data-testid={`market-watch-row-${symbol}`}
+                >
                   <td>{quote.symbol}</td>
                   <td>{twoDecimalFormatter.format(quote.lastPrice)}</td>
                   <td>{twoDecimalFormatter.format(quote.change)}</td>
@@ -420,6 +447,11 @@ const MarketWatch = () => {
                     {quote.marketStatus === 'PAUSED' && (
                       <span className="status-chip status-chip--paused" title="Operator paused the feed for this instrument.">
                         Paused
+                      </span>
+                    )}
+                    {isStale && (
+                      <span className="status-chip status-chip--stale" title="No quote received in the last 10 seconds.">
+                        Stale
                       </span>
                     )}
                   </td>

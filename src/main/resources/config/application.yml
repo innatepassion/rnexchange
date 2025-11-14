@@ -153,13 +153,13 @@ spring:
     execution:
       thread-name-prefix: rnexchange-task-
       pool:
-        core-size: 2
-        max-size: 50
+        core-size: 16
+        max-size: 32
         queue-capacity: 10000
     scheduling:
       thread-name-prefix: rnexchange-scheduling-
       pool:
-        size: 2
+        size: 8
   thymeleaf:
     mode: HTML
   output:

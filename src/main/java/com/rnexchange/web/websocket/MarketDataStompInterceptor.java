@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -31,9 +34,11 @@ import org.springframework.util.StringUtils;
 public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(MarketDataStompInterceptor.class);
+    private static final int MAX_SUBSCRIPTIONS_PER_SESSION = 50;
 
     private final JwtDecoder jwtDecoder;
     private final WatchlistAuthorizationService authorizationService;
+    private final ConcurrentMap<String, AtomicInteger> subscriptionCounts = new ConcurrentHashMap<>();
 
     public MarketDataStompInterceptor(JwtDecoder jwtDecoder, WatchlistAuthorizationService authorizationService) {
         this.jwtDecoder = Objects.requireNonNull(jwtDecoder, "jwtDecoder must not be null");
@@ -51,26 +56,38 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
             handleConnect(accessor);
         } else if (command == StompCommand.SUBSCRIBE) {
             handleSubscribe(accessor);
+            enforceSubscriptionLimit(accessor);
+        } else if (command == StompCommand.UNSUBSCRIBE) {
+            decrementSubscriptionCount(accessor);
+        } else if (command == StompCommand.DISCONNECT) {
+            clearSessionSubscriptions(accessor);
         }
         return message;
     }
 
     private void handleConnect(StompHeaderAccessor accessor) {
+        if (log.isDebugEnabled()) {
+            log.debug("Processing WebSocket CONNECT for session {}", accessor.getSessionId());
+        }
         String authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(authorizationHeader)) {
+            log.warn("Rejecting WebSocket CONNECT with missing Authorization header (session={})", accessor.getSessionId());
             throw new AuthenticationCredentialsNotFoundException("WebSocket CONNECT requires Authorization header");
         }
         if (!authorizationHeader.toLowerCase(Locale.ROOT).startsWith("bearer ")) {
+            log.warn("Rejecting WebSocket CONNECT with non-bearer Authorization header (session={})", accessor.getSessionId());
             throw new AuthenticationCredentialsNotFoundException("Authorization header must use Bearer scheme");
         }
         String token = authorizationHeader.substring(7);
         if (!StringUtils.hasText(token)) {
+            log.warn("Rejecting WebSocket CONNECT due to blank bearer token (session={})", accessor.getSessionId());
             throw new AuthenticationCredentialsNotFoundException("Bearer token is empty");
         }
         Jwt jwt;
         try {
             jwt = jwtDecoder.decode(token);
         } catch (JwtException ex) {
+            log.warn("Rejecting WebSocket CONNECT due to invalid JWT (session={}): {}", accessor.getSessionId(), ex.getMessage());
             throw new AuthenticationCredentialsNotFoundException("Invalid JWT token", ex);
         }
         Collection<SimpleGrantedAuthority> authorities = extractAuthorities(jwt);
@@ -91,7 +108,11 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
         }
         if (destination.startsWith("/topic/quotes/") || destination.startsWith("/topic/bars/")) {
             String symbol = destination.substring(destination.lastIndexOf('/') + 1);
+            if (log.isDebugEnabled()) {
+                log.debug("Evaluating subscription for user {} to {}", authentication.getName(), symbol);
+            }
             if (!authorizationService.isSymbolAuthorized(authentication.getName(), symbol)) {
+                log.warn("Rejecting subscription for user {} to unauthorized symbol {}", authentication.getName(), symbol);
                 throw new AccessDeniedException("User not authorized for symbol " + symbol);
             }
         }
@@ -103,6 +124,43 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
             return List.of();
         }
         return roles.stream().filter(StringUtils::hasText).map(SimpleGrantedAuthority::new).toList();
+    }
+
+    private void enforceSubscriptionLimit(StompHeaderAccessor accessor) {
+        String sessionId = accessor.getSessionId();
+        if (!StringUtils.hasText(sessionId)) {
+            return;
+        }
+        AtomicInteger counter = subscriptionCounts.computeIfAbsent(sessionId, key -> new AtomicInteger());
+        int current = counter.incrementAndGet();
+        if (current > MAX_SUBSCRIPTIONS_PER_SESSION) {
+            counter.decrementAndGet();
+            String message = "Subscription limit of %d exceeded for session %s".formatted(MAX_SUBSCRIPTIONS_PER_SESSION, sessionId);
+            log.warn(message);
+            throw new IllegalStateException(message);
+        }
+    }
+
+    private void decrementSubscriptionCount(StompHeaderAccessor accessor) {
+        String sessionId = accessor.getSessionId();
+        if (!StringUtils.hasText(sessionId)) {
+            return;
+        }
+        AtomicInteger counter = subscriptionCounts.get(sessionId);
+        if (counter == null) {
+            return;
+        }
+        int remaining = counter.decrementAndGet();
+        if (remaining <= 0) {
+            subscriptionCounts.remove(sessionId);
+        }
+    }
+
+    private void clearSessionSubscriptions(StompHeaderAccessor accessor) {
+        String sessionId = accessor.getSessionId();
+        if (StringUtils.hasText(sessionId)) {
+            subscriptionCounts.remove(sessionId);
+        }
     }
 
     @Override

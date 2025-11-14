@@ -267,6 +267,13 @@ public class MockMarketDataService {
             .values()
             .forEach(state -> {
                 if (closedExchanges.contains(state.getExchangeCode())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                            "Skipping {} tick because exchange {} is closed per holiday calendar",
+                            state.getSymbol(),
+                            state.getExchangeCode()
+                        );
+                    }
                     return;
                 }
                 PriceGenerator generator = priceGenerators.getOrDefault(state.getSymbol(), new PriceGenerator());
