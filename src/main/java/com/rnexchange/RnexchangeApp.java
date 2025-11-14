@@ -2,6 +2,7 @@ package com.rnexchange;
 
 import com.rnexchange.config.ApplicationProperties;
 import com.rnexchange.config.CRLFLogConverter;
+import com.rnexchange.config.MockMarketDataProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,7 +22,7 @@ import tech.jhipster.config.DefaultProfileUtil;
 import tech.jhipster.config.JHipsterConstants;
 
 @SpringBootApplication(exclude = { H2ConsoleAutoConfiguration.class })
-@EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class })
+@EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class, MockMarketDataProperties.class })
 public class RnexchangeApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(RnexchangeApp.class);

@@ -92,43 +92,43 @@ graph TD
 
 ### DTOs & State Models
 
-- [ ] T200 Author failing MapStruct unit tests (`QuoteMapperTest`, `FeedStatusMapperTest`) that capture entity ↔ DTO mappings and enforce no manual field wiring before mapper generation occurs.
-- [ ] T201 Generate MapStruct mappers for market data DTOs (`QuoteMapper`, `BarMapper`, `FeedStatusMapper`) following the JHipster pattern (`@Mapper(componentModel = "spring")`) and run `./mvnw generate-sources` to satisfy the previously added tests.
-- [ ] T202 Create `QuoteDTO` record in `src/main/java/com/rnexchange/service/dto/QuoteDTO.java` (immutable record with symbol, lastPrice, open, change, changePercent, volume, timestamp fields per data-model.md). **Begin only after T200–T201 tests are red.**
-- [ ] T203 Create `BarDTO` record in `src/main/java/com/rnexchange/service/dto/BarDTO.java` (immutable record with symbol, open, high, low, close, volume, timestamp fields per data-model.md). **Begin only after T200–T201 tests are red.**
-- [ ] T204 Create `FeedStatusDTO` record in `src/main/java/com/rnexchange/service/dto/FeedStatusDTO.java` (globalState, startedAt, exchanges list per data-model.md). **Begin only after T200–T201 tests are red.**
-- [ ] T205 Create `ExchangeStatusDTO` record nested in FeedStatusDTO (exchangeCode, state, lastTickTime, ticksPerSecond, activeInstruments per data-model.md). **Begin only after T200–T201 tests are red.**
-- [ ] T206 Create `FeedState` enum in `src/main/java/com/rnexchange/service/dto/FeedState.java` (values: RUNNING, STOPPED, HOLIDAY). **Begin only after T200–T201 tests are red.**
-- [ ] T207e Author failing unit tests that cover `InstrumentState` state transitions and event DTO invariants before implementing T207–T207d.
-- [ ] T207 Create `InstrumentState` class in `src/main/java/com/rnexchange/service/marketdata/InstrumentState.java` (mutable state holder with synchronized updateWithTick method per data-model.md). **Requires T207e tests to fail first.**
-- [ ] T207a Create `FeedStartedEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/FeedStartedEvent.java` (include exchange codes, triggeredBy, timestamp per data-model.md). **Requires T207e tests to fail first.**
-- [ ] T207b Create `FeedStoppedEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/FeedStoppedEvent.java` (include exchange codes, triggeredBy, timestamp, reason). **Requires T207e tests to fail first.**
-- [ ] T207c Create `VolatilityGuardTriggeredEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/VolatilityGuardTriggeredEvent.java` (include symbol, exchange, direction, guardState snapshot). **Requires T207e tests to fail first.**
-- [ ] T207d Create `VolatilityGuardReleasedEvent` record capturing the window normalization event with symbol, exchange, and recovery timestamp metadata. **Requires T207e tests to fail first.**
+- [x] T200 Author failing MapStruct unit tests (`QuoteMapperTest`, `FeedStatusMapperTest`) that capture entity ↔ DTO mappings and enforce no manual field wiring before mapper generation occurs.
+- [x] T201 Generate MapStruct mappers for market data DTOs (`QuoteMapper`, `BarMapper`, `FeedStatusMapper`) following the JHipster pattern (`@Mapper(componentModel = "spring")`) and run `./mvnw generate-sources` to satisfy the previously added tests.
+- [x] T202 Create `QuoteDTO` record in `src/main/java/com/rnexchange/service/dto/QuoteDTO.java` (immutable record with symbol, lastPrice, open, change, changePercent, volume, timestamp fields per data-model.md). **Begin only after T200–T201 tests are red.**
+- [x] T203 Create `BarDTO` record in `src/main/java/com/rnexchange/service/dto/BarDTO.java` (immutable record with symbol, open, high, low, close, volume, timestamp fields per data-model.md). **Begin only after T200–T201 tests are red.**
+- [x] T204 Create `FeedStatusDTO` record in `src/main/java/com/rnexchange/service/dto/FeedStatusDTO.java` (globalState, startedAt, exchanges list per data-model.md). **Begin only after T200–T201 tests are red.**
+- [x] T205 Create `ExchangeStatusDTO` record nested in FeedStatusDTO (exchangeCode, state, lastTickTime, ticksPerSecond, activeInstruments per data-model.md). **Begin only after T200–T201 tests are red.**
+- [x] T206 Create `FeedState` enum in `src/main/java/com/rnexchange/service/dto/FeedState.java` (values: RUNNING, STOPPED, HOLIDAY). **Begin only after T200–T201 tests are red.**
+- [x] T207e Author failing unit tests that cover `InstrumentState` state transitions and event DTO invariants before implementing T207–T207d.
+- [x] T207 Create `InstrumentState` class in `src/main/java/com/rnexchange/service/marketdata/InstrumentState.java` (mutable state holder with synchronized updateWithTick method per data-model.md). **Requires T207e tests to fail first.**
+- [x] T207a Create `FeedStartedEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/FeedStartedEvent.java` (include exchange codes, triggeredBy, timestamp per data-model.md). **Requires T207e tests to fail first.**
+- [x] T207b Create `FeedStoppedEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/FeedStoppedEvent.java` (include exchange codes, triggeredBy, timestamp, reason). **Requires T207e tests to fail first.**
+- [x] T207c Create `VolatilityGuardTriggeredEvent` record in `src/main/java/com/rnexchange/service/marketdata/events/VolatilityGuardTriggeredEvent.java` (include symbol, exchange, direction, guardState snapshot). **Requires T207e tests to fail first.**
+- [x] T207d Create `VolatilityGuardReleasedEvent` record capturing the window normalization event with symbol, exchange, and recovery timestamp metadata. **Requires T207e tests to fail first.**
 
 ### Price Generation Logic (write tests first)
 
-- [ ] T208 Write unit test `PriceGeneratorTest` in `src/test/java/com/rnexchange/service/marketdata/PriceGeneratorTest.java` (capture bounded random-walk behavior, volatility cap, min/max price rails, batch emission per quickstart.md example)
-- [ ] T209 Create minimal `PriceGenerator` class in `src/main/java/com/rnexchange/service/marketdata/PriceGenerator.java` (constructor signatures, `nextPrice` stub sufficient for compilation)
-- [ ] T210 Implement `PriceGenerator.nextPrice()` method to satisfy the tests (apply calibrated bounded random walk with volatility multiplier, enforce min/max bounds, support batch-size deltas, round to 2 decimals per research.md)
-- [ ] T210a Write failing `RollingMinuteVolatilityGuardTest` in `src/test/java/com/rnexchange/service/marketdata/RollingMinuteVolatilityGuardTest.java` (assert the ±5% band behavior, guard release, and metric exposure requirements from spec FR-002b before implementation begins).
-- [ ] T210b Create `RollingMinuteVolatilityGuard` class in `src/main/java/com/rnexchange/service/marketdata/RollingMinuteVolatilityGuard.java` (maintain per-symbol rolling windows, expose guard state, and integrate with metrics hooks sufficient for tests to compile).
-- [ ] T210c Implement `RollingMinuteVolatilityGuard` logic so `MockMarketDataService` can query whether upward/downward deltas are permitted, pause offending directions, and publish guard state to status metrics satisfying FR-002b.
-- [ ] T211 Author failing `BarAggregatorTest` in `src/test/java/com/rnexchange/service/marketdata/BarAggregatorTest.java` (assert minute aggregation rules, volume summation, and timestamp bucketing before implementation begins)
+- [x] T208 Write unit test `PriceGeneratorTest` in `src/test/java/com/rnexchange/service/marketdata/PriceGeneratorTest.java` (capture bounded random-walk behavior, volatility cap, min/max price rails, batch emission per quickstart.md example)
+- [x] T209 Create minimal `PriceGenerator` class in `src/main/java/com/rnexchange/service/marketdata/PriceGenerator.java` (constructor signatures, `nextPrice` stub sufficient for compilation)
+- [x] T210 Implement `PriceGenerator.nextPrice()` method to satisfy the tests (apply calibrated bounded random walk with volatility multiplier, enforce min/max bounds, support batch-size deltas, round to 2 decimals per research.md)
+- [x] T210a Write failing `RollingMinuteVolatilityGuardTest` in `src/test/java/com/rnexchange/service/marketdata/RollingMinuteVolatilityGuardTest.java` (assert the ±5% band behavior, guard release, and metric exposure requirements from spec FR-002b before implementation begins).
+- [x] T210b Create `RollingMinuteVolatilityGuard` class in `src/main/java/com/rnexchange/service/marketdata/RollingMinuteVolatilityGuard.java` (maintain per-symbol rolling windows, expose guard state, and integrate with metrics hooks sufficient for tests to compile).
+- [x] T210c Implement `RollingMinuteVolatilityGuard` logic so `MockMarketDataService` can query whether upward/downward deltas are permitted, pause offending directions, and publish guard state to status metrics satisfying FR-002b.
+- [x] T211 Author failing `BarAggregatorTest` in `src/test/java/com/rnexchange/service/marketdata/BarAggregatorTest.java` (assert minute aggregation rules, volume summation, and timestamp bucketing before implementation begins)
 
 ### Bar Aggregation Logic
 
-- [ ] T212 Create minimal `BarAggregator` class in `src/main/java/com/rnexchange/service/marketdata/BarAggregator.java` (stub methods and wiring required for tests authored in T211 to compile)
-- [ ] T213 Implement `BarAggregator.createBar()` method (produce OHLC/volume values that satisfy `BarAggregatorTest` expectations per data-model.md)
+- [x] T212 Create minimal `BarAggregator` class in `src/main/java/com/rnexchange/service/marketdata/BarAggregator.java` (stub methods and wiring required for tests authored in T211 to compile)
+- [x] T213 Implement `BarAggregator.createBar()` method (produce OHLC/volume values that satisfy `BarAggregatorTest` expectations per data-model.md)
 
 ### Configuration
 
-- [ ] T214 Update the JDL to include the `exchange_volatility_override` entity (fields, relationships, constraints) and regenerate JHipster artifacts before creating the Liquibase changelog.
-- [ ] T215 Bind application properties `marketdata.mock.intervalMs` (default 750, min 100, max 1000), `marketdata.mock.batchSize` (default 4, max 10), `marketdata.mock.minPrice`, and `marketdata.mock.maxPrice`, plus `marketdata.mock.volatility.*` (per exchange and/or asset class) in a `@ConfigurationProperties` class.
-- [ ] T216 Validate configuration bounds at startup (reject out-of-range interval/batch/price rails by failing fast with a configuration exception, log remediation guidance); implement precedence so DB overrides (if present) take priority over application properties.
-- [ ] T217 Create Liquibase changelog `src/main/resources/config/liquibase/changelog/20251113_add_exchange_volatility_override.xml` to add table `exchange_volatility_override` with unique (`exchange_code`,`asset_class`) constraint and FK to `exchange(code)`.
-- [ ] T218 Seed developer profile data for NSE/BSE/MCX volatility overrides in the new changelog (align with research defaults).
-- [ ] T219 Implement `ExchangeVolatilityOverrideRepository` (Spring Data) and a loader component that merges DB overrides with configuration properties per FR-003 and exposes active volatility alongside clamping metrics.
+- [x] T214 Update the JDL to include the `exchange_volatility_override` entity (fields, relationships, constraints) and regenerate JHipster artifacts before creating the Liquibase changelog.
+- [x] T215 Bind application properties `marketdata.mock.intervalMs` (default 750, min 100, max 1000), `marketdata.mock.batchSize` (default 4, max 10), `marketdata.mock.minPrice`, and `marketdata.mock.maxPrice`, plus `marketdata.mock.volatility.*` (per exchange and/or asset class) in a `@ConfigurationProperties` class.
+- [x] T216 Validate configuration bounds at startup (reject out-of-range interval/batch/price rails by failing fast with a configuration exception, log remediation guidance); implement precedence so DB overrides (if present) take priority over application properties.
+- [x] T217 Create Liquibase changelog `src/main/resources/config/liquibase/changelog/20251113_add_exchange_volatility_override.xml` to add table `exchange_volatility_override` with unique (`exchange_code`,`asset_class`) constraint and FK to `exchange(code)`.
+- [x] T218 Seed developer profile data for NSE/BSE/MCX volatility overrides in the new changelog (align with research defaults).
+- [x] T219 Implement `ExchangeVolatilityOverrideRepository` (Spring Data) and a loader component that merges DB overrides with configuration properties per FR-003 and exposes active volatility alongside clamping metrics.
 
 **Completion Criteria**: All DTOs, state models, core algorithms (price generation, OHLC aggregation), and WebSocket infrastructure implemented and unit tested.
 

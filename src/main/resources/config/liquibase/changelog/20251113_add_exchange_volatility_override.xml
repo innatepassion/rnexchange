@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20251113-1" author="speckit">
+        <createTable tableName="exchange_volatility_override">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="exchange_code" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="asset_class" type="varchar(30)" defaultValue="ALL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="volatility_pct" type="decimal(6,5)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified" type="timestamp" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="exchange_volatility_override"
+                              columnNames="exchange_code, asset_class"
+                              constraintName="ux_exchange_volatility_override"/>
+        <addForeignKeyConstraint baseColumnNames="exchange_code"
+                                 baseTableName="exchange_volatility_override"
+                                 constraintName="fk_vol_override__exchange"
+                                 referencedColumnNames="code"
+                                 referencedTableName="exchange"/>
+    </changeSet>
+
+    <changeSet id="20251113-2" author="speckit" context="dev">
+        <insert tableName="exchange_volatility_override">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="exchange_code" value="NSE"/>
+            <column name="asset_class" value="ALL"/>
+            <column name="volatility_pct" valueNumeric="0.00400"/>
+            <column name="last_modified" valueDate="${now}"/>
+        </insert>
+        <insert tableName="exchange_volatility_override">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="exchange_code" value="BSE"/>
+            <column name="asset_class" value="ALL"/>
+            <column name="volatility_pct" valueNumeric="0.00400"/>
+            <column name="last_modified" valueDate="${now}"/>
+        </insert>
+        <insert tableName="exchange_volatility_override">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="exchange_code" value="MCX"/>
+            <column name="asset_class" value="ALL"/>
+            <column name="volatility_pct" valueNumeric="0.00600"/>
+            <column name="last_modified" valueDate="${now}"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
