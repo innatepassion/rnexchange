@@ -30,6 +30,12 @@ const Admin = Loadable({
   loader: () => import(/* webpackChunkName: "administration" */ 'app/modules/administration'),
   loading: () => loading,
 });
+
+const ExchangeConsole = Loadable({
+  loader: () => import(/* webpackChunkName: "exchange-console" */ 'app/modules/exchange-console'),
+  loading: () => loading,
+});
+
 const AppRoutes = () => {
   const pageLocation = useLocation();
   React.useEffect(() => {
@@ -62,6 +68,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
               <Admin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="exchange-console/*"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.EXCHANGE_OPERATOR]}>
+              <ExchangeConsole />
             </PrivateRoute>
           }
         />
