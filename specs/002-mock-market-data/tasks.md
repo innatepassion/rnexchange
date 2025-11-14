@@ -230,17 +230,17 @@ graph TD
 
 ### Performance Engineering & Tests
 
-- [ ] T113 Implement batch broadcasting in `MockMarketDataService` (queue quotes, flush every 100 ms with deduplication per research.md Section 6.1) to sustain high tick rates.
-- [ ] T124 Run Gatling load test and verify success criteria (aggregate throughput ≥10,000 tick updates/sec sustained, p95 latency <500 ms, <0.1% message loss, <4 GB heap per research.md and constitution).
-- [ ] T124a Extend Gatling or integration telemetry assertions to capture tick cadence (≥10,000 updates/sec across all exchanges) and cross-exchange isolation (≤1% leakage) to satisfy SC-002 and SC-005 metrics outlined in plan.md.
-- [ ] T124b Develop a Gatling scenario targeting `POST /api/marketdata/mock/start` and `POST /api/marketdata/mock/stop` with 1,000 concurrent virtual users to measure p95 latency.
-- [ ] T124c Add automated SLA assertions ensuring operator control endpoints respond within 2 seconds (p95) and fail the pipeline if breached (covers NFR-001).
-- [ ] T124d Extend performance suite to measure WebSocket reconnect duration across virtual users and fail the run if any reconnect exceeds 30 seconds (reinforces NFR-002).
-- [ ] T124e Capture reconnect duration percentiles across 1,000 disconnect cycles and assert 99% complete within 30 seconds; fail the Gatling suite if the percentile breach occurs (formal NFR-002 compliance gate).
+- [x] T113 Implement batch broadcasting in `MockMarketDataService` (queue quotes, flush every 100 ms with deduplication per research.md Section 6.1) to sustain high tick rates.
+- [x] T124 Run Gatling load test and verify success criteria (aggregate throughput ≥10,000 tick updates/sec sustained, p95 latency <500 ms, <0.1% message loss, <4 GB heap per research.md and constitution).
+- [x] T124a Extend Gatling or integration telemetry assertions to capture tick cadence (≥10,000 updates/sec across all exchanges) and cross-exchange isolation (≤1% leakage) to satisfy SC-002 and SC-005 metrics outlined in plan.md.
+- [x] T124b Develop a Gatling scenario targeting `POST /api/marketdata/mock/start` and `POST /api/marketdata/mock/stop` with 1,000 concurrent virtual users to measure p95 latency.
+- [x] T124c Add automated SLA assertions ensuring operator control endpoints respond within 2 seconds (p95) and fail the pipeline if breached (covers NFR-001).
+- [x] T124d Extend performance suite to measure WebSocket reconnect duration across virtual users and fail the run if any reconnect exceeds 30 seconds (reinforces NFR-002).
+- [x] T124e Capture reconnect duration percentiles across 1,000 disconnect cycles and assert 99% complete within 30 seconds; fail the Gatling suite if the percentile breach occurs (formal NFR-002 compliance gate).
 
 ### Validation
 
-- [ ] T124f Integrate the Gatling suite into CI and block promotion to Phase 4 until all throughput SLAs pass.
+- [x] T124f Integrate the Gatling suite into CI and block promotion to Phase 4 until all throughput SLAs pass.
 
 **Phase 3B Completion Criteria**: Batch broadcasting implemented, Gatling suite meets all throughput and SLA targets, CI gate prevents regressions. Only after this phase passes can Market Watch development (Phase 4) begin.
 

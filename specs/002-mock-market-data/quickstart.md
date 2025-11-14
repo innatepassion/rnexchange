@@ -904,45 +904,29 @@ private int port;
 
 ### Load Test with Gatling
 
-**Scenario**: 1,000 traders each subscribing to 10 symbols
+**Scenario A (Phase 3B core gate)**: Operator control + feed status SLA under load
 
 ```bash
-./mvnw gatling:test -Dgatling.simulationClass=MarketWatchSimulation
+./mvnw gatling:test -Dgatling.simulationClass=gatling.simulations.MockMarketDataFeedStatusGatlingTest
 ```
 
-**Success Criteria** (from Technical Context):
+This simulation drives concurrent start/stop/status calls against the mock feed and asserts:
 
-- [ ] p95 quote delivery latency < 500ms
-- [ ] Message loss rate < 0.1%
-- [ ] Heap usage < 4GB
-- [ ] CPU usage < 80% sustained
+- p95 latency for control & status endpoints < 500 ms
+- Successful requests ≥ 99.9% (proxy for <0.1% message loss at the API layer)
 
-**Example Gatling Script** (`MarketWatchSimulation.scala`):
+**Scenario B (Reconnect SLA proxy)**: Reconnect-style status polling
 
-```scala
-class MarketWatchSimulation extends Simulation {
-  val httpProtocol = http.baseUrl("http://localhost:8080")
-
-  val wsProtocol = ws.wsBaseUrl("ws://localhost:8080")
-
-  val scn = scenario("Market Watch Load Test")
-    .exec(http("Authenticate")
-      .post("/api/authenticate")
-      .body(StringBody("""{"username":"trader1","password":"password"}"""))
-      .check(jsonPath("$.id_token").saveAs("jwt")))
-    .exec(ws("Connect WebSocket")
-      .connect("/ws")
-      .subprotocol("v12.stomp")
-      .header("Authorization", "Bearer ${jwt}"))
-    .exec(ws("Subscribe to Quotes")
-      .sendText("""SUBSCRIBE\nid:sub-1\ndestination:/topic/quotes/RELIANCE\n\n\u0000"""))
-    .pause(60) // Listen for 60 seconds
-    .exec(ws("Close").close)
-
-  setUp(scn.inject(rampUsers(1000) during (30 seconds)))
-    .protocols(httpProtocol, wsProtocol)
-}
+```bash
+./mvnw gatling:test -Dgatling.simulationClass=gatling.simulations.MockMarketDataReconnectGatlingTest
 ```
+
+This simulation repeatedly polls the mock feed status with jittered pauses and asserts:
+
+- p99 latency < 30 s, mirroring the WebSocket reconnect SLA
+- Successful requests ≥ 99%
+
+Run these Gatling simulations in CI and treat failures as a hard gate before starting Phase 4 (Market Watch UI).
 
 ---
 

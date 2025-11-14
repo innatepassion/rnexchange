@@ -24,11 +24,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -61,9 +64,15 @@ public class MockMarketDataService {
     private final Map<String, InstrumentState> instrumentStates = new ConcurrentHashMap<>();
     private final Map<String, ExchangeMetrics> exchangeMetrics = new ConcurrentHashMap<>();
     private final Map<String, PriceGenerator> priceGenerators = new ConcurrentHashMap<>();
+    /**
+     * Pending quotes to be broadcast in batches. This enables high tick rates while
+     * keeping WebSocket send frequency bounded, as described in research.md §6.1.
+     */
+    private final Queue<QuoteDTO> pendingQuotes = new ConcurrentLinkedQueue<>();
     private final AtomicReference<FeedState> feedState = new AtomicReference<>(FeedState.STOPPED);
     private volatile Instant startedAt;
     private volatile ScheduledFuture<?> generatorTask;
+    private volatile ScheduledFuture<?> flushTask;
     private final ScheduledExecutorService scheduler;
     private volatile Set<String> lastClosedExchanges = Collections.emptySet();
 
@@ -160,6 +169,10 @@ public class MockMarketDataService {
             generatorTask.cancel(false);
             generatorTask = null;
         }
+        if (flushTask != null) {
+            flushTask.cancel(false);
+            flushTask = null;
+        }
         feedState.set(FeedState.STOPPED);
         eventPublisher.publishEvent(new FeedStoppedEvent(List.copyOf(exchangeMetrics.keySet()), "manual", clock.instant(), "STOP_INVOKED"));
         log.info("Mock market data feed stopped");
@@ -196,6 +209,12 @@ public class MockMarketDataService {
             generatorTask.cancel(false);
         }
         generatorTask = scheduler.scheduleAtFixedRate(this::generateTicksSafe, 0, DEFAULT_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+        if (flushTask != null && !flushTask.isCancelled()) {
+            flushTask.cancel(false);
+        }
+        // Flush quote batches every 100ms, deduplicating by symbol to keep latency low
+        // while dramatically reducing WebSocket send volume.
+        flushTask = scheduler.scheduleAtFixedRate(this::flushQuotesSafe, 100, 100, TimeUnit.MILLISECONDS);
     }
 
     private void generateTicksSafe() {
@@ -235,9 +254,35 @@ public class MockMarketDataService {
                     state.getCumulativeVolume(),
                     state.getLastUpdated()
                 );
-                webSocketHandler.broadcastQuote(quote);
+                pendingQuotes.add(quote);
                 exchangeMetrics.computeIfAbsent(state.getExchangeCode(), key -> new ExchangeMetrics()).recordTick(state.getLastUpdated());
             });
+    }
+
+    private void flushQuotesSafe() {
+        try {
+            flushQuotes();
+        } catch (Exception ex) {
+            log.error("Failed to flush mock market data quotes", ex);
+        }
+    }
+
+    /**
+     * Drain pending quotes, deduplicate by symbol, and broadcast only the latest
+     * quote per symbol. This implements the batch broadcasting strategy from
+     * research.md Section 6.1 to support high tick throughput without
+     * overwhelming WebSocket consumers.
+     */
+    private void flushQuotes() {
+        if (pendingQuotes.isEmpty()) {
+            return;
+        }
+        Map<String, QuoteDTO> latestBySymbol = new HashMap<>();
+        QuoteDTO quote;
+        while ((quote = pendingQuotes.poll()) != null) {
+            latestBySymbol.put(quote.symbol(), quote);
+        }
+        latestBySymbol.values().forEach(webSocketHandler::broadcastQuote);
     }
 
     private ExchangeStatusDTO buildExchangeStatus(String exchangeCode, FeedState currentState) {
