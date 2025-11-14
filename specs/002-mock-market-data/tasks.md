@@ -72,13 +72,13 @@ graph TD
 
 ### Tasks
 
-- [ ] T001 Verify M0 baseline seed data is loaded with required entities: Instrument, Exchange, MarketHoliday, TraderProfile, Watchlist, WatchlistItem (run `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev,seed` and check logs for "Baseline seed completed successfully")
-- [ ] T002 Verify PostgreSQL database connectivity and M0 schema (`psql -h localhost -U rnexchange -d rnexchange -c "\dt"` should show instrument, exchange, market_holiday, watchlist tables)
-- [ ] T003 Verify JHipster 8.x application runs successfully (`./mvnw spring-boot:run` and check port 8080 accessible)
-- [ ] T004 Verify frontend build tools (`npm install` and `npm run webapp:build:dev` complete without errors)
-- [ ] T005 Create feature branch structure in `specs/002-mock-market-data/` (verify plan.md, research.md, data-model.md, contracts/, quickstart.md exist)
-- [ ] T006 Review constitution compliance from plan.md (confirm all 7 principles marked as PASS)
-- [ ] T007 Review technical context from plan.md (Java 21, Spring Boot 3.x, React 18, WebSocket/STOMP stack)
+- [x] T001 Verify M0 baseline seed data is loaded with required entities: Instrument, Exchange, MarketHoliday, TraderProfile, Watchlist, WatchlistItem (run `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev,seed` and check logs for "Baseline seed completed successfully")
+- [x] T002 Verify PostgreSQL database connectivity and M0 schema (`psql -h localhost -U rnexchange -d rnexchange -c "\dt"` should show instrument, exchange, market_holiday, watchlist tables)
+- [x] T003 Verify JHipster 8.x application runs successfully (`./mvnw spring-boot:run` and check port 8080 accessible)
+- [x] T004 Verify frontend build tools (`npm install` and `npm run webapp:build:dev` complete without errors)
+- [x] T005 Create feature branch structure in `specs/002-mock-market-data/` (verify plan.md, research.md, data-model.md, contracts/, quickstart.md exist)
+- [x] T006 Review constitution compliance from plan.md (confirm all 7 principles marked as PASS)
+- [x] T007 Review technical context from plan.md (Java 21, Spring Boot 3.x, React 18, WebSocket/STOMP stack)
 
 **Completion Criteria**: All baseline infrastructure verified, development environment ready, planning artifacts reviewed.
 

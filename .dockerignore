@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+target/
+.git/
+.mvn/
+.idea/
+.vscode/
+coverage/
+*.log*
+.env
+.env.*
+tmp/
+
