@@ -327,7 +327,7 @@ graph TD
 - [ ] T075a [US2] Manual test: Stop feed from operator console while viewing Market Watch, confirm banner indicates paused state and quotes freeze with last update timestamp.
 - [ ] T075b [US2] Manual test: Mark an exchange as holiday, refresh Market Watch, verify impacted instruments show "Closed/Holiday" badge and remain static until trading resumes (FR-008 & FR-011).
 - [ ] T075c [US2] Automated test: Simulate WebSocket disconnect and assert reconnection completes within 30 seconds, failing the build if SLA is breached (covers NFR-002).
-- [ ] T076 [US2] Run frontend tests (`npm test -- market-watch.spec.tsx`)
+- [x] T076 [US2] Run frontend tests (`npm test -- market-watch.spec.tsx`)
 
 **US2 Completion Criteria**: Trader can view Market Watch with live updating prices, WebSocket connection status indicator works, color coding applies, all component tests pass. US2 is independently testable (requires US1 feed running).
 
@@ -348,54 +348,54 @@ graph TD
 
 ### Backend: Tests (author before implementation)
 
-- [ ] T090 [P] [US3] Draft failing `WatchlistResourceIT` in `src/test/java/com/rnexchange/web/rest/WatchlistResourceIT.java` (cover add/remove, ownership validation, duplicate/invalid symbol responses as per contracts).
-- [ ] T090a [US3] Extend integration coverage with a latency-focused test (e.g., `WatchlistLatencyIT`) that asserts a newly added instrument begins emitting live quotes within 2 seconds of the POST `/api/watchlists/{id}/items` response (FR-014 SLA).
-- [ ] T090b [US3] Extend integration coverage to assert that removing an instrument halts quote delivery and WebSocket broadcasts within 2 seconds of DELETE `/api/watchlists/{id}/items/{symbol}` completing, satisfying the FR-014 removal SLA.
+- [x] T090 [P] [US3] Draft failing `WatchlistResourceIT` in `src/test/java/com/rnexchange/web/rest/WatchlistResourceIT.java` (cover add/remove, ownership validation, duplicate/invalid symbol responses as per contracts).
+- [x] T090a [US3] Extend integration coverage with a latency-focused test (e.g., `WatchlistLatencyIT`) that asserts a newly added instrument begins emitting live quotes within 2 seconds of the POST `/api/watchlists/{id}/items` response (FR-014 SLA).
+- [x] T090b [US3] Extend integration coverage to assert that removing an instrument halts quote delivery and WebSocket broadcasts within 2 seconds of DELETE `/api/watchlists/{id}/items/{symbol}` completing, satisfying the FR-014 removal SLA.
 
 ### Backend: Watchlist API Extensions
 
-- [ ] T077 [P] [US3] Create `WatchlistDTO` record in `src/main/java/com/rnexchange/service/dto/WatchlistDTO.java` (id, name, items list per data-model.md)
-- [ ] T078 [P] [US3] Create `WatchlistItemDTO` record in `src/main/java/com/rnexchange/service/dto/WatchlistItemDTO.java` (symbol, sortOrder per data-model.md)
-- [ ] T079 [P] [US3] Create `AddWatchlistItemRequest` record in `src/main/java/com/rnexchange/web/rest/dto/AddWatchlistItemRequest.java` (@NotBlank String symbol per data-model.md)
+- [x] T077 [P] [US3] Create `WatchlistDTO` record in `src/main/java/com/rnexchange/service/dto/WatchlistDTO.java` (id, name, items list per data-model.md)
+- [x] T078 [P] [US3] Create `WatchlistItemDTO` record in `src/main/java/com/rnexchange/service/dto/WatchlistItemDTO.java` (symbol, sortOrder per data-model.md)
+- [x] T079 [P] [US3] Create `AddWatchlistItemRequest` record in `src/main/java/com/rnexchange/web/rest/dto/AddWatchlistItemRequest.java` (@NotBlank String symbol per data-model.md)
 - [ ] T080 [US3] Update `contracts/mock-market-data.openapi.yaml` with watchlist endpoints (POST /api/watchlists/{id}/items, DELETE /api/watchlists/{id}/items/{symbol}, GET /api/watchlists/{id} per contracts)
 - [ ] T081 [US3] Run code generation (`./mvnw generate-sources`) to generate `WatchlistManagementApiDelegate` interface
 - [ ] T082 [US3] Create `WatchlistManagementApiDelegateImpl` in `src/main/java/com/rnexchange/web/rest/delegate/WatchlistManagementApiDelegateImpl.java` (inject WatchlistRepository, InstrumentRepository, WatchlistMapper)
 
 ### Backend: Add Item Implementation
 
-- [ ] T083 [US3] Implement `addWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, check symbol exists, check for duplicates, add item, return updated watchlist per quickstart.md example) to fulfil FR-014.
-- [ ] T084 [US3] Add ownership validation (compare watchlist.trader.user.login to SecurityUtils.getCurrentUserLogin(), return 403 if mismatch per research.md)
-- [ ] T085 [US3] Add instrument existence check (query InstrumentRepository.findBySymbol(), return 400 if not found per quickstart.md)
-- [ ] T086 [US3] Add duplicate check (stream watchlist items, return 400 if symbol already present per quickstart.md)
+- [x] T083 [US3] Implement `addWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, check symbol exists, check for duplicates, add item, return updated watchlist per quickstart.md example) to fulfil FR-014.
+- [x] T084 [US3] Add ownership validation (compare watchlist.trader.user.login to SecurityUtils.getCurrentUserLogin(), return 403 if mismatch per research.md)
+- [x] T085 [US3] Add instrument existence check (query InstrumentRepository.findBySymbol(), return 400 if not found per quickstart.md)
+- [x] T086 [US3] Add duplicate check (stream watchlist items, return 400 if symbol already present per quickstart.md)
 
 ### Backend: Remove Item Implementation
 
-- [ ] T087 [US3] Implement `removeWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, find item by symbol, remove from watchlist, return updated watchlist per contracts) in alignment with FR-014.
-- [ ] T088 [US3] Add symbol-in-watchlist check (return 404 if symbol not in watchlist per contracts)
+- [x] T087 [US3] Implement `removeWatchlistItem()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, find item by symbol, remove from watchlist, return updated watchlist per contracts) in alignment with FR-014.
+- [x] T088 [US3] Add symbol-in-watchlist check (return 404 if symbol not in watchlist per contracts)
 
 ### Backend: Get Watchlist Implementation
 
-- [ ] T089 [US3] Implement `getWatchlist()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, return WatchlistDTO per contracts)
+- [x] T089 [US3] Implement `getWatchlist()` method with `@PreAuthorize("hasAuthority('TRADER')")` (verify ownership, return WatchlistDTO per contracts)
 
 ### Frontend: Component Tests (author before UI implementation)
 
-- [ ] T098 [P] [US3] Draft failing `watchlist-selector.spec.tsx` capturing selection display, empty-state, and API invocation expectations.
-- [ ] T099 [P] [US3] Extend `market-watch.spec.tsx` with pending tests for add/remove flows (mock API responses, subscription adjustments, error messaging).
-- [ ] T099a [US3] Implement an automated SLA assertion in `market-watch.spec.tsx` (or supporting utility) that fails if the UI shows the new instrument’s first quote later than 2 seconds after add/remove completion.
-- [ ] T099b [US3] Extend `market-watch.spec.tsx` (or the subscription hook test) to assert that removed symbols disappear from the table and stop receiving updates within 2 seconds of the delete action completing, matching FR-014.
+- [x] T098 [P] [US3] Draft failing `watchlist-selector.spec.tsx` capturing selection display, empty-state, and API invocation expectations.
+- [x] T099 [P] [US3] Extend `market-watch.spec.tsx` with pending tests for add/remove flows (mock API responses, subscription adjustments, error messaging).
+- [x] T099a [US3] Implement an automated SLA assertion in `market-watch.spec.tsx` (or supporting utility) that fails if the UI shows the new instrument’s first quote later than 2 seconds after add/remove completion.
+- [x] T099b [US3] Extend `market-watch.spec.tsx` (or the subscription hook test) to assert that removed symbols disappear from the table and stop receiving updates within 2 seconds of the delete action completing, matching FR-014.
 
 ### Frontend: Watchlist Management UI
 
-- [ ] T091 [P] [US3] Create `WatchlistSelector` component in `src/main/webapp/app/modules/market-watch/watchlist-selector.tsx` (dropdown to select watchlist, displays name and item count)
-- [ ] T092 [US3] Add "Add Symbol" button/modal to Market Watch (input for symbol, validation, POST to /api/watchlists/{id}/items per contracts) to support FR-014.
-- [ ] T093 [US3] Add "Remove" action to each watchlist row (delete icon/button, DELETE to /api/watchlists/{id}/items/{symbol} per contracts) to support FR-014.
-- [ ] T094 [US3] Implement optimistic UI updates (update Redux state immediately, revert on error)
-- [ ] T095 [US3] Update useMarketDataSubscription hook to handle dynamic symbol changes (explicitly unsubscribe from removed symbols via subscription.unsubscribe(), subscribe to newly added symbols, maintain subscriptions Map per contracts/websocket-topics.md) to honour FR-014 and FR-017.
-- [ ] T096 [US3] Add error handling for add/remove operations (display toast/alert on validation errors per contracts error responses) to ensure FR-014 acceptance criteria are met.
+- [x] T091 [P] [US3] Create `WatchlistSelector` component in `src/main/webapp/app/modules/market-watch/watchlist-selector.tsx` (dropdown to select watchlist, displays name and item count)
+- [x] T092 [US3] Add "Add Symbol" button/modal to Market Watch (input for symbol, validation, POST to /api/watchlists/{id}/items per contracts) to support FR-014.
+- [x] T093 [US3] Add "Remove" action to each watchlist row (delete icon/button, DELETE to /api/watchlists/{id}/items/{symbol} per contracts) to support FR-014.
+- [x] T094 [US3] Implement optimistic UI updates (update Redux state immediately, revert on error)
+- [x] T095 [US3] Update useMarketDataSubscription hook to handle dynamic symbol changes (explicitly unsubscribe from removed symbols via subscription.unsubscribe(), subscribe to newly added symbols, maintain subscriptions Map per contracts/websocket-topics.md) to honour FR-014 and FR-017.
+- [x] T096 [US3] Add error handling for add/remove operations (display toast/alert on validation errors per contracts error responses) to ensure FR-014 acceptance criteria are met.
 
 ### Frontend: API Integration
 
-- [ ] T097 [P] [US3] Create watchlist API service in `src/main/webapp/app/shared/api/watchlist.api.ts` (functions for addItem, removeItem, getWatchlist wrapping axios calls per contracts)
+- [x] T097 [P] [US3] Create watchlist API service in `src/main/webapp/app/shared/api/watchlist.api.ts` (functions for addItem, removeItem, getWatchlist wrapping axios calls per contracts)
 
 ### Validation
 
@@ -406,8 +406,8 @@ graph TD
 - [ ] T104 [US3] Manual test: Try adding duplicate symbol, verify error message displays
 - [ ] T105 [US3] Manual test: Try adding invalid symbol, verify "Symbol not found" error
 - [ ] T106 [US3] Manual test: Try adding symbol to another trader's watchlist, verify 403 Forbidden
-- [ ] T107 [US3] Run backend integration tests (`./mvnw verify -Dtest=WatchlistResourceIT`)
-- [ ] T108 [US3] Run frontend tests (`npm test -- watchlist-selector.spec.tsx`)
+- [x] T107 [US3] Run backend integration tests (`./mvnw verify -Dtest=WatchlistResourceIT`)
+- [x] T108 [US3] Run frontend tests (`npm test -- watchlist-selector.spec.tsx`)
 
 **US3 Completion Criteria**: Trader can add/remove instruments from watchlist, table updates within 3s, WebSocket subscriptions adjust dynamically, all validation and tests pass. US3 is independently testable.
 

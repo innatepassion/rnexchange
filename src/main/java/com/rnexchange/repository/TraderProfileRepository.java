@@ -37,4 +37,7 @@ public interface TraderProfileRepository extends JpaRepository<TraderProfile, Lo
 
     @Query("select traderProfile from TraderProfile traderProfile left join fetch traderProfile.user where traderProfile.id =:id")
     Optional<TraderProfile> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = "user")
+    Optional<TraderProfile> findOneByUserLogin(String login);
 }

@@ -36,7 +36,10 @@ const marketWatchSlice = createSlice({
       state.connectionStatus = action.payload;
     },
     setWatchlists(state, action: PayloadAction<WatchlistSummary[]>) {
-      state.watchlists = action.payload;
+      state.watchlists = action.payload.map(watchlist => ({
+        ...watchlist,
+        symbolCount: watchlist.symbolCount ?? watchlist.symbols?.length ?? 0,
+      }));
       state.isLoadingWatchlists = false;
       if (action.payload.length > 0 && !state.selectedWatchlistId) {
         state.selectedWatchlistId = action.payload[0].id;
@@ -46,6 +49,13 @@ const marketWatchSlice = createSlice({
       state.selectedWatchlistId = action.payload;
       state.quotes = {};
       state.lastUpdateBySymbol = {};
+    },
+    setWatchlistSymbols(state, action: PayloadAction<{ id: number; symbols: string[] }>) {
+      const target = state.watchlists.find(w => w.id === action.payload.id);
+      if (target) {
+        target.symbols = action.payload.symbols;
+        target.symbolCount = action.payload.symbols.length;
+      }
     },
     updateQuote(state, action: PayloadAction<IQuote>) {
       const quote = action.payload;
@@ -59,6 +69,7 @@ const marketWatchSlice = createSlice({
   },
 });
 
-export const { setConnectionStatus, setWatchlists, selectWatchlist, updateQuote, clearQuotes } = marketWatchSlice.actions;
+export const { setConnectionStatus, setWatchlists, selectWatchlist, setWatchlistSymbols, updateQuote, clearQuotes } =
+  marketWatchSlice.actions;
 
 export default marketWatchSlice.reducer;

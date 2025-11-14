@@ -1,21 +1,24 @@
 import './market-watch.scss';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Spinner } from 'reactstrap';
-import axios from 'axios';
+import { Alert, Spinner } from 'reactstrap';
+import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import throttle from 'lodash/throttle';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import type { IQuote } from 'app/shared/model/quote.model';
-import { clearQuotes, selectWatchlist, setConnectionStatus, setWatchlists, updateQuote } from './market-watch.reducer';
+import { clearQuotes, selectWatchlist, setConnectionStatus, setWatchlistSymbols, setWatchlists, updateQuote } from './market-watch.reducer';
 import type { WatchlistSummary } from './market-watch.reducer';
 import { useMarketDataSubscription } from './use-market-data-subscription';
+import { addWatchlistSymbol, fetchWatchlist, fetchWatchlists, removeWatchlistSymbol } from 'app/shared/api/watchlist.api';
+import WatchlistSelector from './watchlist-selector';
 
 type ThrottledQuoteHandler = ((quote: IQuote) => void) & { cancel: () => void };
 
 const numberFormatter = new Intl.NumberFormat('en-IN');
 const twoDecimalFormatter = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const SLA_WARNING_MS = 2000;
 
 const MarketWatch = () => {
   const dispatch = useAppDispatch();
@@ -24,13 +27,18 @@ const MarketWatch = () => {
   );
 
   const [isFetchingWatchlistItems, setIsFetchingWatchlistItems] = useState(false);
+  const [subscribedSymbols, setSubscribedSymbols] = useState<string[]>([]);
+  const [mutationState, setMutationState] = useState<{ kind: 'add' | 'remove'; symbol?: string } | null>(null);
+  const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const throttledHandlers = useRef<Map<string, ThrottledQuoteHandler>>(new Map());
+  const pendingQuoteTimersRef = useRef<Map<string, number>>(new Map());
+  const pendingFirstQuoteRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
     const loadWatchlists = async () => {
       try {
-        const { data } = await axios.get<WatchlistSummary[]>('/api/watchlists');
+        const { data } = await fetchWatchlists();
         if (!cancelled) {
           dispatch(setWatchlists(data));
         }
@@ -52,34 +60,80 @@ const MarketWatch = () => {
     [watchlists, selectedWatchlistId],
   );
 
-  const [subscribedSymbols, setSubscribedSymbols] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchWatchlistItems = async () => {
-      if (!selectedWatchlistId) {
-        setSubscribedSymbols([]);
-        return;
-      }
-      const cachedSymbols = selectedWatchlist?.symbols;
-      if (cachedSymbols && cachedSymbols.length > 0) {
-        setSubscribedSymbols(cachedSymbols);
-        return;
-      }
+  const hydrateWatchlist = useCallback(
+    async (watchlistId: number) => {
       setIsFetchingWatchlistItems(true);
       try {
-        const { data } = await axios.get<{ id: number; name: string; items: { symbol: string }[] }>(
-          `/api/watchlists/${selectedWatchlistId}`,
-        );
+        const { data } = await fetchWatchlist(watchlistId);
         const symbols = data.items?.map(item => item.symbol) ?? [];
+        dispatch(setWatchlistSymbols({ id: data.id, symbols }));
         setSubscribedSymbols(symbols);
       } catch (error) {
         setSubscribedSymbols([]);
       } finally {
         setIsFetchingWatchlistItems(false);
       }
-    };
-    fetchWatchlistItems();
-  }, [selectedWatchlist, selectedWatchlistId]);
+    },
+    [dispatch],
+  );
+
+  useEffect(() => {
+    if (!selectedWatchlistId) {
+      setSubscribedSymbols([]);
+      return;
+    }
+    const cachedSymbols = selectedWatchlist?.symbols;
+    if (cachedSymbols && cachedSymbols.length > 0) {
+      setSubscribedSymbols(cachedSymbols);
+      return;
+    }
+    hydrateWatchlist(selectedWatchlistId);
+  }, [hydrateWatchlist, selectedWatchlist, selectedWatchlistId]);
+
+  const handleWatchlistChange = (watchlistId: number | null) => {
+    setNotice(null);
+    dispatch(selectWatchlist(watchlistId));
+  };
+
+  const extractErrorMessage = (error: unknown) => {
+    if (error instanceof AxiosError) {
+      return (error.response?.data?.message as string) || error.message || 'Request failed';
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return 'Unexpected error occurred';
+  };
+
+  const startQuoteSlaTimer = useCallback((symbol: string) => {
+    const normalized = symbol.toUpperCase();
+    const start = Date.now();
+    pendingFirstQuoteRef.current.set(normalized, start);
+    const timeoutId = window.setTimeout(() => {
+      const recorded = pendingFirstQuoteRef.current.get(normalized);
+      if (recorded && Date.now() - recorded >= SLA_WARNING_MS) {
+        setNotice({
+          type: 'error',
+          message: `Quote SLA breach: ${normalized} has not received its first update within 2 seconds.`,
+        });
+      }
+    }, SLA_WARNING_MS);
+    const existing = pendingQuoteTimersRef.current.get(normalized);
+    if (existing) {
+      clearTimeout(existing);
+    }
+    pendingQuoteTimersRef.current.set(normalized, timeoutId);
+  }, []);
+
+  const clearQuoteSlaTimer = useCallback((symbol: string) => {
+    const normalized = symbol.toUpperCase();
+    const timeoutId = pendingQuoteTimersRef.current.get(normalized);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      pendingQuoteTimersRef.current.delete(normalized);
+    }
+    pendingFirstQuoteRef.current.delete(normalized);
+  }, []);
 
   const throttledQuoteDispatch = useCallback(
     (quote: IQuote) => {
@@ -91,6 +145,7 @@ const MarketWatch = () => {
       const handler = throttle(
         (latest: IQuote) => {
           dispatch(updateQuote(latest));
+          clearQuoteSlaTimer(latest.symbol);
         },
         200,
         { leading: true, trailing: true },
@@ -105,6 +160,9 @@ const MarketWatch = () => {
     () => () => {
       throttledHandlers.current.forEach(handler => handler.cancel());
       throttledHandlers.current.clear();
+      pendingQuoteTimersRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+      pendingQuoteTimersRef.current.clear();
+      pendingFirstQuoteRef.current.clear();
     },
     [],
   );
@@ -113,15 +171,64 @@ const MarketWatch = () => {
   const previousRealtimeStatus = useRef<string | null>(null);
 
   useEffect(() => {
+    Object.keys(quotes).forEach(symbol => {
+      if (pendingFirstQuoteRef.current.has(symbol.toUpperCase())) {
+        clearQuoteSlaTimer(symbol);
+      }
+    });
+  }, [clearQuoteSlaTimer, quotes]);
+
+  useEffect(() => {
     if (realtimeStatus && previousRealtimeStatus.current !== realtimeStatus) {
       previousRealtimeStatus.current = realtimeStatus;
       dispatch(setConnectionStatus(realtimeStatus));
     }
   }, [realtimeStatus]);
 
-  const handleWatchlistChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value ? parseInt(event.target.value, 10) : null;
-    dispatch(selectWatchlist(value));
+  const handleAddSymbol = useCallback(
+    async (symbol: string) => {
+      if (!selectedWatchlistId) {
+        const message = 'Select a watchlist before adding symbols.';
+        setNotice({ type: 'error', message });
+        throw new Error(message);
+      }
+      setMutationState({ kind: 'add', symbol });
+      try {
+        const previousSymbols = new Set(selectedWatchlist?.symbols ?? subscribedSymbols);
+        const { data } = await addWatchlistSymbol(selectedWatchlistId, symbol);
+        const symbols = data.items?.map(item => item.symbol) ?? [];
+        dispatch(setWatchlistSymbols({ id: data.id, symbols }));
+        setSubscribedSymbols(symbols);
+        symbols.filter(itemSymbol => !previousSymbols.has(itemSymbol)).forEach(startQuoteSlaTimer);
+        setNotice({ type: 'success', message: `${symbol.toUpperCase()} added to ${data.name}.` });
+      } catch (error) {
+        const message = extractErrorMessage(error);
+        setNotice({ type: 'error', message });
+        throw new Error(message);
+      } finally {
+        setMutationState(null);
+      }
+    },
+    [dispatch, selectedWatchlist, selectedWatchlistId, startQuoteSlaTimer, subscribedSymbols],
+  );
+
+  const handleRemoveSymbol = async (symbol: string) => {
+    if (!selectedWatchlistId) {
+      return;
+    }
+    setMutationState({ kind: 'remove', symbol });
+    try {
+      const { data } = await removeWatchlistSymbol(selectedWatchlistId, symbol);
+      const symbols = data.items?.map(item => item.symbol) ?? [];
+      dispatch(setWatchlistSymbols({ id: data.id, symbols }));
+      setSubscribedSymbols(symbols);
+      clearQuoteSlaTimer(symbol);
+      setNotice({ type: 'success', message: `${symbol.toUpperCase()} removed from ${data.name}.` });
+    } catch (error) {
+      setNotice({ type: 'error', message: extractErrorMessage(error) });
+    } finally {
+      setMutationState(null);
+    }
   };
 
   const renderEmptyState = () => {
@@ -213,19 +320,21 @@ const MarketWatch = () => {
             SIMULATED FEED
           </span>
         </div>
-        <div className="market-watch__controls">
-          <label htmlFor="market-watch-select" className="form-label">
-            Select watchlist
-          </label>
-          <select id="market-watch-select" className="form-select" value={selectedWatchlistId ?? ''} onChange={handleWatchlistChange}>
-            {watchlists.map(watchlist => (
-              <option key={watchlist.id} value={watchlist.id}>
-                {watchlist.name} {watchlist.symbolCount ? `(${watchlist.symbolCount})` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
+        <WatchlistSelector
+          watchlists={watchlists}
+          isLoading={isLoadingWatchlists}
+          selectedWatchlistId={selectedWatchlistId}
+          onSelect={handleWatchlistChange}
+          onAddSymbol={handleAddSymbol}
+          isSubmitting={Boolean(mutationState && mutationState.kind === 'add')}
+        />
       </header>
+
+      {notice && (
+        <Alert color={notice.type === 'error' ? 'danger' : 'success'} toggle={() => setNotice(null)} transition={{ timeout: 0 }}>
+          {notice.message}
+        </Alert>
+      )}
 
       {renderEmptyState()}
 
@@ -274,6 +383,7 @@ const MarketWatch = () => {
                 </abbr>
               </th>
               <th>Status</th>
+              <th className="text-end actions-col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -311,6 +421,18 @@ const MarketWatch = () => {
                       <span className="status-chip status-chip--paused" title="Operator paused the feed for this instrument.">
                         Paused
                       </span>
+                    )}
+                  </td>
+                  <td className="text-end">
+                    {selectedWatchlistId && (
+                      <button
+                        type="button"
+                        className="btn btn-link btn-sm text-danger"
+                        disabled={mutationState?.kind === 'remove' && mutationState.symbol === symbol}
+                        onClick={() => handleRemoveSymbol(symbol)}
+                      >
+                        {mutationState?.kind === 'remove' && mutationState.symbol === symbol ? 'Removing…' : 'Remove'}
+                      </button>
                     )}
                   </td>
                 </tr>

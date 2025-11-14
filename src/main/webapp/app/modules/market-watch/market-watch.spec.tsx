@@ -235,4 +235,159 @@ describe('MarketWatch component', () => {
 
     await waitFor(() => expect(screen.getByText('42.42%')).toBeInTheDocument());
   });
+
+  it('allows adding a symbol through the modal workflow', async () => {
+    mockAxios.onGet('/api/watchlists').reply(200, [{ id: 1, name: 'Primary', symbols: ['INFY'], symbolCount: 1 }]);
+    mockAxios.onPost('/api/watchlists/1/items').reply(200, {
+      id: 1,
+      name: 'Primary',
+      items: [
+        { id: 1, symbol: 'INFY', sortOrder: 0 },
+        { id: 2, symbol: 'RELIANCE', sortOrder: 1 },
+      ],
+    });
+
+    renderWithStore();
+
+    const addButton = await screen.findByTestId('add-symbol-button');
+    await waitFor(() => expect(addButton).not.toBeDisabled());
+    fireEvent.click(addButton);
+
+    const input = await screen.findByTestId('add-symbol-input');
+    fireEvent.change(input, { target: { value: 'RELIANCE' } });
+    const form = input.closest('form');
+    if (!form) {
+      throw new Error('Form not found');
+    }
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(screen.getByText('RELIANCE')).toBeInTheDocument());
+  });
+
+  it('allows removing a symbol from the table', async () => {
+    mockAxios.onGet('/api/watchlists').reply(200, [{ id: 1, name: 'Primary', symbols: ['INFY'], symbolCount: 1 }]);
+    mockAxios.onDelete('/api/watchlists/1/items/INFY').reply(200, {
+      id: 1,
+      name: 'Primary',
+      items: [],
+    });
+
+    const store = createStore();
+    renderWithStore(store);
+
+    const quote: IQuote = {
+      symbol: 'INFY',
+      lastPrice: 100,
+      open: 100,
+      change: 0,
+      changePercent: 0,
+      volume: 0,
+      timestamp: '2025-11-14T10:00:00.000Z',
+    };
+
+    act(() => {
+      store.dispatch(updateQuote(quote));
+    });
+
+    const removeButton = await screen.findByRole('button', { name: /remove/i });
+    fireEvent.click(removeButton);
+
+    await waitFor(() => expect(screen.queryByText('INFY')).not.toBeInTheDocument());
+  });
+
+  it('warns when first quote exceeds SLA window', async () => {
+    jest.useFakeTimers();
+    mockAxios.onGet('/api/watchlists').reply(200, [{ id: 1, name: 'Primary', symbols: ['INFY'], symbolCount: 1 }]);
+    mockAxios.onPost('/api/watchlists/1/items').reply(200, {
+      id: 1,
+      name: 'Primary',
+      items: [
+        { id: 1, symbol: 'INFY', sortOrder: 0 },
+        { id: 2, symbol: 'RELIANCE', sortOrder: 1 },
+      ],
+    });
+
+    renderWithStore();
+
+    const addButton = await screen.findByTestId('add-symbol-button');
+    await waitFor(() => expect(addButton).not.toBeDisabled());
+    fireEvent.click(addButton);
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    const input = await screen.findByTestId('add-symbol-input');
+    fireEvent.change(input, { target: { value: 'RELIANCE' } });
+    const form = input.closest('form');
+    if (!form) {
+      throw new Error('Form not found');
+    }
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(screen.getByText('RELIANCE')).toBeInTheDocument());
+
+    act(() => {
+      jest.advanceTimersByTime(2100);
+    });
+
+    await waitFor(() => expect(screen.getByText(/Quote SLA breach/i)).toBeInTheDocument());
+    jest.useRealTimers();
+  });
+
+  it('does not warn when quote arrives within SLA window', async () => {
+    jest.useFakeTimers();
+    mockAxios.onGet('/api/watchlists').reply(200, [{ id: 1, name: 'Primary', symbols: ['INFY'], symbolCount: 1 }]);
+    mockAxios.onPost('/api/watchlists/1/items').reply(200, {
+      id: 1,
+      name: 'Primary',
+      items: [
+        { id: 1, symbol: 'INFY', sortOrder: 0 },
+        { id: 2, symbol: 'RELIANCE', sortOrder: 1 },
+      ],
+    });
+
+    const store = createStore();
+    renderWithStore(store);
+
+    const addButton = await screen.findByTestId('add-symbol-button');
+    await waitFor(() => expect(addButton).not.toBeDisabled());
+    fireEvent.click(addButton);
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    const input = await screen.findByTestId('add-symbol-input');
+    fireEvent.change(input, { target: { value: 'RELIANCE' } });
+    const form = input.closest('form');
+    if (!form) {
+      throw new Error('Form not found');
+    }
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(screen.getByText('RELIANCE')).toBeInTheDocument());
+
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    act(() => {
+      store.dispatch(
+        updateQuote({
+          symbol: 'RELIANCE',
+          lastPrice: 123.45,
+          open: 120,
+          change: 3.45,
+          changePercent: 2.87,
+          volume: 10,
+          timestamp: '2025-11-14T10:10:00.000Z',
+          marketStatus: 'OPEN',
+        }),
+      );
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
+
+    expect(screen.queryByText(/Quote SLA breach/i)).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
 });
