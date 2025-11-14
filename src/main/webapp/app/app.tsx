@@ -33,6 +33,7 @@ export const App = () => {
   const isExchangeOperator = useAppSelector(state =>
     hasAnyAuthority(state.authentication.account.authorities, [AUTHORITIES.EXCHANGE_OPERATOR]),
   );
+  const isTrader = useAppSelector(state => hasAnyAuthority(state.authentication.account.authorities, [AUTHORITIES.TRADER]));
   const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
@@ -47,6 +48,7 @@ export const App = () => {
             isAuthenticated={isAuthenticated}
             isAdmin={isAdmin}
             isExchangeOperator={isExchangeOperator}
+            isTrader={isTrader}
             currentLocale={currentLocale}
             ribbonEnv={ribbonEnv}
             isInProduction={isInProduction}

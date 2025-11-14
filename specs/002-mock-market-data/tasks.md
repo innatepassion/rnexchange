@@ -261,60 +261,60 @@ graph TD
 
 ### Frontend: WebSocket Service
 
-- [ ] T045 [P] [US2] Create TypeScript model `IQuote` in `src/main/webapp/app/shared/model/quote.model.ts` (symbol, lastPrice, open, change, changePercent, volume, timestamp fields per contracts/websocket-topics.md) to satisfy FR-009.
-- [ ] T046 [P] [US2] Create TypeScript model `IBar` in `src/main/webapp/app/shared/model/bar.model.ts` (symbol, open, high, low, close, volume, timestamp per contracts/websocket-topics.md)
-- [ ] T047 [US2] Create `MarketDataWebSocketService` class in `src/main/webapp/app/modules/market-watch/websocket-service.ts` (wrap @stomp/stompjs Client, implement connect/subscribe/unsubscribe/disconnect per contracts/websocket-topics.md example) to uphold FR-006 and FR-007.
-- [ ] T047a [US2] Create reusable STOMP client wrapper in `src/main/webapp/app/shared/websocket/stomp-client.ts` (centralize configuration, logging, and reconnection hooks per plan.md project structure).
-- [ ] T048 [US2] Implement JWT token extraction in WebSocketService (get token from Storage.local or Storage.session per quickstart.md example)
-- [ ] T049 [US2] Implement reconnection logic with exponential backoff (reconnectDelay: 5000, heartbeat: 10000 per contracts/websocket-topics.md)
-- [ ] T050 [US2] Implement subscription management (Map<symbol, subscription> to track active subscriptions per contracts/websocket-topics.md)
-- [ ] T050a [US2] Refactor MarketDataWebSocketService to delegate stomp client lifecycle to the shared module, preventing drift with other WebSocket consumers.
+- [x] T045 [P] [US2] Create TypeScript model `IQuote` in `src/main/webapp/app/shared/model/quote.model.ts` (symbol, lastPrice, open, change, changePercent, volume, timestamp fields per contracts/websocket-topics.md) to satisfy FR-009.
+- [x] T046 [P] [US2] Create TypeScript model `IBar` in `src/main/webapp/app/shared/model/bar.model.ts` (symbol, open, high, low, close, volume, timestamp per contracts/websocket-topics.md)
+- [x] T047 [US2] Create `MarketDataWebSocketService` class in `src/main/webapp/app/modules/market-watch/websocket-service.ts` (wrap @stomp/stompjs Client, implement connect/subscribe/unsubscribe/disconnect per contracts/websocket-topics.md example) to uphold FR-006 and FR-007.
+- [x] T047a [US2] Create reusable STOMP client wrapper in `src/main/webapp/app/shared/websocket/stomp-client.ts` (centralize configuration, logging, and reconnection hooks per plan.md project structure).
+- [x] T048 [US2] Implement JWT token extraction in WebSocketService (get token from Storage.local or Storage.session per quickstart.md example)
+- [x] T049 [US2] Implement reconnection logic with exponential backoff (reconnectDelay: 5000, heartbeat: 10000 per contracts/websocket-topics.md)
+- [x] T050 [US2] Implement subscription management (Map<symbol, subscription> to track active subscriptions per contracts/websocket-topics.md)
+- [x] T050a [US2] Refactor MarketDataWebSocketService to delegate stomp client lifecycle to the shared module, preventing drift with other WebSocket consumers.
 
 ### Frontend: Redux State Management
 
-- [ ] T051 [P] [US2] Create `market-watch.reducer.ts` in `src/main/webapp/app/modules/market-watch/market-watch.reducer.ts` (Redux Toolkit slice with quotes state, connectionStatus, updateQuote/setConnectionStatus/clearQuotes actions per quickstart.md example)
-- [ ] T052 [P] [US2] Register marketWatch reducer in `src/main/webapp/app/config/store.ts` (add to rootReducer per quickstart.md)
+- [x] T051 [P] [US2] Create `market-watch.reducer.ts` in `src/main/webapp/app/modules/market-watch/market-watch.reducer.ts` (Redux Toolkit slice with quotes state, connectionStatus, updateQuote/setConnectionStatus/clearQuotes actions per quickstart.md example)
+- [x] T052 [P] [US2] Register marketWatch reducer in `src/main/webapp/app/config/store.ts` (add to rootReducer per quickstart.md)
 
 ### Frontend: React Hook for Subscriptions
 
-- [ ] T053 [US2] Create `useMarketDataSubscription` hook in `src/main/webapp/app/modules/market-watch/use-market-data-subscription.ts` (custom hook wrapping WebSocketService with auto-lifecycle, returns ConnectionStatus per contracts/websocket-topics.md example)
-- [ ] T054 [US2] Implement useEffect for connection lifecycle (activate client, subscribe to symbols, cleanup on unmount per contracts/websocket-topics.md)
-- [ ] T055 [US2] Implement symbol change detection (re-subscribe when symbols array changes per contracts/websocket-topics.md)
+- [x] T053 [US2] Create `useMarketDataSubscription` hook in `src/main/webapp/app/modules/market-watch/use-market-data-subscription.ts` (custom hook wrapping WebSocketService with auto-lifecycle, returns ConnectionStatus per contracts/websocket-topics.md example)
+- [x] T054 [US2] Implement useEffect for connection lifecycle (activate client, subscribe to symbols, cleanup on unmount per contracts/websocket-topics.md)
+- [x] T055 [US2] Implement symbol change detection (re-subscribe when symbols array changes per contracts/websocket-topics.md)
 
 ### Frontend: Component Tests (author before UI implementation)
 
-- [ ] T067 [P] [US2] Draft failing `market-watch.spec.tsx` in `src/test/javascript/spec/app/modules/market-watch/market-watch.spec.tsx` (capture expected rendering, quote updates, empty-state messaging, feed-paused/holiday banners, and tooltip placeholders per acceptance tests).
-- [ ] T068 [P] [US2] Draft failing `market-watch.reducer.spec.ts` for Redux reducer behavior (updateQuote, setConnectionStatus, clearQuotes actions).
-- [ ] T068a [P] [US2] Add pending assertions in `market-watch.spec.tsx` for tooltip copy verification (FR-015) to drive UI implementation.
-- [ ] T068b [P] [US2] Add pending assertions in `market-watch.spec.tsx` validating the "Closed/Holiday" badge rendering and frozen data behaviour (FR-011).
-- [ ] T068c [P] [US2] Add explicit assertions in `market-watch.spec.tsx` that the UI renders the server-provided percent change field without recalculating client-side, ensuring compliance with FR-009/FR-010.
+- [x] T067 [P] [US2] Draft failing `market-watch.spec.tsx` in `src/test/javascript/spec/app/modules/market-watch/market-watch.spec.tsx` (capture expected rendering, quote updates, empty-state messaging, feed-paused/holiday banners, and tooltip placeholders per acceptance tests).
+- [x] T068 [P] [US2] Draft failing `market-watch.reducer.spec.ts` for Redux reducer behavior (updateQuote, setConnectionStatus, clearQuotes actions).
+- [x] T068a [P] [US2] Add pending assertions in `market-watch.spec.tsx` for tooltip copy verification (FR-015) to drive UI implementation.
+- [x] T068b [P] [US2] Add pending assertions in `market-watch.spec.tsx` validating the "Closed/Holiday" badge rendering and frozen data behaviour (FR-011).
+- [x] T068c [P] [US2] Add explicit assertions in `market-watch.spec.tsx` that the UI renders the server-provided percent change field without recalculating client-side, ensuring compliance with FR-009/FR-010.
 
 ### Frontend: Market Watch Component
 
-- [ ] T056 [US2] Create `market-watch.tsx` component in `src/main/webapp/app/modules/market-watch/market-watch.tsx` (main Market Watch screen per quickstart.md example)
-- [ ] T057 [US2] Implement watchlist selector dropdown (load trader's watchlists from existing API, display in dropdown) to meet FR-012.
-- [ ] T057a [US2] Display meaningful empty state when trader selects a watchlist with zero instruments (include guidance and avoid opening WebSocket subscriptions) per FR-012.
-- [ ] T058 [US2] Implement quote table (columns: Symbol, LTP, Change, Change %, Volume, Last Updated per spec.md FR-009) ensuring Change % displays the value supplied by the QuoteDTO without recomputing client-side.
-- [ ] T058a [US2] Render "Closed/Holiday" badge on rows whose exchanges are closed and freeze quote updates while badge is active (FR-011).
-- [ ] T059 [US2] Implement row color coding (green for positive change, red for negative, gray for neutral per spec.md FR-010)
-- [ ] T060 [US2] Add "SIMULATED FEED" badge at top of Market Watch (persistent badge per spec.md FR-010)
-- [ ] T061 [US2] Add WebSocket connection status indicator (bottom-right 16 px traffic-light dot with green/amber/red states representing Connected/Reconnecting/Disconnected per spec.md FR-010)
-- [ ] T062 [US2] Integrate useMarketDataSubscription hook (subscribe to watchlist symbols, dispatch updateQuote on message per quickstart.md)
-- [ ] T062a [US2] Detect feed stop events or closed exchanges and display inline feedback (e.g., banner "Feed paused by operator/holiday" with last update timestamp) while freezing quote updates to satisfy FR-011.
-- [ ] T062b [US2] Extend `market-watch.spec.tsx` coverage to assert "Closed/Holiday" badge behaviour and frozen timestamps (align with T068b expectations and FR-011).
-- [ ] T063 [US2] Implement client-side throttling (throttle Redux dispatch to 200ms per quote per research.md best practices)
-- [ ] T064 [US2] Create `market-watch.scss` styling in `src/main/webapp/app/modules/market-watch/market-watch.scss` (table styling, color classes, badges)
-- [ ] T060a [US2] Add educational tooltips to Market Watch (badge tooltip; column header tooltips for LTP, Change, Change %, Volume) with testable selectors (FR-015)
-- [ ] T061a [US2] Component tests: verify tooltips render with expected copy and appear on hover/focus for each traffic-light state, including accessible status text
+- [x] T056 [US2] Create `market-watch.tsx` component in `src/main/webapp/app/modules/market-watch/market-watch.tsx` (main Market Watch screen per quickstart.md example)
+- [x] T057 [US2] Implement watchlist selector dropdown (load trader's watchlists from existing API, display in dropdown) to meet FR-012.
+- [x] T057a [US2] Display meaningful empty state when trader selects a watchlist with zero instruments (include guidance and avoid opening WebSocket subscriptions) per FR-012.
+- [x] T058 [US2] Implement quote table (columns: Symbol, LTP, Change, Change %, Volume, Last Updated per spec.md FR-009) ensuring Change % displays the value supplied by the QuoteDTO without recomputing client-side.
+- [x] T058a [US2] Render "Closed/Holiday" badge on rows whose exchanges are closed and freeze quote updates while badge is active (FR-011).
+- [x] T059 [US2] Implement row color coding (green for positive change, red for negative, gray for neutral per spec.md FR-010)
+- [x] T060 [US2] Add "SIMULATED FEED" badge at top of Market Watch (persistent badge per spec.md FR-010)
+- [x] T061 [US2] Add WebSocket connection status indicator (bottom-right 16 px traffic-light dot with green/amber/red states representing Connected/Reconnecting/Disconnected per spec.md FR-010)
+- [x] T062 [US2] Integrate useMarketDataSubscription hook (subscribe to watchlist symbols, dispatch updateQuote on message per quickstart.md)
+- [x] T062a [US2] Detect feed stop events or closed exchanges and display inline feedback (e.g., banner "Feed paused by operator/holiday" with last update timestamp) while freezing quote updates to satisfy FR-011.
+- [x] T062b [US2] Extend `market-watch.spec.tsx` coverage to assert "Closed/Holiday" badge behaviour and frozen timestamps (align with T068b expectations and FR-011).
+- [x] T063 [US2] Implement client-side throttling (throttle Redux dispatch to 200ms per quote per research.md best practices)
+- [x] T064 [US2] Create `market-watch.scss` styling in `src/main/webapp/app/modules/market-watch/market-watch.scss` (table styling, color classes, badges)
+- [x] T060a [US2] Add educational tooltips to Market Watch (badge tooltip; column header tooltips for LTP, Change, Change %, Volume) with testable selectors (FR-015)
+- [x] T061a [US2] Component tests: verify tooltips render with expected copy and appear on hover/focus for each traffic-light state, including accessible status text
 
 ### Frontend: Routing & Navigation
 
-- [ ] T065 [US2] Add Market Watch route in `src/main/webapp/app/routes.tsx` (PrivateRoute path="/market-watch" hasAnyAuthorities={[AUTHORITIES.TRADER]} per quickstart.md)
-- [ ] T066 [US2] Add Market Watch navigation link in trader menu (visible only to TRADER role)
+- [x] T065 [US2] Add Market Watch route in `src/main/webapp/app/routes.tsx` (PrivateRoute path="/market-watch" hasAnyAuthorities={[AUTHORITIES.TRADER]} per quickstart.md)
+- [x] T066 [US2] Add Market Watch navigation link in trader menu (visible only to TRADER role)
 
 ### Backend: Bar Broadcasting (60-second intervals)
 
-- [ ] T069 [US2] Implement scheduled bar broadcasting in MockMarketDataService (create BarDTO from InstrumentState every 60s, broadcast via WebSocketHandler to /topic/bars/{symbol} per research.md)
+- [x] T069 [US2] Implement scheduled bar broadcasting in MockMarketDataService (create BarDTO from InstrumentState every 60s, broadcast via WebSocketHandler to /topic/bars/{symbol} per research.md)
 
 ### Validation
 

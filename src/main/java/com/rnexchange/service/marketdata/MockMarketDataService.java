@@ -1,9 +1,11 @@
 package com.rnexchange.service.marketdata;
 
+import com.rnexchange.config.MockMarketDataProperties;
 import com.rnexchange.domain.Instrument;
 import com.rnexchange.domain.MarketHoliday;
 import com.rnexchange.repository.InstrumentRepository;
 import com.rnexchange.repository.MarketHolidayRepository;
+import com.rnexchange.service.dto.BarDTO;
 import com.rnexchange.service.dto.ExchangeStatusDTO;
 import com.rnexchange.service.dto.FeedState;
 import com.rnexchange.service.dto.FeedStatusDTO;
@@ -58,6 +60,7 @@ public class MockMarketDataService {
     private final MarketHolidayRepository marketHolidayRepository;
     private final MarketDataWebSocketHandler webSocketHandler;
     private final RollingMinuteVolatilityGuard volatilityGuard;
+    private final BarAggregator barAggregator;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
@@ -73,7 +76,9 @@ public class MockMarketDataService {
     private volatile Instant startedAt;
     private volatile ScheduledFuture<?> generatorTask;
     private volatile ScheduledFuture<?> flushTask;
+    private volatile ScheduledFuture<?> barTask;
     private final ScheduledExecutorService scheduler;
+    private final int barIntervalSeconds;
     private volatile Set<String> lastClosedExchanges = Collections.emptySet();
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -82,9 +87,20 @@ public class MockMarketDataService {
         MarketHolidayRepository marketHolidayRepository,
         MarketDataWebSocketHandler webSocketHandler,
         RollingMinuteVolatilityGuard volatilityGuard,
-        ApplicationEventPublisher eventPublisher
+        ApplicationEventPublisher eventPublisher,
+        BarAggregator barAggregator,
+        MockMarketDataProperties properties
     ) {
-        this(instrumentRepository, marketHolidayRepository, webSocketHandler, volatilityGuard, eventPublisher, Clock.systemUTC());
+        this(
+            instrumentRepository,
+            marketHolidayRepository,
+            webSocketHandler,
+            volatilityGuard,
+            eventPublisher,
+            barAggregator,
+            properties,
+            Clock.systemUTC()
+        );
     }
 
     MockMarketDataService(
@@ -93,15 +109,20 @@ public class MockMarketDataService {
         MarketDataWebSocketHandler webSocketHandler,
         RollingMinuteVolatilityGuard volatilityGuard,
         ApplicationEventPublisher eventPublisher,
+        BarAggregator barAggregator,
+        MockMarketDataProperties properties,
         Clock clock
     ) {
         this.instrumentRepository = Objects.requireNonNull(instrumentRepository, "instrumentRepository must not be null");
         this.marketHolidayRepository = Objects.requireNonNull(marketHolidayRepository, "marketHolidayRepository must not be null");
         this.webSocketHandler = Objects.requireNonNull(webSocketHandler, "webSocketHandler must not be null");
         this.volatilityGuard = Objects.requireNonNull(volatilityGuard, "volatilityGuard must not be null");
+        this.barAggregator = Objects.requireNonNull(barAggregator, "barAggregator must not be null");
         this.eventPublisher = Objects.requireNonNull(eventPublisher, "eventPublisher must not be null");
         this.clock = clock == null ? Clock.systemUTC() : clock;
         this.scheduler = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("mock-marketdata"));
+        int configuredBarInterval = properties != null ? properties.getBarIntervalSeconds() : 60;
+        this.barIntervalSeconds = Math.max(1, configuredBarInterval);
     }
 
     @PostConstruct
@@ -173,6 +194,10 @@ public class MockMarketDataService {
             flushTask.cancel(false);
             flushTask = null;
         }
+        if (barTask != null) {
+            barTask.cancel(false);
+            barTask = null;
+        }
         feedState.set(FeedState.STOPPED);
         eventPublisher.publishEvent(new FeedStoppedEvent(List.copyOf(exchangeMetrics.keySet()), "manual", clock.instant(), "STOP_INVOKED"));
         log.info("Mock market data feed stopped");
@@ -215,6 +240,10 @@ public class MockMarketDataService {
         // Flush quote batches every 100ms, deduplicating by symbol to keep latency low
         // while dramatically reducing WebSocket send volume.
         flushTask = scheduler.scheduleAtFixedRate(this::flushQuotesSafe, 100, 100, TimeUnit.MILLISECONDS);
+        if (barTask != null && !barTask.isCancelled()) {
+            barTask.cancel(false);
+        }
+        barTask = scheduler.scheduleAtFixedRate(this::broadcastBarsSafe, barIntervalSeconds, barIntervalSeconds, TimeUnit.SECONDS);
     }
 
     private void generateTicksSafe() {
@@ -267,6 +296,14 @@ public class MockMarketDataService {
         }
     }
 
+    private void broadcastBarsSafe() {
+        try {
+            broadcastBars();
+        } catch (Exception ex) {
+            log.error("Failed to broadcast mock market data bars", ex);
+        }
+    }
+
     /**
      * Drain pending quotes, deduplicate by symbol, and broadcast only the latest
      * quote per symbol. This implements the batch broadcasting strategy from
@@ -283,6 +320,21 @@ public class MockMarketDataService {
             latestBySymbol.put(quote.symbol(), quote);
         }
         latestBySymbol.values().forEach(webSocketHandler::broadcastQuote);
+    }
+
+    private void broadcastBars() {
+        if (feedState.get() != FeedState.RUNNING) {
+            return;
+        }
+        instrumentStates
+            .values()
+            .forEach(state -> {
+                if (lastClosedExchanges.contains(state.getExchangeCode())) {
+                    return;
+                }
+                BarDTO bar = barAggregator.createBar(state);
+                webSocketHandler.broadcastBar(bar);
+            });
     }
 
     private ExchangeStatusDTO buildExchangeStatus(String exchangeCode, FeedState currentState) {

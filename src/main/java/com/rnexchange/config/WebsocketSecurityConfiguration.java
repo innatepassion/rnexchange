@@ -1,6 +1,5 @@
 package com.rnexchange.config;
 
-import com.rnexchange.security.AuthoritiesConstants;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
@@ -11,7 +10,13 @@ public class WebsocketSecurityConfiguration extends AbstractSecurityWebSocketMes
 
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages.anyMessage().permitAll();
+        messages
+            .simpTypeMatchers(SimpMessageType.CONNECT)
+            .authenticated()
+            .simpTypeMatchers(SimpMessageType.SUBSCRIBE, SimpMessageType.MESSAGE, SimpMessageType.UNSUBSCRIBE)
+            .authenticated()
+            .anyMessage()
+            .authenticated();
     }
 
     /**

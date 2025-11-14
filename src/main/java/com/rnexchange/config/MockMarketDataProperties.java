@@ -23,6 +23,10 @@ public class MockMarketDataProperties {
     @Max(10)
     private int batchSize = 4;
 
+    @Min(1)
+    @Max(600)
+    private int barIntervalSeconds = 60;
+
     @NotNull
     @DecimalMin(value = "0.01")
     private BigDecimal minPrice = new BigDecimal("1.00");
@@ -56,6 +60,14 @@ public class MockMarketDataProperties {
 
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
+    }
+
+    public int getBarIntervalSeconds() {
+        return barIntervalSeconds;
+    }
+
+    public void setBarIntervalSeconds(int barIntervalSeconds) {
+        this.barIntervalSeconds = barIntervalSeconds;
     }
 
     public BigDecimal getMinPrice() {

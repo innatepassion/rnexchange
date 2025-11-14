@@ -9,6 +9,7 @@ import com.nimbusds.jose.util.Base64;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -41,15 +42,20 @@ public class JwtAuthenticationTestUtils {
     }
 
     public static String createValidTokenForUser(String jwtKey, String user) {
+        return createValidTokenForUser(jwtKey, user, Collections.singletonList(ADMIN));
+    }
+
+    public static String createValidTokenForUser(String jwtKey, String user, Collection<String> authorities) {
         JwtEncoder encoder = jwtEncoder(jwtKey);
 
         var now = Instant.now();
+        Collection<String> roles = authorities == null || authorities.isEmpty() ? Collections.singletonList(ADMIN) : authorities;
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuedAt(now)
             .expiresAt(now.plusSeconds(60))
             .subject(user)
-            .claims(customClaim -> customClaim.put(AUTHORITIES_CLAIM, Collections.singletonList(ADMIN)))
+            .claims(customClaim -> customClaim.put(AUTHORITIES_CLAIM, roles))
             .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
