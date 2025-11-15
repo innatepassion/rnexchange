@@ -58,11 +58,11 @@ module.exports = async options =>
           changeOrigin: options.tls,
         },
         {
-          // Proxy WebSocket endpoints used by both the JHipster tracker (/websocket)
-          // and the market data feed (/ws) through to the Spring Boot backend.
-          // Use http target; http-proxy-middleware will also upgrade WS connections
-          // when ws: true is set.
-          context: ['/websocket', '/ws'],
+          // Proxy JHipster tracker WebSocket traffic to the backend.
+          // Market data (/ws) is now connected to the backend directly
+          // from the browser, so we don't proxy /ws here to avoid
+          // clashing with webpack-dev-server's own WS endpoint.
+          context: ['/websocket'],
           target: 'http://127.0.0.1:8080',
           ws: true,
         },
