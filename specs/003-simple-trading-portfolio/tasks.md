@@ -111,11 +111,11 @@
 
 **Purpose**: Small improvements that support all stories without adding new scope.
 
-- [ ] T027 [P] Review and refine educational error messages for common order rejections (insufficient funds, inactive instrument, invalid quantity, non-marketable limit orders, and FR-014 scope violations) in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T028 [P] Add a minimal Cypress E2E flow for BUY then SELL verifying UI portfolio and cash updates in `src/test/javascript/cypress/integration/trader-trading.e2e-spec.ts`, and capture basic timing metrics to ensure changes appear within SC-004 latency thresholds
-- [ ] T029 Run through `specs/003-simple-trading-portfolio/quickstart.md` end-to-end and update any steps that no longer match behavior in `specs/003-simple-trading-portfolio/quickstart.md`, explicitly calling out the educational/learning objectives for each major step
-- [ ] T032 [P] Add a lightweight performance test scenario (e.g., Gatling or Spring-based) to validate p95 order placement latency and WebSocket-driven UI updates against SC-004 and constitution performance targets in an appropriate `src/test` location
-- [ ] T033 [P] Add clear “simulated environment” disclaimers and educational tooltips to key Trader and Broker Admin UI components (`orders-trades.tsx`, `portfolio-cash.tsx`, `broker-portfolio.tsx`) in `src/main/webapp/app/modules/`
+- [x] T027 [P] Review and refine educational error messages for common order rejections (insufficient funds, inactive instrument, invalid quantity, non-marketable limit orders, and FR-014 scope violations) in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T028 [P] Add a minimal Cypress E2E flow for BUY then SELL verifying UI portfolio and cash updates in `src/test/javascript/cypress/integration/trader-trading.e2e-spec.ts`, and capture basic timing metrics to ensure changes appear within SC-004 latency thresholds
+- [x] T029 Run through `specs/003-simple-trading-portfolio/quickstart.md` end-to-end and update any steps that no longer match behavior in `specs/003-simple-trading-portfolio/quickstart.md`, explicitly calling out the educational/learning objectives for each major step
+- [x] T032 [P] Add a lightweight performance test scenario (e.g., Gatling or Spring-based) to validate p95 order placement latency and WebSocket-driven UI updates against SC-004 and constitution performance targets in an appropriate `src/test` location
+- [x] T033 [P] Add clear "simulated environment" disclaimers and educational tooltips to key Trader and Broker Admin UI components (`orders-trades.tsx`, `portfolio-cash.tsx`, `broker-portfolio.tsx`) in `src/main/webapp/app/modules/`
 
 ---
 

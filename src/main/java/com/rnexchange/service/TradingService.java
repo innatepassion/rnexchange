@@ -86,7 +86,12 @@ public class TradingService {
         // Step 2: Get matching price from market data
         Optional<BigDecimal> matchingPriceOpt = matchingService.getLatestPrice(instrument);
         if (matchingPriceOpt.isEmpty()) {
-            String reason = "No price available for instrument " + instrument.getSymbol();
+            String reason =
+                "❌ No price available for " +
+                instrument.getSymbol() +
+                ". " +
+                "The market data feed for this instrument is currently unavailable. " +
+                "Try again in a moment, or check if the instrument is tradable in market watch.";
             LOG.warn(reason);
             order.setStatus(OrderStatus.REJECTED);
             order.setRejectionReason(reason);
@@ -98,7 +103,14 @@ public class TradingService {
 
         // Step 3: Check if order can be filled (limit order validation)
         if (!canOrderBeFilled(order, matchingPrice)) {
-            String reason = String.format("Order cannot be filled: limit price %.2f, market price %.2f", order.getLimitPx(), matchingPrice);
+            String reason = String.format(
+                "❌ Order not filled at current market price. " +
+                "Your limit BUY price (₹%.2f) is below the current market price (₹%.2f). " +
+                "Limit orders only fill when the market reaches your specified price. " +
+                "For learning: limit orders protect you from buying at a higher price than you specified.",
+                order.getLimitPx(),
+                matchingPrice
+            );
             LOG.info(reason);
             order.setStatus(OrderStatus.REJECTED);
             order.setRejectionReason(reason);
@@ -109,7 +121,17 @@ public class TradingService {
         // Step 4: Validate sufficient funds
         BigDecimal totalCost = calculateTotalCost(order.getQty(), matchingPrice);
         if (tradingAccount.getBalance().compareTo(totalCost) < 0) {
-            String reason = String.format("Insufficient funds: required %.2f, available %.2f", totalCost, tradingAccount.getBalance());
+            String reason = String.format(
+                "❌ Insufficient funds to place this order. " +
+                "Required: ₹%.2f | Available: ₹%.2f | Shortfall: ₹%.2f | " +
+                "Includes trade cost (%s × ₹%.2f) plus a ₹25 transaction fee. " +
+                "Please deposit more funds or reduce your order quantity.",
+                totalCost,
+                tradingAccount.getBalance(),
+                totalCost.subtract(tradingAccount.getBalance()),
+                order.getQty(),
+                matchingPrice
+            );
             LOG.info(reason);
             order.setStatus(OrderStatus.REJECTED);
             order.setRejectionReason(reason);
@@ -147,17 +169,28 @@ public class TradingService {
     private void validateOrderBasics(Order order, Instrument instrument, TradingAccount tradingAccount) {
         // Validate quantity is positive
         if (order.getQty() == null || order.getQty().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Order quantity must be positive");
+            throw new IllegalArgumentException(
+                "❌ Invalid order quantity. Please enter a quantity greater than 0. " +
+                "For learning: quantities represent whole units of the instrument."
+            );
         }
 
         // Validate instrument is active
         if (instrument == null || !"ACTIVE".equals(instrument.getStatus())) {
-            throw new IllegalArgumentException("Instrument is inactive or not found");
+            throw new IllegalArgumentException(
+                "❌ The selected instrument is currently inactive or not found. " +
+                "Please check the market watch for available tradable instruments. " +
+                "Inactive instruments may reopen later during market hours."
+            );
         }
 
         // Validate account type is CASH
         if (tradingAccount.getType() != AccountType.CASH) {
-            throw new IllegalArgumentException("FR-014: Only CASH account type is supported");
+            throw new IllegalArgumentException(
+                "❌ This trading platform currently supports CASH accounts only (FR-014 scope). " +
+                "Margin trading, short selling, and other advanced features are not available in this educational environment. " +
+                "Your account is a CASH account—ensure you have sufficient funds before placing buy orders."
+            );
         }
 
         // Validate quantity is multiple of lot size
@@ -166,7 +199,16 @@ public class TradingService {
             BigDecimal[] divisionResult = order.getQty().divideAndRemainder(lotSize);
             if (divisionResult[1].compareTo(BigDecimal.ZERO) != 0) {
                 throw new IllegalArgumentException(
-                    String.format("Order quantity %s must be a multiple of lot size %d", order.getQty(), instrument.getLotSize())
+                    String.format(
+                        "❌ Order quantity must be a multiple of the lot size. " +
+                        "Instrument: %s | Lot Size: %d | Your Quantity: %s | " +
+                        "For learning: lot sizes are common in exchanges to standardize contracts. " +
+                        "Please adjust your order quantity to a multiple of %d.",
+                        instrument.getSymbol(),
+                        instrument.getLotSize(),
+                        order.getQty(),
+                        instrument.getLotSize()
+                    )
                 );
             }
         }
@@ -335,7 +377,12 @@ public class TradingService {
         // Step 3: Get matching price from market data
         Optional<BigDecimal> matchingPriceOpt = matchingService.getLatestPrice(instrument);
         if (matchingPriceOpt.isEmpty()) {
-            String reason = "No price available for instrument " + instrument.getSymbol();
+            String reason =
+                "❌ No price available for " +
+                instrument.getSymbol() +
+                ". " +
+                "The market data feed for this instrument is currently unavailable. " +
+                "Try again in a moment, or check if the instrument is tradable in market watch.";
             LOG.warn(reason);
             order.setStatus(OrderStatus.REJECTED);
             order.setRejectionReason(reason);
@@ -347,7 +394,14 @@ public class TradingService {
 
         // Step 4: Check if order can be filled (limit order validation)
         if (!canOrderBeFilled(order, matchingPrice)) {
-            String reason = String.format("Order cannot be filled: limit price %.2f, market price %.2f", order.getLimitPx(), matchingPrice);
+            String reason = String.format(
+                "❌ Order not filled at current market price. " +
+                "Your limit SELL price (₹%.2f) is above the current market price (₹%.2f). " +
+                "Limit orders only fill when the market reaches your specified price. " +
+                "For learning: limit orders on SELL protect you from selling at a lower price than desired.",
+                order.getLimitPx(),
+                matchingPrice
+            );
             LOG.info(reason);
             order.setStatus(OrderStatus.REJECTED);
             order.setRejectionReason(reason);
@@ -386,7 +440,14 @@ public class TradingService {
         Optional<Position> existingPosition = positionRepository.findByTradingAccountAndInstrument(tradingAccount, instrument);
 
         if (existingPosition.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Cannot SELL: no existing position in %s", instrument.getSymbol()));
+            throw new IllegalArgumentException(
+                String.format(
+                    "❌ Cannot SELL: you have no open position in %s. " +
+                    "You must own shares of an instrument before you can SELL them. " +
+                    "Check your portfolio to see which instruments you currently hold.",
+                    instrument.getSymbol()
+                )
+            );
         }
 
         Position position = existingPosition.orElseThrow();
@@ -394,7 +455,15 @@ public class TradingService {
         // Validate sufficient quantity
         if (position.getQty().compareTo(order.getQty()) < 0) {
             throw new IllegalArgumentException(
-                String.format("Insufficient position: have %.0f units, trying to sell %.0f", position.getQty(), order.getQty())
+                String.format(
+                    "❌ Insufficient position to SELL. " +
+                    "Instrument: %s | Position: %.0f units | Trying to SELL: %.0f units. " +
+                    "You can only SELL up to the units you currently own. " +
+                    "Reduce your order quantity or check your portfolio for your actual holdings.",
+                    instrument.getSymbol(),
+                    position.getQty(),
+                    order.getQty()
+                )
             );
         }
 

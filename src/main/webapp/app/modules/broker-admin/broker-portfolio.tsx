@@ -165,23 +165,44 @@ export const BrokerPortfolio: React.FC = () => {
         </Row>
       )}
 
+      <Alert color="info" className="mb-4">
+        <strong>ℹ️ Back-Office Oversight:</strong> This dashboard shows real-time trading activity and balances for all traders under your
+        broker. Use this view to monitor risk, confirm trades, and ensure compliance. <strong>Note:</strong> This is a training environment
+        with simulated data.
+      </Alert>
+
       <Card>
         <CardHeader>
           <Nav tabs>
             <NavItem>
-              <NavLink active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} style={{ cursor: 'pointer' }}>
+              <NavLink
+                active={activeTab === 'orders'}
+                onClick={() => setActiveTab('orders')}
+                style={{ cursor: 'pointer' }}
+                title="All orders placed by your traders (filled, rejected, pending, etc.)"
+              >
                 <FontAwesomeIcon icon={faExchangeAlt} className="me-2" />
                 Orders ({orders.length})
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink active={activeTab === 'positions'} onClick={() => setActiveTab('positions')} style={{ cursor: 'pointer' }}>
+              <NavLink
+                active={activeTab === 'positions'}
+                onClick={() => setActiveTab('positions')}
+                style={{ cursor: 'pointer' }}
+                title="Open positions held by your traders (holdings, average cost, MTM)"
+              >
                 <FontAwesomeIcon icon={faChartLine} className="me-2" />
                 Positions ({positions.length})
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink active={activeTab === 'ledger'} onClick={() => setActiveTab('ledger')} style={{ cursor: 'pointer' }}>
+              <NavLink
+                active={activeTab === 'ledger'}
+                onClick={() => setActiveTab('ledger')}
+                style={{ cursor: 'pointer' }}
+                title="All cash debits and credits from trading activity"
+              >
                 Ledger ({ledgerEntries.length})
               </NavLink>
             </NavItem>
@@ -202,15 +223,15 @@ export const BrokerPortfolio: React.FC = () => {
                   <Table hover>
                     <thead>
                       <tr>
-                        <th>Order ID</th>
-                        <th>Instrument</th>
-                        <th>Side</th>
-                        <th>Type</th>
-                        <th>Qty</th>
-                        <th>Limit Price</th>
-                        <th>Execution Price</th>
-                        <th>Status</th>
-                        <th>Created</th>
+                        <th title="Unique order identifier">Order ID</th>
+                        <th title="Stock symbol (e.g., RELIANCE)">Instrument</th>
+                        <th title="BUY (increasing holdings) or SELL (decreasing holdings)">Side</th>
+                        <th title="MARKET (execute now) or LIMIT (at specified price)">Type</th>
+                        <th title="Number of units">Qty</th>
+                        <th title="Maximum/minimum price for LIMIT orders (empty for MARKET)">Limit Price</th>
+                        <th title="Actual price the order filled at">Execution Price</th>
+                        <th title="Order status: FILLED, REJECTED, ACCEPTED, NEW">Status</th>
+                        <th title="When the order was submitted">Created</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -248,12 +269,12 @@ export const BrokerPortfolio: React.FC = () => {
                   <Table hover>
                     <thead>
                       <tr>
-                        <th>Instrument</th>
-                        <th>Qty</th>
-                        <th>Avg Cost</th>
-                        <th>Last Price</th>
-                        <th>MTM Value</th>
-                        <th>MTM %</th>
+                        <th title="Stock symbol">Instrument</th>
+                        <th title="Number of units held">Qty</th>
+                        <th title="Weighted average purchase price per unit">Avg Cost</th>
+                        <th title="Current market price (mark-to-market)">Last Price</th>
+                        <th title="Current profit/loss at market price: (Last Price - Avg Cost) × Qty">MTM Value</th>
+                        <th title="MTM profit/loss as a percentage">MTM %</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -294,11 +315,11 @@ export const BrokerPortfolio: React.FC = () => {
                   <Table hover>
                     <thead>
                       <tr>
-                        <th>Entry ID</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                        <th>Date</th>
+                        <th title="Unique ledger entry identifier">Entry ID</th>
+                        <th title="DEBIT (cash out) or CREDIT (cash in)">Type</th>
+                        <th title="Amount in INR">Amount</th>
+                        <th title="Detailed transaction description (symbol, side, quantity, price, P&L)">Description</th>
+                        <th title="When the transaction occurred">Date</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -327,10 +348,36 @@ export const BrokerPortfolio: React.FC = () => {
       {/* Educational disclaimer */}
       <Row className="mt-4">
         <Col>
-          <Alert color="info">
-            <strong>Educational Note:</strong> This is a simulated environment for learning trading concepts. All data is mock data and does
-            not represent real trading activity or live market conditions.
-          </Alert>
+          <Card className="bg-light">
+            <CardBody>
+              <p className="mb-2">
+                <strong>📚 Training Environment Disclaimer:</strong> This is a simulated trading platform designed for learning. All market
+                prices, fills, and portfolio values are mock data. The following are training-only concepts:
+              </p>
+              <ul className="mb-2">
+                <li>
+                  <strong>Immediate Fills:</strong> MARKET orders execute instantly in this system. Real markets depend on liquidity and
+                  current bid/ask spreads.
+                </li>
+                <li>
+                  <strong>Fixed Fees:</strong> Flat ₹25 trading fee for all orders. Real brokers use percentage-based or tiered fees.
+                </li>
+                <li>
+                  <strong>CASH-Only Scope (FR-014):</strong> No margin trading, short selling, or derivatives. This covers the M2 MVP scope
+                  only.
+                </li>
+                <li>
+                  <strong>No Real Financial Impact:</strong> Profits and losses shown here do not represent real money or portfolio
+                  performance.
+                </li>
+              </ul>
+              <p className="mb-0">
+                <strong>Learning Objective:</strong> Use this platform to understand order workflows, position tracking, P&L calculations,
+                and back-office oversight. Then apply these concepts to real trading in a live environment (always with proper risk
+                management).
+              </p>
+            </CardBody>
+          </Card>
         </Col>
       </Row>
     </Container>

@@ -126,24 +126,24 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
       {/* Positions Table */}
       <Card className="mb-4">
         <CardHeader>
-          <h5 className="mb-0">Open Positions</h5>
+          <h5 className="mb-0">📈 Open Positions</h5>
         </CardHeader>
         <CardBody>
           {positions.length === 0 ? (
             <Alert color="info" className="mb-0">
-              No open positions for this account.
+              No open positions for this account. Place a BUY order to open your first position.
             </Alert>
           ) : (
             <Table responsive striped hover>
               <thead>
                 <tr>
-                  <th>Symbol</th>
-                  <th>Qty</th>
-                  <th>Avg Cost</th>
-                  <th>Last Price</th>
-                  <th>MTM P&L (Unrealized)</th>
-                  <th>MTM %</th>
-                  <th>Realized P&L</th>
+                  <th title="Stock symbol/code (e.g., RELIANCE)">Symbol</th>
+                  <th title="Number of shares you own">Qty</th>
+                  <th title="Weighted average cost per share: (units bought × prices) / total units">Avg Cost</th>
+                  <th title="Current market price (mark-to-market)">Last Price</th>
+                  <th title="Unrealized profit/loss if you sold at current price: (Last Price - Avg Cost) × Qty">MTM P&L (Unrealized)</th>
+                  <th title="Unrealized profit/loss as a percentage">MTM %</th>
+                  <th title="Profit/loss locked in from SELL orders">Realized P&L</th>
                 </tr>
               </thead>
               <tbody>
@@ -184,22 +184,22 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
       {/* Recent Ledger Entries */}
       <Card className="mb-4">
         <CardHeader>
-          <h5 className="mb-0">Recent Transactions</h5>
+          <h5 className="mb-0">💰 Recent Transactions (Ledger)</h5>
         </CardHeader>
         <CardBody>
           {ledgerEntries.length === 0 ? (
             <Alert color="info" className="mb-0">
-              No recent transactions for this account.
+              No recent transactions for this account. Each BUY or SELL order will create a transaction here.
             </Alert>
           ) : (
             <Table responsive striped hover size="sm">
               <thead>
                 <tr>
-                  <th>Date/Time</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Fee</th>
-                  <th>Description</th>
+                  <th title="When the transaction occurred">Date/Time</th>
+                  <th title="DEBIT: cash out (buying) | CREDIT: cash in (selling)">Type</th>
+                  <th title="Amount debited or credited">Amount</th>
+                  <th title="Trading fee charged per transaction (₹25)">Fee</th>
+                  <th title="Detailed transaction description including symbol, quantity, price, and P&L">Description</th>
                 </tr>
               </thead>
               <tbody>
