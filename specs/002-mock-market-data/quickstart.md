@@ -955,3 +955,51 @@ After verifying all tests pass and acceptance criteria are met:
 - [ ] Documentation updated
 
 **Congratulations!** M1 Mock Market Data & Market Watch is complete. 🎉
+
+Here’s a simple, feature‑focused map of what you can visit now, grouped by role.
+
+### Exchange Operator (`exchange-operator` / `admin`)
+
+- **Web UI views**
+
+  - **Home + login**: `http://localhost:9000` → sign in, then:
+  - **Mock Feed Control panel**: `/exchange-console/market-data`
+    - Start/stop the simulated feed
+    - See per‑exchange status, ticks/sec, and holiday state
+
+- **Backend endpoints**
+  - `POST /api/marketdata/mock/start` – start the mock feed
+  - `POST /api/marketdata/mock/stop` – stop the mock feed
+  - `GET  /api/marketdata/mock/status` – current global + per‑exchange status
+
+### Trader (`trader-one` / `admin`, `trader-two` / `admin`)
+
+- **Web UI views**
+
+  - **Home + login**: `http://localhost:9000` → sign in, then:
+  - **Market Watch screen**: `/market-watch`
+    - See live quotes for watchlist symbols
+    - “SIMULATED FEED” badge, connection status widget, color‑coded rows
+    - Holiday / paused / stale badges
+  - **Watchlist selector + add/remove symbol UI**: built into `/market-watch`
+    - Choose a watchlist
+    - Add symbols (e.g. INFY)
+    - Remove symbols from the table
+
+- **Backend endpoints (used by the UI)**
+
+  - `GET  /api/watchlists` – list the trader’s watchlists (summaries)
+  - `GET  /api/watchlists/{id}` – load a specific watchlist with items
+  - `POST /api/watchlists/{id}/items` – add a symbol to a watchlist
+  - `DELETE /api/watchlists/{id}/items/{symbol}` – remove a symbol from a watchlist
+
+- **WebSocket (live prices)**
+  - Connect via STOMP WebSocket: `ws://localhost:8080/ws`
+  - Subscribe to:
+    - `/topic/quotes/{symbol}` – live quotes
+    - `/topic/bars/{symbol}` – 60‑second bar broadcasts
+
+### Admin (`admin` / `admin`)
+
+- **Everything above**, plus all standard JHipster admin and entity management views  
+  (e.g. user management, exchanges, instruments), but those are pre‑existing and not specific to this feature.

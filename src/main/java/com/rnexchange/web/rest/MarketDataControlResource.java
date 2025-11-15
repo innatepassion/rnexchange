@@ -1,5 +1,6 @@
 package com.rnexchange.web.rest;
 
+import com.rnexchange.security.AuthoritiesConstants;
 import com.rnexchange.service.dto.FeedStatusDTO;
 import com.rnexchange.service.marketdata.MockMarketDataService;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +21,21 @@ public class MarketDataControlResource {
     }
 
     @PostMapping("/start")
-    @PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.EXCHANGE_OPERATOR + "')")
     public ResponseEntity<FeedStatusDTO> startFeed() {
         mockMarketDataService.start();
         return ResponseEntity.ok(mockMarketDataService.getStatus());
     }
 
     @PostMapping("/stop")
-    @PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.EXCHANGE_OPERATOR + "')")
     public ResponseEntity<FeedStatusDTO> stopFeed() {
         mockMarketDataService.stop();
         return ResponseEntity.ok(mockMarketDataService.getStatus());
     }
 
     @GetMapping("/status")
-    @PreAuthorize("hasAuthority('EXCHANGE_OPERATOR')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.EXCHANGE_OPERATOR + "')")
     public ResponseEntity<FeedStatusDTO> getStatus() {
         return ResponseEntity.ok(mockMarketDataService.getStatus());
     }

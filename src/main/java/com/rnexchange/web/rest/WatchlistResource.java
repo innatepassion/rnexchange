@@ -1,5 +1,6 @@
 package com.rnexchange.web.rest;
 
+import com.rnexchange.security.AuthoritiesConstants;
 import com.rnexchange.service.WatchlistService;
 import com.rnexchange.service.dto.WatchlistDTO;
 import com.rnexchange.service.dto.WatchlistSummaryDTO;
@@ -30,25 +31,25 @@ public class WatchlistResource {
     }
 
     @GetMapping("")
-    @PreAuthorize("hasAuthority('TRADER')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.TRADER + "')")
     public ResponseEntity<List<WatchlistSummaryDTO>> getWatchlists() {
         return ResponseEntity.ok(watchlistService.getCurrentTraderSummaries());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('TRADER')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.TRADER + "')")
     public ResponseEntity<WatchlistDTO> getWatchlist(@PathVariable("id") Long id) {
         return ResponseEntity.ok(watchlistService.getWatchlist(id));
     }
 
     @PostMapping("/{id}/items")
-    @PreAuthorize("hasAuthority('TRADER')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.TRADER + "')")
     public ResponseEntity<WatchlistDTO> addWatchlistItem(@PathVariable("id") Long id, @Valid @RequestBody AddWatchlistItemRequest request) {
         return ResponseEntity.ok(watchlistService.addSymbol(id, request.getSymbol()));
     }
 
     @DeleteMapping("/{id}/items/{symbol}")
-    @PreAuthorize("hasAuthority('TRADER')")
+    @PreAuthorize("hasAuthority('" + AuthoritiesConstants.TRADER + "')")
     public ResponseEntity<WatchlistDTO> removeWatchlistItem(@PathVariable("id") Long id, @PathVariable("symbol") String symbol) {
         return ResponseEntity.ok(watchlistService.removeSymbol(id, symbol));
     }
