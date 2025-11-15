@@ -24,7 +24,7 @@ The technical approach is to extend the existing JHipster Spring Boot + React st
 **Testing**: JUnit 5 + Spring test for backend (unit/integration), Jest + React Testing Library + Cypress for frontend, Gatling for load (reused as needed)  
 **Target Platform**: Linux server backend, browser-based web frontend  
 **Project Type**: Web application with shared monorepo (Spring Boot backend under `src/main/java`, React frontend under `src/main/webapp`)  
-**Performance Goals**: Reuse constitution defaults; for this feature, keep order placement and portfolio updates comfortably under existing latency targets without special tuning.  
+**Performance Goals**: Reuse constitution defaults; for this feature, ensure order placement and portfolio updates meet the constitution performance targets (e.g., p95 order placement latency \<250 ms) and SC-004’s 2-second UI reflection target, without requiring special tuning beyond standard implementation care.  
 **Constraints**: Must adhere to RNExchange constitution (TDD, API-first, RBAC, WebSocket rules); avoid introducing new architectural layers or patterns beyond existing JHipster conventions.  
 **Scale/Scope**: Single-broker, single-exchange training environment with up to a few hundred concurrent Traders exercising the simple cash-only flow; no special scaling work for this milestone.
 
@@ -35,7 +35,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - **TDD (I)**: We will add contract tests for the new REST endpoints (`/api/orders`, `/api/trading-accounts/{id}/positions`, `/api/trading-accounts/{id}/ledger-entries`) and write integration/unit tests for `TradingService` and `MatchingService` before implementing full logic.
 - **JHipster Conventions (II)**: New entities will be modeled via JDL and Liquibase, exposed via generated REST resources and services where appropriate, and integrated into the existing `api.yml` OpenAPI definition.
 - **RBAC (III)**: REST endpoints and WebSocket topics will enforce role checks (`TRADER` for own accounts; `BROKER_ADMIN` for broker-scoped views) and respect existing scoping rules.
-- **Real-Time Architecture (IV)**: Order and execution events will publish to existing WebSocket infrastructure using topics `/topic/orders.{tradingAccountId}` and `/topic/executions.{tradingAccountId}`, allowing the frontend to refetch lightweight lists.
+- **Real-Time Architecture (IV)**: Order and execution events will publish to existing WebSocket infrastructure using topics `/topic/orders/{tradingAccountId}` and `/topic/executions/{tradingAccountId}`, intentionally scoping by trading account ID as a concrete specialization of the constitution’s `/topic/orders/{userId}` example, and allowing the frontend to refetch lightweight lists.
 - **Educational Transparency (V)**: Error messages and validation failures (e.g., insufficient funds, inactive instrument) will be human-readable and oriented to learning.
 - **DDD (VI)**: Trading logic (validation, matching, position and cash updates) will live in domain services (`TradingService`, `MatchingService`) and operate on domain entities (Order, Execution, Position, LedgerEntry) rather than in controllers or repositories.
 - **API-First (VII)**: We will update the OpenAPI spec for the new endpoints first, generate server stubs, and then implement the delegates.
