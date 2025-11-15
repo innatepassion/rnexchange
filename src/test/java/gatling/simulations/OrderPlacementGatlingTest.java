@@ -89,8 +89,6 @@ public class OrderPlacementGatlingTest extends Simulation {
                 .body(StringBody("{\"tradingAccountId\": 1, \"instrumentId\": 1, \"side\": \"BUY\", \"type\": \"MARKET\", \"qty\": 10}"))
                 .asJson()
                 .check(status().is(200))
-                // Verify order was filled
-                .check(bodyString().saveAs("orderResponse"))
         )
         .pause(Duration.ofMillis(500)) // Simulate WebSocket delivery delay
         // Retrieve positions (simulates UI refetch after WebSocket notification, should be <2 seconds per SC-004)
@@ -149,15 +147,14 @@ public class OrderPlacementGatlingTest extends Simulation {
                     rampUsers(5).during(Duration.ofSeconds(30))
                 )
                 .protocols(httpConf)
-                // Assertions for performance targets
-                .assertions(
-                    // p95 response time for order placement should be < 250ms (constitution default)
-                    io.gatling.javaapi.core.CoreDsl.responseTimePercentile4().lt(250),
-                    // All requests should complete within 5 seconds (generous upper bound)
-                    io.gatling.javaapi.core.CoreDsl.responseTimePercentile99().lt(5000),
-                    // Success rate should be 100%
-                    io.gatling.javaapi.core.CoreDsl.successfulRequests().percent().is(100.0)
-                )
+        )// Assertions for performance targets
+        .assertions(
+            // p95 response time for order placement should be < 250ms (constitution default)
+            io.gatling.javaapi.core.CoreDsl.global().responseTime().percentile(95).lt(250),
+            // All requests should complete within 5 seconds (generous upper bound)
+            io.gatling.javaapi.core.CoreDsl.global().responseTime().percentile(99).lt(5000),
+            // Success rate should be 100%
+            io.gatling.javaapi.core.CoreDsl.global().successfulRequests().percent().is(100.0)
         );
     }
 }

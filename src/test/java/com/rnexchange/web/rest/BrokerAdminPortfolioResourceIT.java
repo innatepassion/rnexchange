@@ -173,10 +173,12 @@ class BrokerAdminPortfolioResourceIT {
         // Create instrument for trading
         instrument = new Instrument();
         instrument.setSymbol("RELIANCE");
-        instrument.setExchange("NSE");
-        instrument.setStatus(InstrumentStatus.ACTIVE);
-        instrument.setLotSize(new BigDecimal("1"));
+        instrument.setExchangeCode("NSE");
+        instrument.setStatus("ACTIVE");
+        instrument.setLotSize(1L);
         instrument.setTickSize(new BigDecimal("0.05"));
+        instrument.setAssetClass(AssetClass.EQUITY);
+        instrument.setCurrency(Currency.INR);
         instrument = instrumentRepository.saveAndFlush(instrument);
 
         em.flush();
@@ -252,8 +254,6 @@ class BrokerAdminPortfolioResourceIT {
         position.setAvgCost(new BigDecimal("100.00"));
         position.setTradingAccount(tradingAccountA);
         position.setInstrument(instrument);
-        position.setCreatedAt(Instant.now());
-        position.setUpdatedAt(Instant.now());
         positionRepository.saveAndFlush(position);
 
         // Broker Admin A should see this position
@@ -278,8 +278,6 @@ class BrokerAdminPortfolioResourceIT {
         position.setAvgCost(new BigDecimal("100.00"));
         position.setTradingAccount(tradingAccountB);
         position.setInstrument(instrument);
-        position.setCreatedAt(Instant.now());
-        position.setUpdatedAt(Instant.now());
         positionRepository.saveAndFlush(position);
 
         // Broker Admin A should not see this position from Broker B
