@@ -42,4 +42,10 @@ public interface BrokerDeskRepository extends JpaRepository<BrokerDesk, Long>, J
 
     @Query("select brokerDesk.user.login from BrokerDesk brokerDesk where brokerDesk.broker.id = :brokerId")
     List<String> findUserLoginsForBroker(@Param("brokerId") Long brokerId);
+
+    /**
+     * T024: Find broker desk by user login.
+     * Used to resolve the broker for a BROKER_ADMIN user from their username/login.
+     */
+    Optional<BrokerDesk> findByUserLogin(String login);
 }

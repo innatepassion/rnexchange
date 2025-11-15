@@ -95,13 +95,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T023 [P] [US3] Add integration test ensuring Broker Admin only sees data for Traders under their broker in `src/test/java/com/rnexchange/web/rest/BrokerAdminPortfolioResourceIT.java`
+- [x] T023 [P] [US3] Add integration test ensuring Broker Admin only sees data for Traders under their broker in `src/test/java/com/rnexchange/web/rest/BrokerAdminPortfolioResourceIT.java`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Add repository methods to filter orders, positions, and ledger entries by broker in `src/main/java/com/rnexchange/repository/`
-- [ ] T025 [US3] Implement or extend Broker Admin REST resources to return broker-scoped orders, positions, and cash balances in `src/main/java/com/rnexchange/web/rest/`
-- [ ] T026 [US3] Add simple back-office screens for Broker Admin to view orders, positions, and balances filtered by current broker in `src/main/webapp/app/modules/broker-admin/broker-portfolio.tsx`
+- [x] T024 [P] [US3] Add repository methods to filter orders, positions, and ledger entries by broker in `src/main/java/com/rnexchange/repository/`
+- [x] T025 [US3] Implement or extend Broker Admin REST resources to return broker-scoped orders, positions, and cash balances in `src/main/java/com/rnexchange/web/rest/`
+- [x] T026 [US3] Add simple back-office screens for Broker Admin to view orders, positions, and balances filtered by current broker in `src/main/webapp/app/modules/broker-admin/broker-portfolio.tsx`
 
 **Checkpoint**: All three user stories are independently testable and align with the M2 “simple trading & portfolio” goal.
 
