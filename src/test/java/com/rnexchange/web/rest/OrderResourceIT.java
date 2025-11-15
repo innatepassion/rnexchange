@@ -1210,4 +1210,123 @@ class OrderResourceIT {
     protected void assertPersistedOrderToMatchUpdatableProperties(Order expectedOrder) {
         assertOrderAllUpdatablePropertiesEquals(expectedOrder, getPersistedOrder(expectedOrder));
     }
+
+    // ============= PHASE 3 - USER STORY 1: BUY Flow Integration Tests =============
+
+    /**
+     * T007: Integration test covering successful BUY flow with key rejection cases.
+     * Tests:
+     * - Successful BUY order execution for cash-funded trades
+     * - Insufficient funds rejection
+     * - Inactive instrument rejection
+     * - Invalid quantity (non-positive, not multiple of lot size)
+     * - Non-marketable limit orders rejection
+     * - Order status and execution tracking
+     */
+
+    @Test
+    @Transactional
+    void testSuccessfulBuyOrderExecution() throws Exception {
+        // This test validates that a BUY order can be placed and filled for a CASH trading account
+        // TODO: Implement after TradingService is created
+        // Expected flow:
+        // 1. Order is created with status NEW
+        // 2. Validation passes (sufficient funds, active instrument, valid quantity)
+        // 3. Order transitions to ACCEPTED then FILLED
+        // 4. Execution record is created
+        // 5. Position is created/updated with new quantity and average cost
+        // 6. Ledger entry records the cash debit
+        // 7. TradingAccount balance is reduced
+    }
+
+    @Test
+    @Transactional
+    void testBuyOrderRejectedForInsufficientFunds() throws Exception {
+        // This test validates that BUY orders are rejected when account balance is insufficient
+        // TODO: Implement after TradingService is created
+        // Expected: Order status = REJECTED with rejection reason indicating insufficient funds
+    }
+
+    @Test
+    @Transactional
+    void testBuyOrderRejectedForInactiveInstrument() throws Exception {
+        // This test validates that BUY orders are rejected for inactive instruments
+        // TODO: Implement after TradingService is created
+        // Expected: Order status = REJECTED with rejection reason indicating instrument inactive
+    }
+
+    @Test
+    @Transactional
+    void testBuyOrderRejectedForInvalidQuantity() throws Exception {
+        // This test validates quantity validation:
+        // - Quantity must be positive (> 0)
+        // - Quantity must be a multiple of instrument lot size
+        // TODO: Implement after TradingService is created
+    }
+
+    @Test
+    @Transactional
+    void testBuyLimitOrderRejectedIfNotMarketable() throws Exception {
+        // This test validates that Limit orders are rejected if they cannot be filled
+        // immediately at current prices
+        // BUY limit order: accepted if currentPrice <= limitPrice
+        // TODO: Implement after MatchingService and pricing logic are created
+    }
+
+    @Test
+    @Transactional
+    void testMarketOrderFilledAtLatestPrice() throws Exception {
+        // This test validates that Market BUY orders are filled at the latest available price
+        // from the mock market data feed
+        // TODO: Implement after MatchingService is created
+    }
+
+    @Test
+    @Transactional
+    void testExecutionRecordCreatedForFilledOrder() throws Exception {
+        // This test validates that an Execution record is created when an order is filled
+        // Execution should capture: order ID, instrument, quantity, execution price, timestamp
+        // TODO: Implement after TradingService is created
+    }
+
+    @Test
+    @Transactional
+    void testPositionCreatedForFirstBuy() throws Exception {
+        // This test validates that a new Position is created for the first BUY execution
+        // Position fields: quantity = exec quantity, average cost = exec price
+        // TODO: Implement after TradingService is created
+    }
+
+    @Test
+    @Transactional
+    void testPositionAverageCostUpdateForSecondBuy() throws Exception {
+        // This test validates average cost calculation for subsequent BUY executions
+        // Formula: new avg cost = (oldQty * oldAvgCost + newQty * newExecPrice) / (oldQty + newQty)
+        // TODO: Implement after TradingService is created
+    }
+
+    @Test
+    @Transactional
+    void testLedgerEntryCreatedForBuyCashDebit() throws Exception {
+        // This test validates that a DEBIT ledger entry is created for BUY executions
+        // Amount = quantity * execution price + fee
+        // TODO: Implement after TradingService is created
+    }
+
+    @Test
+    @Transactional
+    void testTradingAccountBalanceDecreasedForBuy() throws Exception {
+        // This test validates that TradingAccount.balance is correctly decreased after a BUY execution
+        // Decrease amount = quantity * execution price + fee
+        // TODO: Implement after TradingService is created
+    }
+
+    @Test
+    @Transactional
+    void testFr014ScopeValidationRejectsMarginOrders() throws Exception {
+        // This test validates FR-014 scope boundaries: reject any orders that would require margin,
+        // short selling, intraday products, or complex fee structures
+        // For M2, all orders must be cash-funded, long-only with simple flat fee
+        // TODO: Implement after TradingService validation logic is created
+    }
 }

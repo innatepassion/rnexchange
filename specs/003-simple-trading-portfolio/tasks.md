@@ -48,7 +48,7 @@
 ### Tests for User Story 1
 
 - [ ] T007 [P] [US1] Add integration test covering successful BUY flow and key rejection cases (insufficient funds, inactive instrument, invalid quantity, non-marketable limit orders) in `src/test/java/com/rnexchange/web/rest/OrderResourceIT.java`, including assertions for FR-014 scope boundaries (e.g., rejecting margin/short-style requests)
-- [ ] T008 [P] [US1] Add unit tests for BUY validation, average cost, and cash debit logic (including lot-size validation, FR-014 scope boundaries, and “Edge Cases” from `specs/003-simple-trading-portfolio/spec.md`) in `src/test/java/com/rnexchange/service/TradingServiceTest.java`
+- [ ] T008 [P] [US1] Add unit tests for BUY validation, average cost, and cash debit logic (including lot-size validation, FR-014 scope boundaries, and "Edge Cases" from `specs/003-simple-trading-portfolio/spec.md`) in `src/test/java/com/rnexchange/service/TradingServiceTest.java`
 
 ### Implementation for User Story 1
 
@@ -58,10 +58,10 @@
 - [ ] T012 [US1] Implement position update (create/update) and average-cost calculations for BUY executions in `src/main/java/com/rnexchange/service/TradingService.java`
 - [ ] T013 [US1] Implement cash ledger debit and `TradingAccount.balance` update for BUY executions in `src/main/java/com/rnexchange/service/TradingService.java`
 - [ ] T014 [US1] Publish WebSocket notifications on `/topic/orders/{tradingAccountId}` and `/topic/executions/{tradingAccountId}` after BUY fills in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T015 [P] [US1] Add minimal order ticket drawer component to Market Watch that posts to `/api/orders` and shows success/failure toasts in `src/main/webapp/app/modules/market-watch/order-ticket-drawer.tsx`
-- [ ] T016 [P] [US1] Add Trader “Orders & Trades” table (showing recent orders and executions for the current trading account) in `src/main/webapp/app/modules/trader/orders-trades.tsx`
-- [ ] T017 [US1] Add Trader “Portfolio & Cash” view showing positions (qty/avg cost/last price/MTM) and recent ledger entries in `src/main/webapp/app/modules/trader/portfolio-cash.tsx`
-- [ ] T018 [US1] Wire WebSocket subscriptions so orders and portfolio views refetch on `/topic/orders/{tradingAccountId}` and `/topic/executions/{tradingAccountId}` in `src/main/webapp/app/modules/trader/portfolio-cash.tsx` and `src/main/webapp/app/modules/trader/orders-trades.tsx`
+- [x] T015 [P] [US1] Add minimal order ticket drawer component to Market Watch that posts to `/api/orders` and shows success/failure toasts in `src/main/webapp/app/modules/market-watch/order-ticket-drawer.tsx`
+- [x] T016 [P] [US1] Add Trader "Orders & Trades" table (showing recent orders and executions for the current trading account) in `src/main/webapp/app/modules/trader/orders-trades.tsx`
+- [x] T017 [US1] Add Trader "Portfolio & Cash" view showing positions (qty/avg cost/last price/MTM) and recent ledger entries in `src/main/webapp/app/modules/trader/portfolio-cash.tsx`
+- [x] T018 [US1] Wire WebSocket subscriptions so orders and portfolio views refetch on `/topic/orders/{tradingAccountId}` and `/topic/executions/{tradingAccountId}` in `src/main/webapp/app/modules/trader/portfolio-cash.tsx` and `src/main/webapp/app/modules/trader/orders-trades.tsx`
 
 **Checkpoint**: User Story 1 delivers an end-to-end BUY flow with UI and can be tested independently via `quickstart.md`.
 
