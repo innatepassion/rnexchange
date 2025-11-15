@@ -71,6 +71,14 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
         }
         String authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(authorizationHeader)) {
+            // Some STOMP clients normalize header names to lowercase; fall back to a
+            // case-insensitive lookup before rejecting the connection.
+            authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION.toLowerCase(Locale.ROOT));
+        }
+        if (!StringUtils.hasText(authorizationHeader)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Available STOMP CONNECT headers for session {}: {}", accessor.getSessionId(), accessor.toNativeHeaderMap());
+            }
             log.warn("Rejecting WebSocket CONNECT with missing Authorization header (session={})", accessor.getSessionId());
             throw new AuthenticationCredentialsNotFoundException("WebSocket CONNECT requires Authorization header");
         }

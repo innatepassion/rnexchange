@@ -90,8 +90,16 @@ export class MarketDataWebSocketService {
       }
       const destination = `/topic/quotes/${symbol}`;
       const subscription = client.subscribe(destination, (message: IMessage) => {
-        const parsed: IQuote = JSON.parse(message.body);
-        onQuote(parsed);
+        try {
+          const parsed: IQuote = JSON.parse(message.body);
+          onQuote(parsed);
+        } catch (error) {
+          // If the server ever sends a non-JSON payload (for example an HTML
+          // error page), avoid crashing the UI with a SyntaxError and instead
+          // log the bad frame for diagnostics.
+          // eslint-disable-next-line no-console
+          console.error('Failed to parse quote message', error, message.body);
+        }
       });
       this.subscriptions.set(symbol, subscription);
     });
