@@ -1,6 +1,8 @@
 package com.rnexchange.repository;
 
+import com.rnexchange.domain.Instrument;
 import com.rnexchange.domain.Position;
+import com.rnexchange.domain.TradingAccount;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -37,4 +39,15 @@ public interface PositionRepository extends JpaRepository<Position, Long>, JpaSp
 
     @Query("select position from Position position left join fetch position.instrument where position.id =:id")
     Optional<Position> findOneWithToOneRelationships(@Param("id") Long id);
+
+    /**
+     * Find position for a specific trading account and instrument.
+     * Used for position tracking during trade execution.
+     */
+    Optional<Position> findByTradingAccountAndInstrument(TradingAccount tradingAccount, Instrument instrument);
+
+    /**
+     * Find all positions for a trading account.
+     */
+    List<Position> findByTradingAccount(TradingAccount tradingAccount);
 }

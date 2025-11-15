@@ -1,11 +1,17 @@
 package com.rnexchange.web.rest;
 
+import com.rnexchange.domain.Instrument;
+import com.rnexchange.domain.Order;
+import com.rnexchange.domain.TradingAccount;
+import com.rnexchange.repository.InstrumentRepository;
 import com.rnexchange.repository.OrderRepository;
+import com.rnexchange.repository.TradingAccountRepository;
 import com.rnexchange.security.AuthoritiesConstants;
 import com.rnexchange.security.SecurityUtils;
 import com.rnexchange.service.InsufficientMarginException;
 import com.rnexchange.service.OrderQueryService;
 import com.rnexchange.service.OrderService;
+import com.rnexchange.service.TradingService;
 import com.rnexchange.service.criteria.OrderCriteria;
 import com.rnexchange.service.dto.OrderDTO;
 import com.rnexchange.service.dto.TraderOrderRequest;
@@ -52,10 +58,26 @@ public class OrderResource {
 
     private final OrderQueryService orderQueryService;
 
-    public OrderResource(OrderService orderService, OrderRepository orderRepository, OrderQueryService orderQueryService) {
+    private final TradingService tradingService;
+
+    private final TradingAccountRepository tradingAccountRepository;
+
+    private final InstrumentRepository instrumentRepository;
+
+    public OrderResource(
+        OrderService orderService,
+        OrderRepository orderRepository,
+        OrderQueryService orderQueryService,
+        TradingService tradingService,
+        TradingAccountRepository tradingAccountRepository,
+        InstrumentRepository instrumentRepository
+    ) {
         this.orderService = orderService;
         this.orderRepository = orderRepository;
         this.orderQueryService = orderQueryService;
+        this.tradingService = tradingService;
+        this.tradingAccountRepository = tradingAccountRepository;
+        this.instrumentRepository = instrumentRepository;
     }
 
     /**
@@ -239,5 +261,102 @@ public class OrderResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    // ============= PHASE 3 - USER STORY 1: Trading Endpoints (T011) =============
+
+    /**
+     * T011: POST /api/orders - Place a trading order (BUY/SELL).
+     *
+     * This endpoint handles trader order placement with immediate validation and matching.
+     * For TRADERS: creates BUY/SELL orders that are immediately validated and matched.
+     * For ADMINS: bypasses trader-specific logic.
+     *
+     * Flow:
+     * 1. Resolve trading account and instrument
+     * 2. Validate order parameters
+     * 3. Route to appropriate service (TradingService for trader orders)
+     * 4. Return filled/rejected order with execution price (if filled)
+     *
+     * @param orderDTO the order to place
+     * @return OrderDTO with updated status and execution details
+     */
+    @PostMapping("/trading")
+    public ResponseEntity<OrderDTO> placeTradingOrder(@Valid @RequestBody OrderDTO orderDTO) throws URISyntaxException {
+        LOG.debug("REST request to place trading order: {}", orderDTO);
+
+        if (orderDTO.getId() != null) {
+            throw new BadRequestAlertException("A new order cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+
+        // Validate required fields for trading order
+        if (orderDTO.getInstrument() == null) {
+            throw new BadRequestAlertException("Instrument is required for trading order", ENTITY_NAME, "missinginstrument");
+        }
+        if (orderDTO.getQty() == null) {
+            throw new BadRequestAlertException("Quantity is required", ENTITY_NAME, "missingqty");
+        }
+        if (orderDTO.getSide() == null) {
+            throw new BadRequestAlertException("Side (BUY/SELL) is required", ENTITY_NAME, "missingside");
+        }
+        if (orderDTO.getType() == null) {
+            throw new BadRequestAlertException("Order type is required", ENTITY_NAME, "missingtype");
+        }
+
+        try {
+            // Get current trader
+            String traderLogin = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new BadRequestAlertException("Unable to determine current trader", ENTITY_NAME, "nologin"));
+
+            // Resolve trading account
+            TradingAccount tradingAccount = tradingAccountRepository
+                .findFirstByTrader_User_LoginOrderByIdAsc(traderLogin)
+                .orElseThrow(() -> new BadRequestAlertException("Trading account not found for trader", ENTITY_NAME, "notradingaccount"));
+
+            // Resolve instrument
+            Instrument instrument = instrumentRepository
+                .findById(orderDTO.getInstrument().getId())
+                .orElseThrow(() -> new BadRequestAlertException("Instrument not found", ENTITY_NAME, "noinstrument"));
+
+            // Create order entity
+            Order order = new Order();
+            order.setSide(orderDTO.getSide());
+            order.setType(orderDTO.getType());
+            order.setQty(orderDTO.getQty());
+            order.setLimitPx(orderDTO.getLimitPx());
+            order.setStopPx(orderDTO.getStopPx());
+            order.setTif(orderDTO.getTif() != null ? orderDTO.getTif() : com.rnexchange.domain.enumeration.Tif.DAY);
+            order.setStatus(com.rnexchange.domain.enumeration.OrderStatus.NEW);
+            order.setVenue(instrument.getExchangeCode() != null ? instrument.getExchangeCode() : "NSE");
+            order.setCreatedAt(java.time.Instant.now());
+            order.setUpdatedAt(java.time.Instant.now());
+            order.setTradingAccount(tradingAccount);
+            order.setInstrument(instrument);
+
+            // Save initial order
+            order = orderRepository.save(order);
+
+            // Process order through trading service
+            Order processedOrder;
+            if (orderDTO.getSide() == com.rnexchange.domain.enumeration.OrderSide.BUY) {
+                processedOrder = tradingService.processBuyOrder(order, tradingAccount, instrument);
+            } else {
+                processedOrder = tradingService.processSellOrder(order, tradingAccount, instrument);
+            }
+
+            // Return processed order
+            OrderDTO result = orderMapper.toDto(processedOrder);
+            HttpHeaders headers = HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString());
+            return ResponseEntity.created(new URI("/api/orders/" + result.getId())).headers(headers).body(result);
+        } catch (BadRequestAlertException e) {
+            throw e;
+        } catch (UnsupportedOperationException e) {
+            throw new BadRequestAlertException(e.getMessage(), ENTITY_NAME, "notsupported");
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestAlertException(e.getMessage(), ENTITY_NAME, "invalidrequest");
+        } catch (Exception e) {
+            LOG.error("Error placing trading order", e);
+            throw new BadRequestAlertException("Error processing order: " + e.getMessage(), ENTITY_NAME, "processerror");
+        }
     }
 }

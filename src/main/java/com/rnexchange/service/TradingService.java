@@ -41,6 +41,7 @@ public class TradingService {
     private final TradingAccountRepository tradingAccountRepository;
     private final InstrumentRepository instrumentRepository;
     private final MatchingService matchingService;
+    private final TradingWebSocketService webSocketService;
 
     public TradingService(
         OrderRepository orderRepository,
@@ -49,7 +50,8 @@ public class TradingService {
         LedgerEntryRepository ledgerEntryRepository,
         TradingAccountRepository tradingAccountRepository,
         InstrumentRepository instrumentRepository,
-        MatchingService matchingService
+        MatchingService matchingService,
+        TradingWebSocketService webSocketService
     ) {
         this.orderRepository = orderRepository;
         this.executionRepository = executionRepository;
@@ -58,6 +60,7 @@ public class TradingService {
         this.tradingAccountRepository = tradingAccountRepository;
         this.instrumentRepository = instrumentRepository;
         this.matchingService = matchingService;
+        this.webSocketService = webSocketService;
     }
 
     /**
@@ -132,8 +135,8 @@ public class TradingService {
         LOG.info("BUY order {} filled at {} for {} units", order.getId(), matchingPrice, order.getQty());
 
         // Step 9: Publish WebSocket notifications (T014)
-        // TODO: publishOrderNotification(order);
-        // TODO: publishExecutionNotification(execution);
+        // Notify subscribers about order and execution
+        webSocketService.publishTradeCompletedNotification(order, execution);
 
         return order;
     }

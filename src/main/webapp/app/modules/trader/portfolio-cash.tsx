@@ -6,10 +6,9 @@ import { getPositions, getLedgerEntries, getCashBalance, PositionView, LedgerEnt
 
 interface PortfolioCashProps {
   tradingAccountId: number;
-  onWebSocketMessage?: (message: any) => void;
 }
 
-const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId, onWebSocketMessage }) => {
+const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
   const [positions, setPositions] = useState<PositionView[]>([]);
   const [ledgerEntries, setLedgerEntries] = useState<LedgerEntryView[]>([]);
   const [cashBalance, setCashBalance] = useState<CashBalanceView | null>(null);
@@ -46,13 +45,6 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId, onWebSo
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  // Handle WebSocket updates
-  useEffect(() => {
-    if (onWebSocketMessage) {
-      loadData();
-    }
-  }, [onWebSocketMessage, loadData]);
 
   const formatPrice = (price?: number) => {
     if (price === undefined || price === null) return '—';

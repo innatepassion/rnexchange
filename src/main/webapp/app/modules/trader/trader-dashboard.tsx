@@ -11,7 +11,6 @@ interface TraderDashboardProps {
 
 const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: propAccountId }) => {
   const [activeTab, setActiveTab] = useState<'portfolio' | 'orders'>('portfolio');
-  const [wsMessage, setWsMessage] = useState<TradingWebSocketMessage | null>(null);
   const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>(propAccountId);
 
   const account = useAppSelector(state => state.authentication.account);
@@ -25,17 +24,14 @@ const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: pro
 
   const handleOrderUpdate = useCallback((message: TradingWebSocketMessage) => {
     console.log('Order update received:', message);
-    setWsMessage(message);
   }, []);
 
   const handleExecutionUpdate = useCallback((message: TradingWebSocketMessage) => {
     console.log('Execution update received:', message);
-    setWsMessage(message);
   }, []);
 
   const handlePositionUpdate = useCallback((message: TradingWebSocketMessage) => {
     console.log('Position update received:', message);
-    setWsMessage(message);
   }, []);
 
   const connectionStatus = useTradingSubscription(selectedAccountId, handleOrderUpdate, handleExecutionUpdate, handlePositionUpdate);
@@ -107,26 +103,14 @@ const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: pro
         </Col>
       </Row>
 
-      {wsMessage && (
-        <Row className="mb-3">
-          <Col>
-            <Alert color="info" toggle={() => setWsMessage(null)}>
-              <small>
-                <strong>Real-time Update:</strong> {wsMessage.type} event at {new Date(wsMessage.timestamp).toLocaleTimeString()}
-              </small>
-            </Alert>
-          </Col>
-        </Row>
-      )}
-
       <Row>
         <Col>
           <TabContent activeTab={activeTab}>
             <TabPane tabId="portfolio">
-              <PortfolioCash tradingAccountId={selectedAccountId} onWebSocketMessage={wsMessage} />
+              <PortfolioCash tradingAccountId={selectedAccountId} />
             </TabPane>
             <TabPane tabId="orders">
-              <OrdersTrades tradingAccountId={selectedAccountId} onWebSocketMessage={wsMessage} />
+              <OrdersTrades tradingAccountId={selectedAccountId} />
             </TabPane>
           </TabContent>
         </Col>

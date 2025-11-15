@@ -8,7 +8,6 @@ import type { IExecution } from 'app/shared/model/execution.model';
 
 interface OrdersTradesProps {
   tradingAccountId: number;
-  onWebSocketMessage?: (message: any) => void;
 }
 
 interface TradeRecord {
@@ -25,7 +24,7 @@ interface TradeRecord {
   executedAt?: string;
 }
 
-const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId, onWebSocketMessage }) => {
+const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId }) => {
   const [trades, setTrades] = useState<TradeRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,14 +103,6 @@ const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId, onWebSock
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  // Handle WebSocket updates
-  useEffect(() => {
-    if (onWebSocketMessage) {
-      // Reload data when WebSocket message arrives
-      loadData();
-    }
-  }, [onWebSocketMessage, loadData]);
 
   const getStatusBadgeColor = (status: string) => {
     switch (status.toUpperCase()) {

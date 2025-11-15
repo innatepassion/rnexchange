@@ -50,7 +50,7 @@ export const OrderTicketDrawer: React.FC<OrderTicketDrawerProps> = ({ isOpen, on
         return;
       }
 
-      if (!quantity || parseInt(quantity) <= 0) {
+      if (!quantity || parseInt(quantity, 10) <= 0) {
         setMessage({ type: 'error', text: 'Quantity must be greater than 0' });
         return;
       }
@@ -64,10 +64,10 @@ export const OrderTicketDrawer: React.FC<OrderTicketDrawerProps> = ({ isOpen, on
       try {
         const response = await placeOrder({
           tradingAccountId,
-          instrumentId: parseInt(instrumentId),
+          instrumentId: parseInt(instrumentId, 10),
           side,
           type,
-          quantity: parseInt(quantity),
+          quantity: parseInt(quantity, 10),
           limitPrice: type === 'LIMIT' ? parseFloat(limitPrice) : undefined,
         });
 
