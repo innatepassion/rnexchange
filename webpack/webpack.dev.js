@@ -60,8 +60,10 @@ module.exports = async options =>
         {
           // Proxy WebSocket endpoints used by both the JHipster tracker (/websocket)
           // and the market data feed (/ws) through to the Spring Boot backend.
+          // Use http target; http-proxy-middleware will also upgrade WS connections
+          // when ws: true is set.
           context: ['/websocket', '/ws'],
-          target: 'ws://127.0.0.1:8080',
+          target: 'http://127.0.0.1:8080',
           ws: true,
         },
       ],
