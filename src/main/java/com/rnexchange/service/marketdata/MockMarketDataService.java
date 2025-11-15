@@ -209,7 +209,8 @@ public class MockMarketDataService {
             .stream()
             .map(symbol -> Map.entry(symbol, volatilityGuard.snapshot(symbol)))
             .filter(entry -> entry.getValue().isPresent())
-            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> entry.getValue().get()));
+            // Use orElseThrow instead of get() to comply with modernizer guidance.
+            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> entry.getValue().orElseThrow()));
     }
 
     private Map<String, InstrumentState> loadInstrumentStates() {

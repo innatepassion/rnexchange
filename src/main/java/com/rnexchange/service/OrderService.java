@@ -184,9 +184,10 @@ public class OrderService {
 
     private Instrument resolveInstrument(TraderOrderRequest request) {
         if (request.getInstrumentSymbol() != null) {
+            // Avoid Optional.get() to satisfy modernizer rules while maintaining existing behaviour.
             Optional<Instrument> bySymbol = instrumentRepository.findOneBySymbol(request.getInstrumentSymbol());
             if (bySymbol.isPresent()) {
-                return bySymbol.get();
+                return bySymbol.orElseThrow();
             }
         }
         if (request.getInstrumentId() != null) {

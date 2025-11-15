@@ -31,8 +31,9 @@ class RollingMinuteVolatilityGuardTest {
 
         Optional<RollingMinuteVolatilityGuard.GuardSnapshot> snapshot = guard.snapshot(symbol);
         assertThat(snapshot).isPresent();
-        assertThat(snapshot.get().upSuppressed()).isTrue();
-        assertThat(snapshot.get().downSuppressed()).isFalse();
+        RollingMinuteVolatilityGuard.GuardSnapshot value = snapshot.orElseThrow();
+        assertThat(value.upSuppressed()).isTrue();
+        assertThat(value.downSuppressed()).isFalse();
 
         clock.advanceSeconds(61);
         guard.register(symbol, anchor, new BigDecimal("104.20"));
@@ -56,9 +57,10 @@ class RollingMinuteVolatilityGuardTest {
 
         Optional<RollingMinuteVolatilityGuard.GuardSnapshot> snapshot = guard.snapshot(symbol);
         assertThat(snapshot).isPresent();
-        assertThat(snapshot.get().downSuppressed()).isTrue();
-        assertThat(snapshot.get().upSuppressed()).isFalse();
-        assertThat(snapshot.get().anchorPrice()).isEqualByComparingTo(anchor);
+        RollingMinuteVolatilityGuard.GuardSnapshot value = snapshot.orElseThrow();
+        assertThat(value.downSuppressed()).isTrue();
+        assertThat(value.upSuppressed()).isFalse();
+        assertThat(value.anchorPrice()).isEqualByComparingTo(anchor);
     }
 
     private static final class ControllableClock extends java.time.Clock {
