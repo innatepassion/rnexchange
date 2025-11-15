@@ -17,7 +17,7 @@
 
 **Purpose**: Confirm branch and baseline build; no new infrastructure.
 
-- [ ] T001 Confirm branch `003-simple-trading-portfolio` is checked out and baseline build passes in `.`
+- [x] T001 Confirm branch `003-simple-trading-portfolio` is checked out and baseline build passes in `.`
 
 ---
 
