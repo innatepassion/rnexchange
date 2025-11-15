@@ -72,35 +72,39 @@ module.exports = async options =>
         : new SimpleProgressWebpackPlugin({
             format: options.stats === 'minimal' ? 'compact' : 'expanded',
           }),
-      new BrowserSyncPlugin(
-        {
-          https: options.tls,
-          host: 'localhost',
-          port: 9000,
-          proxy: {
-            target: `http${options.tls ? 's' : ''}://localhost:${options.watch ? '8080' : '9060'}`,
-            ws: true,
-            proxyOptions: {
-              changeOrigin: false, //pass the Host header to the backend unchanged https://github.com/Browsersync/browser-sync/issues/430
+      // BrowserSync UI is optional and can break on newer Node versions.
+      // Set JHI_DISABLE_BROWSER_SYNC=true to skip it entirely.
+      process.env.JHI_DISABLE_BROWSER_SYNC
+        ? null
+        : new BrowserSyncPlugin(
+            {
+              https: options.tls,
+              host: 'localhost',
+              port: 9000,
+              proxy: {
+                target: `http${options.tls ? 's' : ''}://localhost:${options.watch ? '8080' : '9060'}`,
+                ws: true,
+                proxyOptions: {
+                  changeOrigin: false, //pass the Host header to the backend unchanged https://github.com/Browsersync/browser-sync/issues/430
+                },
+              },
+              socket: {
+                clients: {
+                  heartbeatTimeout: 60000,
+                },
+              },
+              /*
+          ,ghostMode: { // uncomment this part to disable BrowserSync ghostMode; https://github.com/jhipster/generator-jhipster/issues/11116
+            clicks: false,
+            location: false,
+            forms: false,
+            scroll: false
+          } */
             },
-          },
-          socket: {
-            clients: {
-              heartbeatTimeout: 60000,
+            {
+              reload: false,
             },
-          },
-          /*
-      ,ghostMode: { // uncomment this part to disable BrowserSync ghostMode; https://github.com/jhipster/generator-jhipster/issues/11116
-        clicks: false,
-        location: false,
-        forms: false,
-        scroll: false
-      } */
-        },
-        {
-          reload: false,
-        },
-      ),
+          ),
       new WebpackNotifierPlugin({
         title: 'Rnexchange',
         contentImage: path.join(__dirname, 'logo-jhipster.png'),

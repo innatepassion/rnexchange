@@ -97,7 +97,6 @@ export class MarketDataWebSocketService {
           // If the server ever sends a non-JSON payload (for example an HTML
           // error page), avoid crashing the UI with a SyntaxError and instead
           // log the bad frame for diagnostics.
-          // eslint-disable-next-line no-console
           console.error('Failed to parse quote message', error, message.body);
         }
       });
