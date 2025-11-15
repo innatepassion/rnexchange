@@ -4,7 +4,7 @@ describe('Trader baseline order simulation', () => {
 
   let tradingAccountId: number;
   let instrumentId: number;
-  let instrumentSymbol = 'RELIANCE';
+  const instrumentSymbol = 'RELIANCE';
 
   before(() => {
     cy.login(username, password);
@@ -60,8 +60,10 @@ describe('Trader baseline order simulation', () => {
       cy.get('[data-cy="status"]').should('have.value', 'NEW');
       cy.get('[data-cy="venue"]').should('have.value', 'NSE');
 
-      cy.get('[data-cy="qty"]').clear().type('10');
-      cy.get('[data-cy="limitPx"]').clear().type('2200');
+      cy.get('[data-cy="qty"]').clear();
+      cy.get('[data-cy="qty"]').type('10');
+      cy.get('[data-cy="limitPx"]').clear();
+      cy.get('[data-cy="limitPx"]').type('2200');
 
       cy.get('[data-cy="entityCreateSaveButton"]').click();
 

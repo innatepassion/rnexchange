@@ -2,17 +2,22 @@ import './header.scss';
 
 import React, { useState } from 'react';
 import { Storage, Translate } from 'react-jhipster';
-import { Collapse, Nav, Navbar, NavbarToggler } from 'reactstrap';
+import { Collapse, Nav, NavItem, NavLink, Navbar, NavbarToggler } from 'reactstrap';
 import LoadingBar from 'react-redux-loading-bar';
+import { NavLink as Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 
 import { useAppDispatch } from 'app/config/store';
 import { setLocale } from 'app/shared/reducers/locale';
-import { AccountMenu, AdminMenu, EntitiesMenu, LocaleMenu } from '../menus';
+import { AccountMenu, AdminMenu, EntitiesMenu, LocaleMenu, ExchangeConsoleMenu } from '../menus';
 import { Brand, Home } from './header-components';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isExchangeOperator: boolean;
+  isTrader: boolean;
   ribbonEnv: string;
   isInProduction: boolean;
   isOpenAPIEnabled: boolean;
@@ -56,6 +61,15 @@ const Header = (props: IHeaderProps) => {
             {props.isAuthenticated && <EntitiesMenu />}
             {props.isAuthenticated && props.isAdmin && (
               <AdminMenu showOpenAPI={props.isOpenAPIEnabled} showDatabase={!props.isInProduction} />
+            )}
+            {props.isAuthenticated && props.isExchangeOperator && <ExchangeConsoleMenu />}
+            {props.isAuthenticated && props.isTrader && (
+              <NavItem>
+                <NavLink tag={Link} to="/market-watch" className="d-flex align-items-center">
+                  <FontAwesomeIcon icon={faChartLine} className="me-1" />
+                  <span>Market Watch</span>
+                </NavLink>
+              </NavItem>
             )}
             <LocaleMenu currentLocale={props.currentLocale} onClick={handleLocaleChange} />
             <AccountMenu isAuthenticated={props.isAuthenticated} />

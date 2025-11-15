@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20251114080000-1" author="assistant">
+        <createTable tableName="watchlist">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trader_profile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="watchlist" indexName="idx_watchlist_trader">
+            <column name="trader_profile_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20251114080000-2" author="assistant">
+        <createTable tableName="watchlist_item">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="symbol" type="varchar(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="integer"/>
+            <column name="watchlist_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint
+            tableName="watchlist_item"
+            columnNames="watchlist_id, symbol"
+            constraintName="ux_watchlist_item_symbol"
+        />
+        <createIndex tableName="watchlist_item" indexName="idx_watchlist_item_watchlist">
+            <column name="watchlist_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20251114080000-3" author="assistant">
+        <addForeignKeyConstraint
+            baseTableName="watchlist"
+            baseColumnNames="trader_profile_id"
+            referencedTableName="trader_profile"
+            referencedColumnNames="id"
+            constraintName="fk_watchlist_trader_profile"
+        />
+        <addForeignKeyConstraint
+            baseTableName="watchlist_item"
+            baseColumnNames="watchlist_id"
+            referencedTableName="watchlist"
+            referencedColumnNames="id"
+            constraintName="fk_watchlist_item_watchlist"
+        />
+    </changeSet>
+
+</databaseChangeLog>
+

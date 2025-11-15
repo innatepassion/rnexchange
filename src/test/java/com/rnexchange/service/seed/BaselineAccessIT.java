@@ -63,7 +63,8 @@ class BaselineAccessIT extends AbstractBaselineSeedIT {
     private void assertUserHasAuthority(String login, String authority) {
         Optional<User> userOptional = userRepository.findOneWithAuthoritiesByLogin(login);
         assertThat(userOptional).isPresent();
-        User user = userOptional.get();
+        // Use orElseThrow instead of get() to comply with modernizer rules.
+        User user = userOptional.orElseThrow();
         assertThat(user.isActivated()).isTrue();
         assertThat(user.getAuthorities()).extracting(com.rnexchange.domain.Authority::getName).contains(authority);
     }

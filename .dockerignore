@@ -1,0 +1,24 @@
+node_modules/
+target/
+dist/
+build/
+coverage/
+*.log*
+tmp/
+.git/
+.gitignore
+.idea/
+.vscode/
+.mvn/
+.cache/
+.npm/
+specs/
+docs/
+.env
+.env.*
+Dockerfile*
+docker-compose*.yml
+src/test/
+# IntelliJ project files
+*.iml
+

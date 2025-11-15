@@ -37,4 +37,6 @@ public interface MarketHolidayRepository extends JpaRepository<MarketHoliday, Lo
 
     @Query("select marketHoliday from MarketHoliday marketHoliday left join fetch marketHoliday.exchange where marketHoliday.id =:id")
     Optional<MarketHoliday> findOneWithToOneRelationships(@Param("id") Long id);
+
+    java.util.List<MarketHoliday> findAllByExchange_CodeAndTradeDateAndIsHolidayTrue(String exchangeCode, java.time.LocalDate tradeDate);
 }

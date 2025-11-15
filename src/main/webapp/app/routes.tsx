@@ -18,6 +18,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
 import { sendActivity } from 'app/config/websocket-middleware';
+import MarketWatch from 'app/modules/market-watch/market-watch';
 
 const loading = <div>loading ...</div>;
 
@@ -30,6 +31,12 @@ const Admin = Loadable({
   loader: () => import(/* webpackChunkName: "administration" */ 'app/modules/administration'),
   loading: () => loading,
 });
+
+const ExchangeConsole = Loadable({
+  loader: () => import(/* webpackChunkName: "exchange-console" */ 'app/modules/exchange-console'),
+  loading: () => loading,
+});
+
 const AppRoutes = () => {
   const pageLocation = useLocation();
   React.useEffect(() => {
@@ -62,6 +69,22 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
               <Admin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="exchange-console/*"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.EXCHANGE_OPERATOR]}>
+              <ExchangeConsole />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="market-watch"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.TRADER]}>
+              <MarketWatch />
             </PrivateRoute>
           }
         />

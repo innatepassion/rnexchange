@@ -92,6 +92,7 @@
     "@fortawesome/free-solid-svg-icons": "6.7.2",
     "@fortawesome/react-fontawesome": "0.2.2",
     "@reduxjs/toolkit": "2.8.0",
+    "@stomp/stompjs": "^7.0.0",
     "axios": "1.9.0",
     "bootstrap": "5.3.6",
     "dayjs": "1.11.13",
@@ -117,6 +118,7 @@
     "webstomp-client": "1.2.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "16.3.0",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.16",
@@ -127,6 +129,7 @@
     "@types/redux": "3.6.31",
     "@types/webpack-env": "1.18.8",
     "autoprefixer": "10.4.21",
+    "axios-mock-adapter": "^1.21.2",
     "browser-sync": "3.0.4",
     "browser-sync-webpack-plugin": "2.3.0",
     "concurrently": "9.1.2",

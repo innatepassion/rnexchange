@@ -1,0 +1,207 @@
+.market-watch {
+  position: relative;
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: rgba(255, 193, 7, 0.15);
+    color: #ff9800;
+    font-weight: 600;
+    margin-left: 0.75rem;
+  }
+
+  &__controls {
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+
+    &-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+  }
+
+  &__add-btn {
+    white-space: nowrap;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+  }
+
+  &__empty {
+    padding: 2rem 0;
+    color: #6c757d;
+    text-align: center;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    tbody tr.positive {
+      background: rgba(76, 175, 80, 0.08);
+      color: #256029;
+    }
+
+    tbody tr.negative {
+      background: rgba(244, 67, 54, 0.08);
+      color: #9f3a32;
+    }
+
+    tbody tr.neutral {
+      background: rgba(0, 0, 0, 0.02);
+      color: #495057;
+    }
+
+    .actions-col {
+      width: 110px;
+    }
+  }
+
+  &__pending {
+    color: #adb5bd;
+    font-style: italic;
+  }
+
+  &__banners {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  &__banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.9rem;
+
+    &-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    strong {
+      font-size: 0.95rem;
+    }
+
+    &--paused {
+      background: rgba(255, 193, 7, 0.15);
+      border-color: rgba(255, 193, 7, 0.4);
+    }
+
+    &--holiday {
+      background: rgba(33, 150, 243, 0.12);
+      border-color: rgba(33, 150, 243, 0.4);
+    }
+  }
+
+  &__banner-timestamp {
+    font-size: 0.8rem;
+    color: #495057;
+    white-space: nowrap;
+    margin-left: 1rem;
+  }
+
+  &__row--frozen {
+    opacity: 0.6;
+  }
+
+  &__status-floating {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    background: #1f2933;
+    color: #fff;
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
+    z-index: 10;
+  }
+
+  &__th-tooltip {
+    cursor: help;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+  }
+}
+
+.status-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+
+  &--connecting,
+  &--reconnecting {
+    background: #ffc107;
+  }
+
+  &--connected {
+    background: #4caf50;
+  }
+
+  &--disconnected {
+    background: #f44336;
+  }
+}
+
+.status-indicator__text {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &--holiday {
+    background: rgba(33, 150, 243, 0.1);
+    color: #0d47a1;
+  }
+
+  &--paused {
+    background: rgba(255, 193, 7, 0.15);
+    color: #8d6e63;
+  }
+
+  &--stale {
+    background: rgba(255, 87, 34, 0.12);
+    color: #d84315;
+  }
+}

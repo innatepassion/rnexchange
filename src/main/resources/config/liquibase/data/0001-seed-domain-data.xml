@@ -171,6 +171,72 @@
         </insert>
     </changeSet>
 
+    <changeSet id="baseline-watchlists-001" author="assistant" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM watchlist</sqlCheck>
+        </preConditions>
+        <insert tableName="watchlist">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Core Equities"/>
+            <column name="trader_profile_id" valueComputed="(SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test')"/>
+        </insert>
+        <insert tableName="watchlist">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Commodities Radar"/>
+            <column name="trader_profile_id" valueComputed="(SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test')"/>
+        </insert>
+        <insert tableName="watchlist">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Swing Candidates"/>
+            <column name="trader_profile_id" valueComputed="(SELECT id FROM trader_profile WHERE email = 'trader.two@rnexchange.test')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="baseline-watchlist-items-001" author="assistant" context="baseline">
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="RELIANCE"/>
+            <column name="sort_order" valueNumeric="0"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Core Equities' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test'))"/>
+        </insert>
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="INFY"/>
+            <column name="sort_order" valueNumeric="1"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Core Equities' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test'))"/>
+        </insert>
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="HDFCBANK"/>
+            <column name="sort_order" valueNumeric="2"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Core Equities' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test'))"/>
+        </insert>
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="GOLD"/>
+            <column name="sort_order" valueNumeric="0"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Commodities Radar' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test'))"/>
+        </insert>
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="CRUDEOIL"/>
+            <column name="sort_order" valueNumeric="1"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Commodities Radar' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.one@rnexchange.test'))"/>
+        </insert>
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="TCS"/>
+            <column name="sort_order" valueNumeric="0"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Swing Candidates' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.two@rnexchange.test'))"/>
+        </insert>
+        <insert tableName="watchlist_item">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="symbol" value="SBIN_BSE"/>
+            <column name="sort_order" valueNumeric="1"/>
+            <column name="watchlist_id" valueComputed="(SELECT id FROM watchlist WHERE name = 'Swing Candidates' AND trader_profile_id = (SELECT id FROM trader_profile WHERE email = 'trader.two@rnexchange.test'))"/>
+        </insert>
+    </changeSet>
+
     <changeSet id="baseline-instruments-001" author="assistant" context="baseline">
         <insert tableName="instrument">
             <column name="id" valueSequenceNext="sequence_generator"/>

@@ -115,9 +115,11 @@ public class MarginServiceImpl implements MarginService {
 
     private Instrument resolveInstrument(TraderOrderRequest request) {
         if (request.getInstrumentSymbol() != null) {
+            // Avoid Optional.get() to comply with modernizer rules; keep the original
+            // behaviour of preferring symbol lookup but falling back to ID when absent.
             Optional<Instrument> bySymbol = instrumentRepository.findOneBySymbol(request.getInstrumentSymbol());
             if (bySymbol.isPresent()) {
-                return bySymbol.get();
+                return bySymbol.orElseThrow();
             }
         }
         if (request.getInstrumentId() != null) {

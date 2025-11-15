@@ -153,13 +153,13 @@ spring:
     execution:
       thread-name-prefix: rnexchange-task-
       pool:
-        core-size: 2
-        max-size: 50
+        core-size: 16
+        max-size: 32
         queue-capacity: 10000
     scheduling:
       thread-name-prefix: rnexchange-scheduling-
       pool:
-        size: 2
+        size: 8
   thymeleaf:
     mode: HTML
   output:
@@ -213,6 +213,22 @@ jhipster:
     license-url:
   security:
     content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+
+marketdata:
+  mock:
+    interval-ms: 750
+    batch-size: 4
+    min-price: 1.00
+    max-price: 10000.00
+    default-price: 100.00
+    volatility-band-percent: 0.05
+    volatility:
+      exchange:
+        NSE: 0.004
+        BSE: 0.004
+        MCX: 0.006
+      asset-class:
+        ALL: 0.004
 
 # jhipster-needle-add-application-yaml-document
 ---

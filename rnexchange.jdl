@@ -168,6 +168,13 @@ entity LedgerEntry {
   remarks String
 }
 
+entity ExchangeVolatilityOverride {
+  exchangeCode String required
+  assetClass String required
+  volatilityPct BigDecimal required
+  lastModified Instant
+}
+
 /* ===== Margin & Risk ===== */
 entity MarginRule {
   scope String required            // EQUITY/FUTURE/OPTION or by symbol/segment
@@ -260,6 +267,7 @@ relationship ManyToOne {
 relationship ManyToOne {
   CorporateAction{instrument(symbol)} to Instrument
   SettlementBatch{exchange(code)} to Exchange
+  ExchangeVolatilityOverride{exchange(code)} to Exchange
 }
 
 /* ===== Global generation options ===== */

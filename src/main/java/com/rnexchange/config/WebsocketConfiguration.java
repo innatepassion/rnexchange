@@ -1,11 +1,13 @@
 package com.rnexchange.config;
 
 import com.rnexchange.security.AuthoritiesConstants;
+import com.rnexchange.web.websocket.MarketDataStompInterceptor;
 import java.security.Principal;
 import java.util.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.*;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,14 +24,17 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public static final String IP_ADDRESS = "IP_ADDRESS";
 
     private final JHipsterProperties jHipsterProperties;
+    private final MarketDataStompInterceptor marketDataStompInterceptor;
 
-    public WebsocketConfiguration(JHipsterProperties jHipsterProperties) {
+    public WebsocketConfiguration(JHipsterProperties jHipsterProperties, MarketDataStompInterceptor marketDataStompInterceptor) {
         this.jHipsterProperties = jHipsterProperties;
+        this.marketDataStompInterceptor = marketDataStompInterceptor;
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
+        config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
@@ -43,6 +48,12 @@ public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer 
             .setAllowedOrigins(allowedOrigins)
             .withSockJS()
             .setInterceptors(httpSessionHandshakeInterceptor());
+        registry.addEndpoint("/ws").setHandshakeHandler(defaultHandshakeHandler()).setAllowedOrigins(allowedOrigins).withSockJS();
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(marketDataStompInterceptor);
     }
 
     @Bean

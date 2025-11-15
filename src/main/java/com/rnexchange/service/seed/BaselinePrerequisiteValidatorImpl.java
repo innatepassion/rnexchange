@@ -47,7 +47,9 @@ public class BaselinePrerequisiteValidatorImpl implements BaselinePrerequisiteVa
                 errors.add("Missing required user '" + login + "' with authority " + requiredAuthority);
                 return;
             }
-            User user = maybeUser.get();
+            // Use orElseThrow instead of get() to satisfy modernizer rules while preserving
+            // the existing control flow guarded by the isEmpty() check above.
+            User user = maybeUser.orElseThrow();
             Set<String> authorityNames = user
                 .getAuthorities()
                 .stream()

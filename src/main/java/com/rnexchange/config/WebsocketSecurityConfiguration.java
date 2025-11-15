@@ -1,6 +1,5 @@
 package com.rnexchange.config;
 
-import com.rnexchange.security.AuthoritiesConstants;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
@@ -12,22 +11,12 @@ public class WebsocketSecurityConfiguration extends AbstractSecurityWebSocketMes
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-            .nullDestMatcher()
+            .simpTypeMatchers(SimpMessageType.CONNECT)
+            .permitAll()
+            .simpTypeMatchers(SimpMessageType.SUBSCRIBE, SimpMessageType.MESSAGE, SimpMessageType.UNSUBSCRIBE)
             .authenticated()
-            .simpDestMatchers("/topic/tracker")
-            .hasAuthority(AuthoritiesConstants.ADMIN)
-            // matches any destination that starts with /topic/
-            // (i.e. cannot send messages directly to /topic/)
-            // (i.e. cannot subscribe to /topic/messages/* to get messages sent to
-            // /topic/messages-user<id>)
-            .simpDestMatchers("/topic/**")
-            .authenticated()
-            // message types other than MESSAGE and SUBSCRIBE
-            .simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE)
-            .denyAll()
-            // catch all
             .anyMessage()
-            .denyAll();
+            .authenticated();
     }
 
     /**
