@@ -58,7 +58,9 @@ module.exports = async options =>
           changeOrigin: options.tls,
         },
         {
-          context: ['/websocket'],
+          // Proxy WebSocket endpoints used by both the JHipster tracker (/websocket)
+          // and the market data feed (/ws) through to the Spring Boot backend.
+          context: ['/websocket', '/ws'],
           target: 'ws://127.0.0.1:8080',
           ws: true,
         },
