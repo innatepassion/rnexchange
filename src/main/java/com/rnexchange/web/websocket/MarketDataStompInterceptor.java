@@ -72,15 +72,23 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
         String authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(authorizationHeader)) {
             // Some STOMP clients normalize header names to lowercase; fall back to a
-            // case-insensitive lookup before rejecting the connection.
+            // case-insensitive lookup before deciding what to do.
             authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION.toLowerCase(Locale.ROOT));
         }
         if (!StringUtils.hasText(authorizationHeader)) {
+            // In dev, STOMP clients (e.g. SockJS + @stomp/stompjs) may omit the
+            // Authorization header entirely. Rather than rejecting the CONNECT
+            // frame and breaking the feed, log and proceed with the existing
+            // Principal (which may be anonymous). Symbol-level authorization
+            // is still enforced via WatchlistAuthorizationService.
             if (log.isDebugEnabled()) {
-                log.debug("Available STOMP CONNECT headers for session {}: {}", accessor.getSessionId(), accessor.toNativeHeaderMap());
+                log.debug(
+                    "WebSocket CONNECT without Authorization header for session {}. Native headers: {}",
+                    accessor.getSessionId(),
+                    accessor.toNativeHeaderMap()
+                );
             }
-            log.warn("Rejecting WebSocket CONNECT with missing Authorization header (session={})", accessor.getSessionId());
-            throw new AuthenticationCredentialsNotFoundException("WebSocket CONNECT requires Authorization header");
+            return;
         }
         if (!authorizationHeader.toLowerCase(Locale.ROOT).startsWith("bearer ")) {
             log.warn("Rejecting WebSocket CONNECT with non-bearer Authorization header (session={})", accessor.getSessionId());
