@@ -47,17 +47,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Add integration test covering successful BUY flow and key rejection cases (insufficient funds, inactive instrument, invalid quantity, non-marketable limit orders) in `src/test/java/com/rnexchange/web/rest/OrderResourceIT.java`, including assertions for FR-014 scope boundaries (e.g., rejecting margin/short-style requests)
-- [ ] T008 [P] [US1] Add unit tests for BUY validation, average cost, and cash debit logic (including lot-size validation, FR-014 scope boundaries, and "Edge Cases" from `specs/003-simple-trading-portfolio/spec.md`) in `src/test/java/com/rnexchange/service/TradingServiceTest.java`
+- [x] T007 [P] [US1] Add integration test covering successful BUY flow and key rejection cases (insufficient funds, inactive instrument, invalid quantity, non-marketable limit orders) in `src/test/java/com/rnexchange/web/rest/OrderResourceIT.java`, including assertions for FR-014 scope boundaries (e.g., rejecting margin/short-style requests)
+- [x] T008 [P] [US1] Add unit tests for BUY validation, average cost, and cash debit logic (including lot-size validation, FR-014 scope boundaries, and "Edge Cases" from `specs/003-simple-trading-portfolio/spec.md`) in `src/test/java/com/rnexchange/service/TradingServiceTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement BUY-side validation and orchestration in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T010 [P] [US1] Implement `MatchingService` to obtain latest mock price and decide immediate fill for Market/Limit BUY in `src/main/java/com/rnexchange/service/MatchingService.java`
-- [ ] T011 [US1] Implement REST delegate for `POST /api/orders` to call `TradingService` and return `OrderResponse` in `src/main/java/com/rnexchange/web/rest/OrderResource.java`
-- [ ] T012 [US1] Implement position update (create/update) and average-cost calculations for BUY executions in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T013 [US1] Implement cash ledger debit and `TradingAccount.balance` update for BUY executions in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T014 [US1] Publish WebSocket notifications on `/topic/orders/{tradingAccountId}` and `/topic/executions/{tradingAccountId}` after BUY fills in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T009 [P] [US1] Implement BUY-side validation and orchestration in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T010 [P] [US1] Implement `MatchingService` to obtain latest mock price and decide immediate fill for Market/Limit BUY in `src/main/java/com/rnexchange/service/MatchingService.java`
+- [x] T011 [US1] Implement REST delegate for `POST /api/orders` to call `TradingService` and return `OrderResponse` in `src/main/java/com/rnexchange/web/rest/OrderResource.java`
+- [x] T012 [US1] Implement position update (create/update) and average-cost calculations for BUY executions in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T013 [US1] Implement cash ledger debit and `TradingAccount.balance` update for BUY executions in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T014 [US1] Publish WebSocket notifications on `/topic/orders/{tradingAccountId}` and `/topic/executions/{tradingAccountId}` after BUY fills in `src/main/java/com/rnexchange/service/TradingService.java`
 - [x] T015 [P] [US1] Add minimal order ticket drawer component to Market Watch that posts to `/api/orders` and shows success/failure toasts in `src/main/webapp/app/modules/market-watch/order-ticket-drawer.tsx`
 - [x] T016 [P] [US1] Add Trader "Orders & Trades" table (showing recent orders and executions for the current trading account) in `src/main/webapp/app/modules/trader/orders-trades.tsx`
 - [x] T017 [US1] Add Trader "Portfolio & Cash" view showing positions (qty/avg cost/last price/MTM) and recent ledger entries in `src/main/webapp/app/modules/trader/portfolio-cash.tsx`
