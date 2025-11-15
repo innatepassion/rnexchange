@@ -6,19 +6,24 @@
   "dto": "mapstruct",
   "fields": [
     {
-      "fieldName": "ts",
+      "fieldName": "createdAt",
       "fieldType": "Instant",
       "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
-      "fieldType": "String",
-      "fieldValidateRules": ["required"]
+      "fieldType": "LedgerEntryType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "DEBIT,CREDIT"
     },
     {
       "fieldName": "amount",
       "fieldType": "BigDecimal",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "fee",
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "ccy",
@@ -29,6 +34,10 @@
     {
       "fieldName": "balanceAfter",
       "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
     },
     {
       "fieldName": "reference",

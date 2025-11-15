@@ -1,0 +1,53 @@
+{
+  "annotations": {
+    "changelogDate": "20251112125309"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "instrumentSymbol",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "contractType",
+      "fieldType": "ContractType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "FUTURE,OPTION"
+    },
+    {
+      "fieldName": "expiry",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "strike",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "optionType",
+      "fieldType": "OptionType",
+      "fieldValues": "CE,PE"
+    },
+    {
+      "fieldName": "segment",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "Contract",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "symbol",
+      "otherEntityName": "instrument",
+      "relationshipName": "instrument",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

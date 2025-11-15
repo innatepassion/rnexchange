@@ -1,6 +1,7 @@
 package com.rnexchange.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.rnexchange.domain.enumeration.OrderSide;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -28,6 +29,11 @@ public class Execution implements Serializable {
     private Instant execTs;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "side", nullable = false)
+    private OrderSide side;
+
+    @NotNull
     @Column(name = "px", precision = 21, scale = 2, nullable = false)
     private BigDecimal px;
 
@@ -44,6 +50,14 @@ public class Execution implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "tradingAccount", "instrument" }, allowSetters = true)
     private Order order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "broker", "trader" }, allowSetters = true)
+    private TradingAccount tradingAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "exchange" }, allowSetters = true)
+    private Instrument instrument;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -71,6 +85,19 @@ public class Execution implements Serializable {
 
     public void setExecTs(Instant execTs) {
         this.execTs = execTs;
+    }
+
+    public OrderSide getSide() {
+        return this.side;
+    }
+
+    public Execution side(OrderSide side) {
+        this.setSide(side);
+        return this;
+    }
+
+    public void setSide(OrderSide side) {
+        this.side = side;
     }
 
     public BigDecimal getPx() {
@@ -138,6 +165,32 @@ public class Execution implements Serializable {
         return this;
     }
 
+    public TradingAccount getTradingAccount() {
+        return this.tradingAccount;
+    }
+
+    public void setTradingAccount(TradingAccount tradingAccount) {
+        this.tradingAccount = tradingAccount;
+    }
+
+    public Execution tradingAccount(TradingAccount tradingAccount) {
+        this.setTradingAccount(tradingAccount);
+        return this;
+    }
+
+    public Instrument getInstrument() {
+        return this.instrument;
+    }
+
+    public void setInstrument(Instrument instrument) {
+        this.instrument = instrument;
+    }
+
+    public Execution instrument(Instrument instrument) {
+        this.setInstrument(instrument);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -163,6 +216,7 @@ public class Execution implements Serializable {
         return "Execution{" +
             "id=" + getId() +
             ", execTs='" + getExecTs() + "'" +
+            ", side='" + getSide() + "'" +
             ", px=" + getPx() +
             ", qty=" + getQty() +
             ", liquidity='" + getLiquidity() + "'" +

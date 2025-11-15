@@ -2,6 +2,7 @@ package com.rnexchange.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.rnexchange.domain.enumeration.Currency;
+import com.rnexchange.domain.enumeration.LedgerEntryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -25,16 +26,20 @@ public class LedgerEntry implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "ts", nullable = false)
-    private Instant ts;
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private String type;
+    private LedgerEntryType type;
 
     @NotNull
     @Column(name = "amount", precision = 21, scale = 2, nullable = false)
     private BigDecimal amount;
+
+    @Column(name = "fee", precision = 21, scale = 2)
+    private BigDecimal fee;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -43,6 +48,9 @@ public class LedgerEntry implements Serializable {
 
     @Column(name = "balance_after", precision = 21, scale = 2)
     private BigDecimal balanceAfter;
+
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "reference")
     private String reference;
@@ -69,29 +77,29 @@ public class LedgerEntry implements Serializable {
         this.id = id;
     }
 
-    public Instant getTs() {
-        return this.ts;
+    public Instant getCreatedAt() {
+        return this.createdAt;
     }
 
-    public LedgerEntry ts(Instant ts) {
-        this.setTs(ts);
+    public LedgerEntry createdAt(Instant createdAt) {
+        this.setCreatedAt(createdAt);
         return this;
     }
 
-    public void setTs(Instant ts) {
-        this.ts = ts;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public String getType() {
+    public LedgerEntryType getType() {
         return this.type;
     }
 
-    public LedgerEntry type(String type) {
+    public LedgerEntry type(LedgerEntryType type) {
         this.setType(type);
         return this;
     }
 
-    public void setType(String type) {
+    public void setType(LedgerEntryType type) {
         this.type = type;
     }
 
@@ -106,6 +114,19 @@ public class LedgerEntry implements Serializable {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public BigDecimal getFee() {
+        return this.fee;
+    }
+
+    public LedgerEntry fee(BigDecimal fee) {
+        this.setFee(fee);
+        return this;
+    }
+
+    public void setFee(BigDecimal fee) {
+        this.fee = fee;
     }
 
     public Currency getCcy() {
@@ -132,6 +153,19 @@ public class LedgerEntry implements Serializable {
 
     public void setBalanceAfter(BigDecimal balanceAfter) {
         this.balanceAfter = balanceAfter;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public LedgerEntry description(String description) {
+        this.setDescription(description);
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getReference() {
@@ -197,11 +231,13 @@ public class LedgerEntry implements Serializable {
     public String toString() {
         return "LedgerEntry{" +
             "id=" + getId() +
-            ", ts='" + getTs() + "'" +
+            ", createdAt='" + getCreatedAt() + "'" +
             ", type='" + getType() + "'" +
             ", amount=" + getAmount() +
+            ", fee=" + getFee() +
             ", ccy='" + getCcy() + "'" +
             ", balanceAfter=" + getBalanceAfter() +
+            ", description='" + getDescription() + "'" +
             ", reference='" + getReference() + "'" +
             ", remarks='" + getRemarks() + "'" +
             "}";

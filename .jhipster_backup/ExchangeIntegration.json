@@ -1,0 +1,46 @@
+{
+  "annotations": {
+    "changelogDate": "20251112124709"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "provider",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "apiKey",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "apiSecret",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "IntegrationStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "DISABLED,ENABLED"
+    },
+    {
+      "fieldName": "lastHeartbeat",
+      "fieldType": "Instant"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "ExchangeIntegration",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "code",
+      "otherEntityName": "exchange",
+      "relationshipName": "exchange",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

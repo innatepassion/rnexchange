@@ -44,6 +44,10 @@
       "fieldValues": "NEW,ACCEPTED,WORKING,PARTIAL,FILLED,CANCELED,REJECTED"
     },
     {
+      "fieldName": "rejectionReason",
+      "fieldType": "String"
+    },
+    {
       "fieldName": "venue",
       "fieldType": "String",
       "fieldValidateRules": ["required"]

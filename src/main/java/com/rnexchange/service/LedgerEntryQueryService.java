@@ -74,11 +74,13 @@ public class LedgerEntryQueryService extends QueryService<LedgerEntry> {
             specification = Specification.allOf(
                 Boolean.TRUE.equals(criteria.getDistinct()) ? distinct(criteria.getDistinct()) : null,
                 buildRangeSpecification(criteria.getId(), LedgerEntry_.id),
-                buildRangeSpecification(criteria.getTs(), LedgerEntry_.ts),
-                buildStringSpecification(criteria.getType(), LedgerEntry_.type),
+                buildRangeSpecification(criteria.getCreatedAt(), LedgerEntry_.createdAt),
+                buildSpecification(criteria.getType(), LedgerEntry_.type),
                 buildRangeSpecification(criteria.getAmount(), LedgerEntry_.amount),
+                buildRangeSpecification(criteria.getFee(), LedgerEntry_.fee),
                 buildSpecification(criteria.getCcy(), LedgerEntry_.ccy),
                 buildRangeSpecification(criteria.getBalanceAfter(), LedgerEntry_.balanceAfter),
+                buildStringSpecification(criteria.getDescription(), LedgerEntry_.description),
                 buildStringSpecification(criteria.getReference(), LedgerEntry_.reference),
                 buildStringSpecification(criteria.getRemarks(), LedgerEntry_.remarks),
                 buildSpecification(criteria.getTradingAccountId(), root ->

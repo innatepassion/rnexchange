@@ -75,11 +75,16 @@ public class ExecutionQueryService extends QueryService<Execution> {
                 Boolean.TRUE.equals(criteria.getDistinct()) ? distinct(criteria.getDistinct()) : null,
                 buildRangeSpecification(criteria.getId(), Execution_.id),
                 buildRangeSpecification(criteria.getExecTs(), Execution_.execTs),
+                buildSpecification(criteria.getSide(), Execution_.side),
                 buildRangeSpecification(criteria.getPx(), Execution_.px),
                 buildRangeSpecification(criteria.getQty(), Execution_.qty),
                 buildStringSpecification(criteria.getLiquidity(), Execution_.liquidity),
                 buildRangeSpecification(criteria.getFee(), Execution_.fee),
-                buildSpecification(criteria.getOrderId(), root -> root.join(Execution_.order, JoinType.LEFT).get(Order_.id))
+                buildSpecification(criteria.getOrderId(), root -> root.join(Execution_.order, JoinType.LEFT).get(Order_.id)),
+                buildSpecification(criteria.getTradingAccountId(), root ->
+                    root.join(Execution_.tradingAccount, JoinType.LEFT).get(TradingAccount_.id)
+                ),
+                buildSpecification(criteria.getInstrumentId(), root -> root.join(Execution_.instrument, JoinType.LEFT).get(Instrument_.id))
             );
         }
         return specification;

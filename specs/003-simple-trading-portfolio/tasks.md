@@ -27,13 +27,13 @@
 
 **⚠️ CRITICAL**: No user story work should begin until this phase is complete.
 
-- [ ] T002 Define `Order`, `Execution`, `Position`, and `LedgerEntry` entities in `rnexchange.jdl`, and verify they align with the Key Entities section of `specs/003-simple-trading-portfolio/spec.md` and the detailed models in `specs/003-simple-trading-portfolio/data-model.md`
-- [ ] T003 Regenerate JHipster entities and Liquibase changelogs from updated JDL in `rnexchange.jdl` and `src/main/resources/config/liquibase/`, confirming schema matches the spec and `data-model.md`
-- [ ] T004 [P] Merge minimal order/portfolio endpoints from `specs/003-simple-trading-portfolio/contracts/orders-and-portfolio.openapi.yaml` into `src/main/resources/swagger/api.yml`
-- [ ] T005 [P] Run OpenAPI-driven code generation (`./mvnw generate-sources`) and verify new REST stubs exist in `src/main/java/com/rnexchange/web/rest/`
-- [ ] T006 Ensure repositories for new entities (order, execution, position, ledger) exist and are wired to JPA in `src/main/java/com/rnexchange/repository/`
-- [ ] T030 Ensure CASH `TradingAccount` and tradable `Instrument` seed and test data exist for this feature (or are created if missing) in Liquibase changelogs and test fixtures so that FR-001 is satisfied
-- [ ] T031 [P] Add contract tests for the new order and portfolio-related REST endpoints based on `src/main/resources/swagger/api.yml` in appropriate `*ResourceIT`/contract test classes under `src/test/java/com/rnexchange/web/rest/`
+- [x] T002 Define `Order`, `Execution`, `Position`, and `LedgerEntry` entities in `rnexchange.jdl`, and verify they align with the Key Entities section of `specs/003-simple-trading-portfolio/spec.md` and the detailed models in `specs/003-simple-trading-portfolio/data-model.md`
+- [x] T003 Regenerate JHipster entities and Liquibase changelogs from updated JDL in `rnexchange.jdl` and `src/main/resources/config/liquibase/`, confirming schema matches the spec and `data-model.md`
+- [x] T004 [P] Merge minimal order/portfolio endpoints from `specs/003-simple-trading-portfolio/contracts/orders-and-portfolio.openapi.yaml` into `src/main/resources/swagger/api.yml`
+- [x] T005 [P] Run OpenAPI-driven code generation (`./mvnw generate-sources`) and verify new REST stubs exist in `src/main/java/com/rnexchange/web/rest/`
+- [x] T006 Ensure repositories for new entities (order, execution, position, ledger) exist and are wired to JPA in `src/main/java/com/rnexchange/repository/`
+- [x] T030 Ensure CASH `TradingAccount` and tradable `Instrument` seed and test data exist for this feature (or are created if missing) in Liquibase changelogs and test fixtures so that FR-001 is satisfied
+- [x] T031 [P] Add contract tests for the new order and portfolio-related REST endpoints based on `src/main/resources/swagger/api.yml` in appropriate `*ResourceIT`/contract test classes under `src/test/java/com/rnexchange/web/rest/`
 
 **Checkpoint**: Domain entities, DB schema, and basic API contracts ready; user story implementation can now begin.
 

@@ -35,6 +35,9 @@
             <column name="status" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="rejection_reason" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="venue" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -80,6 +83,7 @@
             <column name="stop_px" type="numeric"/>
             <column name="tif" type="string"/>
             <column name="status" type="string"/>
+            <column name="rejection_reason" type="string"/>
             <column name="venue" type="string"/>
             <column name="created_at" type="date"/>
             <column name="updated_at" type="date"/>
