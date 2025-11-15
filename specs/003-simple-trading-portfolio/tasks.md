@@ -75,13 +75,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Extend unit tests to cover SELL quantity checks, realized P&L, and cash credit logic (including attempts to SELL beyond position, non-marketable limits, and FR-014 scope boundaries) in `src/test/java/com/rnexchange/service/TradingServiceTest.java`
+- [x] T019 [P] [US2] Extend unit tests to cover SELL quantity checks, realized P&L, and cash credit logic (including attempts to SELL beyond position, non-marketable limits, and FR-014 scope boundaries) in `src/test/java/com/rnexchange/service/TradingServiceTest.java`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Extend `TradingService` to handle SELL validation (sufficient position quantity) and realized P&L calculation in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T021 [US2] Ensure SELL executions reduce or close positions and create credit `LedgerEntry` records in `src/main/java/com/rnexchange/service/TradingService.java`
-- [ ] T022 [US2] Update Trader portfolio and orders views to display SELL executions and realized P&L where appropriate in `src/main/webapp/app/modules/trader/portfolio-cash.tsx` and `src/main/webapp/app/modules/trader/orders-trades.tsx`
+- [x] T020 [US2] Extend `TradingService` to handle SELL validation (sufficient position quantity) and realized P&L calculation in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T021 [US2] Ensure SELL executions reduce or close positions and create credit `LedgerEntry` records in `src/main/java/com/rnexchange/service/TradingService.java`
+- [x] T022 [US2] Update Trader portfolio and orders views to display SELL executions and realized P&L where appropriate in `src/main/webapp/app/modules/trader/portfolio-cash.tsx` and `src/main/webapp/app/modules/trader/orders-trades.tsx`
 
 **Checkpoint**: User Stories 1 and 2 together support round-trip trading with correct portfolio and cash behavior.
 

@@ -16,6 +16,7 @@ import com.rnexchange.service.criteria.OrderCriteria;
 import com.rnexchange.service.dto.OrderDTO;
 import com.rnexchange.service.dto.TraderOrderRequest;
 import com.rnexchange.service.dto.TraderOrderResult;
+import com.rnexchange.service.mapper.OrderMapper;
 import com.rnexchange.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -64,13 +65,16 @@ public class OrderResource {
 
     private final InstrumentRepository instrumentRepository;
 
+    private final OrderMapper orderMapper;
+
     public OrderResource(
         OrderService orderService,
         OrderRepository orderRepository,
         OrderQueryService orderQueryService,
         TradingService tradingService,
         TradingAccountRepository tradingAccountRepository,
-        InstrumentRepository instrumentRepository
+        InstrumentRepository instrumentRepository,
+        OrderMapper orderMapper
     ) {
         this.orderService = orderService;
         this.orderRepository = orderRepository;
@@ -78,6 +82,7 @@ public class OrderResource {
         this.tradingService = tradingService;
         this.tradingAccountRepository = tradingAccountRepository;
         this.instrumentRepository = instrumentRepository;
+        this.orderMapper = orderMapper;
     }
 
     /**

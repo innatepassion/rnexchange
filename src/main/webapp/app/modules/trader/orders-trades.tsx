@@ -130,6 +130,10 @@ const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId }) => {
     return dayjs(dateStr).format('DD/MM/YY HH:mm:ss');
   };
 
+  const getSideColor = (side: 'BUY' | 'SELL') => {
+    return side === 'BUY' ? 'success' : 'danger';
+  };
+
   if (isLoading) {
     return (
       <div className="text-center py-4">
@@ -158,24 +162,42 @@ const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId }) => {
             <th>Qty</th>
             <th>Price</th>
             <th>Status</th>
+            <th>Details</th>
           </tr>
         </thead>
         <tbody>
-          {trades.map(trade => (
-            <tr key={trade.id} data-testid={`trade-row-${trade.id}`}>
-              <td>{formatDate(trade.createdAt || trade.executedAt)}</td>
-              <td>{trade.symbol || '—'}</td>
-              <td>
-                <Badge color={trade.side === 'BUY' ? 'success' : 'danger'}>{trade.side}</Badge>
-              </td>
-              <td>{trade.type || '—'}</td>
-              <td>{trade.quantity}</td>
-              <td>{formatPrice(trade.price)}</td>
-              <td>
-                <Badge color={getStatusBadgeColor(trade.status)}>{trade.status}</Badge>
-              </td>
-            </tr>
-          ))}
+          {trades.map(trade => {
+            const isSell = trade.side === 'SELL';
+            const isExecution = trade.executionId !== undefined;
+            return (
+              <tr key={trade.id} data-testid={`trade-row-${trade.id}`} className={isSell ? 'table-light' : ''}>
+                <td>{formatDate(trade.createdAt || trade.executedAt)}</td>
+                <td>
+                  <strong>{trade.symbol || '—'}</strong>
+                </td>
+                <td>
+                  <Badge color={getSideColor(trade.side)} className="fw-bold">
+                    {trade.side}
+                  </Badge>
+                </td>
+                <td>{trade.type || '—'}</td>
+                <td>{trade.quantity}</td>
+                <td>{formatPrice(trade.price)}</td>
+                <td>
+                  <Badge color={getStatusBadgeColor(trade.status)}>{trade.status}</Badge>
+                </td>
+                <td className="small">
+                  {isExecution && (
+                    <>
+                      <span>Exec #{trade.executionId}</span>
+                      {isSell && <span className="ms-2 badge bg-warning text-dark">REALIZED P&L</span>}
+                    </>
+                  )}
+                  {!isExecution && trade.orderId && <span>Order #{trade.orderId}</span>}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </div>

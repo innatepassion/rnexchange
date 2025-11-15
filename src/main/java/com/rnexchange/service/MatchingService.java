@@ -101,7 +101,7 @@ public class MatchingService {
             return Optional.empty();
         }
 
-        BigDecimal price = marketPrice.get();
+        BigDecimal price = marketPrice.orElseThrow();
 
         if (isBuyOrder) {
             // BUY limit: fills if market price <= limit price
@@ -131,7 +131,7 @@ public class MatchingService {
      * @return true if instrument is tradable, false otherwise
      */
     public boolean isInstrumentTradable(Instrument instrument) {
-        if (instrument == null || !instrument.isStatus()) {
+        if (instrument == null || !"ACTIVE".equals(instrument.getStatus())) {
             return false;
         }
 

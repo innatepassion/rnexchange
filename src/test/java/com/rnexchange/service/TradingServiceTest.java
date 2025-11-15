@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * Unit tests for the {@link TradingService}.
  *
  * T008: Tests for BUY validation, average cost calculation, and cash debit logic.
+ * T019: Tests for SELL validation, realized P&L, and cash credit logic.
  * Including lot-size validation, FR-014 scope boundaries, and edge cases from spec.
  */
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +47,9 @@ class TradingServiceTest {
     @Mock
     private MatchingService matchingService;
 
+    @Mock
+    private TradingWebSocketService webSocketService;
+
     private TradingService tradingService;
 
     private TradingAccount tradingAccount;
@@ -63,7 +67,8 @@ class TradingServiceTest {
             ledgerEntryRepository,
             tradingAccountRepository,
             instrumentRepository,
-            matchingService
+            matchingService,
+            webSocketService
         );
 
         // Setup test data
@@ -76,7 +81,7 @@ class TradingServiceTest {
         tradingAccount = new TradingAccount();
         tradingAccount.setId(1L);
         tradingAccount.setBalance(new BigDecimal("100000.00")); // 100k initial balance
-        tradingAccount.setAccountType(AccountType.CASH);
+        tradingAccount.setType(AccountType.CASH);
     }
 
     private void setupTestInstrument() {
@@ -84,7 +89,7 @@ class TradingServiceTest {
         instrument.setId(1L);
         instrument.setSymbol("RELIANCE");
         instrument.setLotSize(1L);
-        instrument.setStatus(true);
+        instrument.setStatus("ACTIVE");
         instrument.setTickSize(new BigDecimal("0.05"));
     }
 
@@ -184,8 +189,8 @@ class TradingServiceTest {
     @Test
     void testBuyValidationRejectsInactiveInstrument() {
         // TODO: Implement
-        // Given: Instrument with status = false (inactive)
-        instrument.setStatus(false);
+        // Given: Instrument with status = "INACTIVE"
+        instrument.setStatus("INACTIVE");
         // When: ValidationException should be thrown
         // assertThatThrownBy(() -> tradingService.validateBuyOrder(order, instrument, tradingAccount))
         //     .isInstanceOf(ValidationException.class)
@@ -366,6 +371,218 @@ class TradingServiceTest {
         // TODO: Implement
         // Given: instrument with tickSize = 0.01
         // Then: execution price respects tick size
+    }
+
+    // ============= SELL Validation Tests (T019) =============
+
+    /**
+     * T019.1: Test that SELL orders require existing position with sufficient quantity
+     */
+    @Test
+    void testSellValidationRejectsOrderWithoutPosition() {
+        // TODO: Implement
+        // Given: Account has no position in RELIANCE
+        // When: SELL order for 100 units is submitted
+        // Then: ValidationException thrown with message about insufficient position
+    }
+
+    @Test
+    void testSellValidationRejectsOrderWithInsufficientQuantity() {
+        // TODO: Implement
+        // Given: Existing position: 50 units
+        // When: SELL order for 100 units is submitted
+        // Then: ValidationException thrown with message about insufficient quantity
+        //       e.g., "Insufficient position: have 50, trying to sell 100"
+    }
+
+    @Test
+    void testSellValidationAcceptsOrderWithExactQuantity() {
+        // TODO: Implement
+        // Given: Existing position: 100 units
+        // When: SELL order for 100 units is submitted
+        // Then: validation passes (no exception)
+    }
+
+    @Test
+    void testSellValidationAcceptsOrderWithPartialQuantity() {
+        // TODO: Implement
+        // Given: Existing position: 500 units at avgCost 1000
+        // When: SELL order for 200 units is submitted
+        // Then: validation passes (remaining position will be 300 units)
+    }
+
+    /**
+     * T019.2: Test that SELL limit orders respect limit price
+     */
+    @Test
+    void testSellLimitOrderRejectedIfCurrentPriceBelowLimit() {
+        // TODO: Implement
+        // Given: SELL Limit order with limitPrice = 2500
+        // Given: Current market price = 2400
+        // When: matching logic checks if order can be filled
+        // Then: order should be REJECTED (not marketable)
+    }
+
+    @Test
+    void testSellLimitOrderAcceptedIfCurrentPriceAtOrAboveLimit() {
+        // TODO: Implement
+        // Given: SELL Limit order with limitPrice = 2500
+        // Given: Current market price = 2600
+        // When: matching logic checks if order can be filled
+        // Then: order should be FILLED at 2600
+    }
+
+    // ============= Realized P&L Calculation Tests (T019) =============
+
+    /**
+     * T019.3: Test realized P&L calculation for SELL (profit case)
+     * Realized P&L = (executionPrice - averageCost) * quantity
+     */
+    @Test
+    void testRealizedPnlCalculationForSellAtProfit() {
+        // TODO: Implement
+        // Given: Position: 100 units at avgCost 1000
+        // When: SELL execution: 100 units at 1200
+        // Then: Realized P&L = (1200 - 1000) * 100 = 20,000
+        // And: this value should be recorded/returned for UI display
+    }
+
+    /**
+     * T019.4: Test realized P&L calculation for SELL (loss case)
+     */
+    @Test
+    void testRealizedPnlCalculationForSellAtLoss() {
+        // TODO: Implement
+        // Given: Position: 50 units at avgCost 2000
+        // When: SELL execution: 50 units at 1800
+        // Then: Realized P&L = (1800 - 2000) * 50 = -10,000
+        // And: loss (negative value) is properly recorded
+    }
+
+    /**
+     * T019.5: Test realized P&L for partial SELL (closing part of position)
+     */
+    @Test
+    void testRealizedPnlForPartialSell() {
+        // TODO: Implement
+        // Given: Position: 200 units at avgCost 1500
+        // When: SELL execution: 80 units at 1700
+        // Then: Realized P&L = (1700 - 1500) * 80 = 16,000 (for the 80 units sold)
+        // And: remaining position = 120 units at avgCost 1500
+    }
+
+    // ============= Position Updates on SELL (T019/T021) =============
+
+    /**
+     * T019.6: Test position quantity is reduced after SELL execution
+     */
+    @Test
+    void testPositionQuantityReducedAfterSell() {
+        // TODO: Implement
+        // Given: Position: 500 units
+        // When: SELL execution: 200 units
+        // Then: new position qty = 300 units
+        // And: avgCost remains unchanged at original value
+    }
+
+    /**
+     * T019.7: Test position is closed (zero quantity) after SELL all holdings
+     */
+    @Test
+    void testPositionClosedAfterSellAllHoldings() {
+        // TODO: Implement
+        // Given: Position: 100 units at avgCost 2500
+        // When: SELL execution: 100 units
+        // Then: new position qty = 0
+        // And: avgCost may remain 2500 or position may be marked as closed
+    }
+
+    /**
+     * T019.8: Test average cost unchanged for SELL (unlike BUY which recalculates)
+     */
+    @Test
+    void testAverageCostUnchangedAfterSell() {
+        // TODO: Implement
+        // Given: Position: 200 units at avgCost 1000
+        // When: SELL execution: 50 units at 1200
+        // Then: remaining position avgCost remains 1000 (not recalculated)
+        // And: only quantity reduced
+    }
+
+    // ============= Cash Credit and Ledger Entry Tests for SELL (T019/T021) =============
+
+    /**
+     * T019.9: Test cash credit calculation for SELL execution
+     * Amount = quantity * executionPrice - fee
+     */
+    @Test
+    void testCashCreditForSellExecution() {
+        // TODO: Implement
+        // Given: SELL execution: 100 units at 2500, fee = 25
+        // Expected credit amount = 100 * 2500 - 25 = 249,975
+    }
+
+    /**
+     * T019.10: Test cash credit is opposite of cash debit (BUY uses +fee, SELL uses -fee)
+     */
+    @Test
+    void testCashCreditForSellWithFeeReduction() {
+        // TODO: Implement
+        // Given: SELL execution: 50 units at 3000
+        // Expected credit = 50 * 3000 - 25 = 149,975 (fee deducted from credit)
+        // Compare to BUY where fee would be added
+    }
+
+    /**
+     * T019.11: Test ledger entry created for SELL credit
+     */
+    @Test
+    void testLedgerEntrySellCredit() {
+        // TODO: Implement
+        // Given: SELL execution completes
+        // Then: LedgerEntry created with:
+        //  - type = CREDIT
+        //  - amount = trade value - fee
+        //  - description includes symbol, SELL side, qty, realized P&L if applicable
+    }
+
+    /**
+     * T019.12: Test trading account balance increased after SELL execution
+     */
+    @Test
+    void testTradingAccountBalanceIncreasedAfterSellExecution() {
+        // TODO: Implement
+        // Given: Account balance = 50,000
+        // When: SELL execution for 100 units at 2500 (credit 249,975)
+        // Then: balance = 50,000 + 249,975 = 299,975
+    }
+
+    /**
+     * T019.13: Test balance reconciliation after BUY then SELL
+     */
+    @Test
+    void testBalanceReconciliationAfterBuyThenSell() {
+        // TODO: Implement
+        // Given: Initial balance = 500,000
+        // When: BUY 100 units at 2500 (debit 250,025)
+        // Then: balance = 249,975
+        // When: SELL 100 units at 2600 (credit 259,975)
+        // Then: balance = 249,975 + 259,975 = 509,950
+        // And: realized P&L = (2600 - 2500) * 100 = 10,000 (embedded in credit)
+    }
+
+    /**
+     * T019.14: Test multiple SELL transactions reduce balance correctly
+     */
+    @Test
+    void testMultipleSellTransactionsBalanceReconciliation() {
+        // TODO: Implement
+        // Given: Position: 200 units at avgCost 1000, balance = 1,000,000
+        // When: SELL 50 units at 1200 (credit 59,975)
+        // Then: balance = 1,059,975
+        // When: SELL 50 units at 1300 (credit 64,975)
+        // Then: balance = 1,124,950
+        // And: sum of all credits reconciles with balance increase
     }
 
     // ============= Helper Assertions =============

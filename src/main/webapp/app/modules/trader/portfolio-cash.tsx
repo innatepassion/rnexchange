@@ -71,6 +71,14 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
     return value > 0 ? '↑' : value < 0 ? '↓' : '→';
   };
 
+  const formatPnL = (value?: number) => {
+    if (value === undefined || value === null) return '—';
+    const formatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(
+      Math.abs(value),
+    );
+    return value > 0 ? `+${formatted}` : value < 0 ? `-${formatted}` : formatted;
+  };
+
   if (isLoading) {
     return (
       <div className="text-center py-4">
@@ -133,8 +141,9 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
                   <th>Qty</th>
                   <th>Avg Cost</th>
                   <th>Last Price</th>
-                  <th>MTM P&L</th>
+                  <th>MTM P&L (Unrealized)</th>
                   <th>MTM %</th>
+                  <th>Realized P&L</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,14 +160,17 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
                       <td>{formatPrice(pos.avgCost)}</td>
                       <td>{formatPrice(pos.lastPx)}</td>
                       <td>
-                        <span className={getTrendClass(pos.mtm)}>
-                          {getTrendIndicator(pos.mtm)} {formatCurrency(pos.mtm)}
+                        <span className={getTrendClass(pos.unrealizedPnl)}>
+                          {getTrendIndicator(pos.unrealizedPnl)} {formatCurrency(pos.unrealizedPnl)}
                         </span>
                       </td>
                       <td>
                         <span className={getTrendClass(mtmPercent)}>
                           {getTrendIndicator(mtmPercent)} {mtmPercent.toFixed(2)}%
                         </span>
+                      </td>
+                      <td>
+                        <span className={getTrendClass(pos.realizedPnl)}>{pos.realizedPnl ? formatPnL(pos.realizedPnl) : '—'}</span>
                       </td>
                     </tr>
                   );
@@ -170,7 +182,7 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
       </Card>
 
       {/* Recent Ledger Entries */}
-      <Card>
+      <Card className="mb-4">
         <CardHeader>
           <h5 className="mb-0">Recent Transactions</h5>
         </CardHeader>
@@ -191,22 +203,30 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
                 </tr>
               </thead>
               <tbody>
-                {ledgerEntries.slice(0, 15).map(entry => (
-                  <tr key={entry.id} data-testid={`ledger-row-${entry.id}`}>
-                    <td>{formatDate(entry.createdAt)}</td>
-                    <td>
-                      <Badge color={entry.type === 'DEBIT' ? 'danger' : 'success'}>{entry.type}</Badge>
-                    </td>
-                    <td>
-                      <span className={entry.type === 'DEBIT' ? 'text-danger' : 'text-success'}>
-                        {entry.type === 'DEBIT' ? '-' : '+'}
-                        {formatCurrency(entry.amount)}
-                      </span>
-                    </td>
-                    <td>{entry.fee ? formatCurrency(entry.fee) : '—'}</td>
-                    <td className="small">{entry.description || '—'}</td>
-                  </tr>
-                ))}
+                {ledgerEntries.slice(0, 15).map(entry => {
+                  const isSell = entry.description && entry.description.toUpperCase().includes('SELL');
+                  return (
+                    <tr key={entry.id} data-testid={`ledger-row-${entry.id}`} className={isSell ? 'table-warning' : ''}>
+                      <td>{formatDate(entry.createdAt)}</td>
+                      <td>
+                        <Badge color={entry.type === 'DEBIT' ? 'danger' : entry.type === 'CREDIT' ? 'success' : 'secondary'}>
+                          {entry.type}
+                        </Badge>
+                      </td>
+                      <td>
+                        <span className={entry.type === 'DEBIT' ? 'text-danger' : entry.type === 'CREDIT' ? 'text-success' : ''}>
+                          {entry.type === 'DEBIT' ? '-' : entry.type === 'CREDIT' ? '+' : ''}
+                          {formatCurrency(entry.amount)}
+                        </span>
+                      </td>
+                      <td>{entry.fee ? formatCurrency(entry.fee) : '—'}</td>
+                      <td className="small">
+                        {entry.description || '—'}
+                        {isSell && <span className="ms-2 badge bg-info">SELL</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </Table>
           )}
@@ -218,9 +238,24 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
           <strong>⚠️ Simulated Environment:</strong> This is a training-only environment. Prices and portfolio values are based on mock data
           and do not represent real market conditions.
         </p>
+        <p className="mb-2">
+          <strong>📊 Understanding Your Portfolio:</strong>
+        </p>
+        <ul className="mb-2">
+          <li>
+            <strong>Unrealized P&L (MTM):</strong> Your profit/loss on open positions, calculated at the current market price.
+          </li>
+          <li>
+            <strong>Realized P&L:</strong> Your actual profit/loss when you sell a position (SELL transactions credit your account with
+            profits).
+          </li>
+          <li>
+            <strong>Average Cost:</strong> The weighted average price of all shares in a position, used to calculate your profit/loss.
+          </li>
+        </ul>
         <p className="mb-0">
-          <strong>Mark-to-Market (MTM):</strong> Unrealized profit/loss calculated at the last quoted price. Realized P&L is settled when
-          positions are closed.
+          <strong>💡 Tip:</strong> When you SELL, look for the SELL badge in the Recent Transactions table to see the credit to your
+          account, and check the Realized P&L column to see your profit or loss.
         </p>
       </div>
     </div>
