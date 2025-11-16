@@ -282,3 +282,17 @@ dto * with mapstruct
 service * with serviceClass
 paginate * with pagination
 filter *
+
+/* ===== M3 Broker Back Office — Idempotency (Phase 2) ===== */
+entity IdempotencyToken {
+  createdAt Instant required
+  token String required maxlength(128)
+}
+
+relationship ManyToOne {
+  IdempotencyToken{broker(code)} to Broker
+  IdempotencyToken{tradingAccount} to TradingAccount
+  IdempotencyToken{ledgerEntry} to LedgerEntry
+}
+
+paginate IdempotencyToken with pagination

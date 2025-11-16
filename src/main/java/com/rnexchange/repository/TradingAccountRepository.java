@@ -43,4 +43,11 @@ public interface TradingAccountRepository extends JpaRepository<TradingAccount, 
     Optional<TradingAccount> findOneWithToOneRelationships(@Param("id") Long id);
 
     Optional<TradingAccount> findFirstByTrader_User_LoginOrderByIdAsc(String login);
+
+    /**
+     * Phase 2 (T008): Broker-scoped queries
+     */
+    Page<TradingAccount> findByBroker_Id(@Param("brokerId") Long brokerId, Pageable pageable);
+
+    Optional<TradingAccount> findByIdAndBroker_Id(@Param("id") Long id, @Param("brokerId") Long brokerId);
 }

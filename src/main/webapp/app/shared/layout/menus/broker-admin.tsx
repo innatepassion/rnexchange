@@ -7,9 +7,9 @@ import { NavDropdown } from './menu-components';
 
 export const BrokerAdminMenu = () => (
   <NavDropdown icon={faBriefcase} name="Back Office" id="broker-admin-menu" data-cy="brokerAdminMenu">
-    <DropdownItem tag={Link} to="/broker-admin">
+    <DropdownItem tag={Link} to="/broker/dashboard">
       <FontAwesomeIcon icon={faChartBar} className="me-2" />
-      Broker Portfolio
+      Broker Dashboard
     </DropdownItem>
   </NavDropdown>
 );

@@ -11,31 +11,31 @@
 
 ## Phase 2 — Foundational
 
-- [ ] T007 Implement broker scoping helper in `src/main/java/com/rnexchange/service/broker/BrokerScopeService.java`
-- [ ] T008 [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/TradingAccountRepository.java`
-- [ ] T008a [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/TraderProfileRepository.java`
-- [ ] T008b [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/PositionRepository.java`
-- [ ] T008c [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/LedgerEntryRepository.java`
-- [ ] T009 Define DTOs for overview, traders, and journal in `src/main/java/com/rnexchange/service/dto/`
-- [ ] T010 Wire `@PreAuthorize('hasRole(\"BROKER_ADMIN\")')` on controllers in `src/main/java/com/rnexchange/web/rest/broker/BrokerOverviewResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerTradersResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerJournalResource.java`
+- [x] T007 Implement broker scoping helper in `src/main/java/com/rnexchange/service/broker/BrokerScopeService.java`
+- [x] T008 [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/TradingAccountRepository.java`
+- [x] T008a [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/TraderProfileRepository.java`
+- [x] T008b [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/PositionRepository.java`
+- [x] T008c [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/LedgerEntryRepository.java`
+- [x] T009 Define DTOs for overview, traders, and journal in `src/main/java/com/rnexchange/service/dto/`
+- [x] T010 Wire `@PreAuthorize('hasRole(\"BROKER_ADMIN\")')` on controllers in `src/main/java/com/rnexchange/web/rest/broker/BrokerOverviewResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerTradersResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerJournalResource.java`
 
 ### Foundational — Entity/JDL and DB
 
-- [ ] T035 Add `IdempotencyToken` entity to `rnexchange.jdl` (fields: brokerId, tradingAccountId, token, ledgerEntryId, createdAt)
+- [x] T035 Add `IdempotencyToken` entity to `rnexchange.jdl` (fields: brokerId, tradingAccountId, token, ledgerEntryId, createdAt)
 - [ ] T036 Regenerate entities from JDL (`./mvnw jhipster-jdl:import`) and commit generated mappers/repos
-- [ ] T037 Add Liquibase changelog `src/main/resources/db/changelog/2025-11-16T00-IdempotencyToken.xml`
+- [x] T037 Add Liquibase changelog `src/main/resources/db/changelog/2025-11-16T00-IdempotencyToken.xml`
 
 ## Phase 3 — User Story 1 (P1): Broker Dashboard
 
-- [ ] T038 [P] [US1] Contract test for GET `/api/broker/overview` in `src/test/java/com/rnexchange/contract/broker/BrokerOverviewContractTest.java`
-- [ ] T011 [US1] Implement overview service computing activeTraderCount, totalCash, totalEquityExposure, top utilization in `service/broker/BrokerOverviewService.java`
-- [ ] T012 [P] [US1] Add REST endpoint GET `/api/broker/overview` in `web/rest/broker/BrokerOverviewResource.java`
-- [ ] T013 [P] [US1] Compute utilization with ε=1.0 and exclude stale (>60s) prices in `service/broker/BrokerOverviewService.java`
-- [ ] T014 [US1] Frontend Dashboard page and cards in `webapp/app/modules/broker/dashboard/index.tsx`
-- [ ] T015 [P] [US1] Frontend service for overview API in `webapp/app/modules/broker/services/overview.service.ts`
-- [ ] T016 [US1] Add table for top utilization with rank and indicators in `webapp/app/modules/broker/dashboard/components/UtilizationTable.tsx`
-- [ ] T042 [US1] Backend integration test for RBAC and broker scoping in `src/test/java/com/rnexchange/integration/broker/BrokerOverviewIT.java`
-- [ ] T046 [P] [US1] Cypress E2E for dashboard overview in `src/test/javascript/cypress/e2e/broker_dashboard.cy.ts`
+- [x] T038 [P] [US1] Contract test for GET `/api/broker/overview` in `src/test/java/com/rnexchange/contract/broker/BrokerOverviewContractTest.java`
+- [x] T011 [US1] Implement overview service computing activeTraderCount, totalCash, totalEquityExposure, top utilization in `service/broker/BrokerOverviewService.java`
+- [x] T012 [P] [US1] Add REST endpoint GET `/api/broker/overview` in `web/rest/broker/BrokerOverviewResource.java`
+- [x] T013 [P] [US1] Compute utilization with ε=1.0 and exclude stale (>60s) prices in `service/broker/BrokerOverviewService.java`
+- [x] T014 [US1] Frontend Dashboard page and cards in `webapp/app/modules/broker/dashboard/index.tsx`
+- [x] T015 [P] [US1] Frontend service for overview API in `webapp/app/modules/broker/services/overview.service.ts`
+- [x] T016 [US1] Add table for top utilization with rank and indicators in `webapp/app/modules/broker/dashboard/components/UtilizationTable.tsx`
+- [x] T042 [US1] Backend integration test for RBAC and broker scoping in `src/test/java/com/rnexchange/integration/broker/BrokerOverviewIT.java`
+- [x] T046 [P] [US1] Cypress E2E for dashboard overview in `src/test/javascript/cypress/e2e/broker_dashboard.cy.ts`
 
 ## Phase 4 — User Story 2 (P1): Clients list and details
 
