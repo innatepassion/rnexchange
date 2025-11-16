@@ -22,7 +22,7 @@
 ### Foundational — Entity/JDL and DB
 
 - [x] T035 Add `IdempotencyToken` entity to `rnexchange.jdl` (fields: brokerId, tradingAccountId, token, ledgerEntryId, createdAt)
-- [ ] T036 Regenerate entities from JDL (`./mvnw jhipster-jdl:import`) and commit generated mappers/repos
+- [x] T036 Regenerate entities from JDL (`./mvnw jhipster-jdl:import`) and commit generated mappers/repos
 - [x] T037 Add Liquibase changelog `src/main/resources/db/changelog/2025-11-16T00-IdempotencyToken.xml`
 
 ## Phase 3 — User Story 1 (P1): Broker Dashboard
@@ -62,8 +62,8 @@
 - [x] T028 [US3] Frontend journal drawer form (credit/debit, amount, reason) in `webapp/app/modules/broker/clients/components/JournalForm.tsx`
 - [x] T029 [P] [US3] Frontend wire-up to refresh balances and recent ledger in `webapp/app/modules/broker/clients/index.tsx`
 - [x] T044 [US3] Backend integration test: journal updates balance and creates ledger in `src/test/java/com/rnexchange/integration/broker/BrokerJournalIT.java`
-- [ ] T045 [US3] Integration test (FR‑008): downstream trading/risk reflect updated balance in `src/test/java/com/rnexchange/integration/broker/BrokerDownstreamBalanceRespectIT.java`
-- [ ] T048 [P] [US3] Cypress E2E for journal flow in `src/test/javascript/cypress/e2e/broker_journal.cy.ts`
+- [x] T045 [US3] Integration test (FR‑008): downstream trading/risk reflect updated balance in `src/test/java/com/rnexchange/integration/broker/BrokerDownstreamBalanceRespectIT.java`
+- [x] T048 [P] [US3] Cypress E2E for journal flow in `src/test/javascript/cypress/e2e/broker_journal.cy.ts`
       **_ End Patch_**"`  `json
       {"error":"Invalid patch content"} `  `json
       {"note":"The previous error occurred due to extra formatting. Retrying with proper patch content."} ``` \*\*\* Begin Patch
