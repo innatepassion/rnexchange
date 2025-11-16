@@ -10,10 +10,12 @@
 ### Session 2025-11-16
 
 - Q: What utilization formula should the Broker Dashboard use for ranking risk? → A: Utilization = exposure / max(equity, ε), where equity = cash + unrealized P&L; clamp result to 0–100%.
+- Q: What exact ε value should be used in the utilization formula? → A: ε = 1.0 (currency units).
 - Q: How are “active traders” defined for dashboard counts? → A: Active = trader account status is “active”.
 - Q: Should journal debits be blocked if equity would go negative? → A: Allow negative equity (no floor) in M3.
 - Q: How should we prevent duplicate journal debits/credits on retries? → A: Require idempotency key per journal request.
 - Q: What price freshness is required for exposure calculation? → A: Require price ≤ 1 minute old.
+- Q: How should stale (>60s) prices be handled in exposure? → A: Exclude stale prices from exposure and mark the snapshot as stale.
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -76,6 +78,7 @@ A Broker Admin wants a simple way to credit or debit a trader’s simulated cash
 - Journal submission retries/timeouts: duplicate client retries with the same idempotency key must not produce multiple ledger entries; server should return the original result.
 - A journal is attempted with invalid input (e.g., negative amount, non-numeric amount, missing reason, or unsupported direction): the system should reject the request with a clear validation message and must not modify the trading account balance or ledger.
 - A Broker Admin without access to a given broker’s accounts attempts to view or journal against those accounts (e.g., via direct URL or crafted request): the system should deny access and not leak information about accounts owned by other brokers.
+- All instrument prices stale (>60s): exposure should compute as zero; utilization should reflect exposure=0, and the UI should display a “stale” indicator for affected account rows.
 
 ## Requirements _(mandatory)_
 
@@ -84,6 +87,8 @@ A Broker Admin wants a simple way to credit or debit a trader’s simulated cash
 - **FR-001**: The system MUST provide broker-scoped access for Broker Admins to retrieve a list of all traders associated with their broker, including trader identity, login, account status, current cash balance, and current P&L derived from existing M2 data.
 - **FR-002**: The system MUST provide a broker-level overview for a Broker Admin that summarizes, using current data, the total number of active traders under that broker (where “active” is defined as trader account status is “active”), total combined cash balance across their trading accounts, and a simple measure of total equity exposure based on open positions.
 - **FR-003**: The system MUST compute a simple risk snapshot for each trading account under a broker, including notional exposure (based on position quantity and last known price no older than 1 minute) and a utilization metric defined as: utilization = exposure / max(equity, ε), where equity = cash + unrealized P&L and ε is a small positive constant to avoid divide-by-zero; the value MUST be clamped to 0–100%. The dashboard MUST present a ranked list ordered by highest utilization.
+- Clarification (FR-003): Use ε = 1.0 (currency units) for the max(equity, ε) term.
+- Clarification (FR-003): Positions with last price older than 60s MUST be excluded from exposure; per-account snapshot SHOULD include a stale indicator if any position price was excluded for staleness.
 - **FR-004**: The system MUST restrict all Broker Back Office data access (trader lists, overview metrics, risk snapshots, journal operations) to the broker that is derived from the authenticated Broker Admin’s identity, without requiring the UI to specify a broker identifier.
 - **FR-005**: The system MUST allow a Broker Admin to create a funds journal entry for a selected trading account under their broker by specifying an amount, a direction indicating credit or debit, and a free-text reason or note.
 - **FR-006**: When a valid funds journal entry is submitted for a trading account that belongs to the Broker Admin’s broker, the system MUST create a corresponding ledger entry of the appropriate type (e.g., deposit-like for credits, withdrawal-like for debits) and MUST adjust the trading account’s cash balance by exactly the specified amount in the appropriate direction. In M3, debits MAY result in negative equity/balance (no equity floor enforcement).
