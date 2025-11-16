@@ -40,4 +40,22 @@ public interface DailySettlementPriceRepository
         "select dailySettlementPrice from DailySettlementPrice dailySettlementPrice left join fetch dailySettlementPrice.instrument where dailySettlementPrice.id =:id"
     )
     Optional<DailySettlementPrice> findOneWithToOneRelationships(@Param("id") Long id);
+
+    /**
+     * Find the most recent daily settlement price for a given instrument (by JPA relationship).
+     * <p>
+     * This supports the trading matching engine, which needs a single latest price
+     * per instrument to value MARKET and LIMIT orders.
+     * </p>
+     */
+    Optional<DailySettlementPrice> findFirstByInstrument_IdOrderByRefDateDesc(Long instrumentId);
+
+    /**
+     * Find the most recent daily settlement price for a given instrument symbol.
+     * <p>
+     * This is a fallback for cases where the {@code instrument_id} is not populated
+     * in seed data but {@code instrument_symbol} is available.
+     * </p>
+     */
+    Optional<DailySettlementPrice> findFirstByInstrumentSymbolOrderByRefDateDesc(String instrumentSymbol);
 }

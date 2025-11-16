@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button, Form, FormGroup, Label, Input, Alert, Spinner, Offcanvas, OffcanvasHeader, OffcanvasBody } from 'reactstrap';
 import { AxiosError } from 'axios';
-import { placeOrder, OrderResponse } from 'app/shared/api/trading.api';
+import { placeOrder, OrderResponse, getInstrumentBySymbol } from 'app/shared/api/trading.api';
 
 interface OrderTicketDrawerProps {
   isOpen: boolean;
@@ -20,6 +20,31 @@ export const OrderTicketDrawer: React.FC<OrderTicketDrawerProps> = ({ isOpen, on
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const getErrorText = (error: unknown, fallback: string) => {
+    if (error instanceof AxiosError && error.response?.data) {
+      const data = error.response.data as { message?: string; title?: string; detail?: string };
+      const detail = data.detail || '';
+      const backendMessage = data.message || '';
+      const title = data.title || '';
+
+      if (detail) {
+        return detail;
+      }
+
+      if (backendMessage.startsWith('error.') && title) {
+        return title;
+      }
+
+      return backendMessage || title || fallback;
+    }
+
+    if (error instanceof Error) {
+      return error.message || fallback;
+    }
+
+    return fallback;
+  };
+
   const resetForm = useCallback(() => {
     setSide('BUY');
     setType('MARKET');
@@ -28,6 +53,32 @@ export const OrderTicketDrawer: React.FC<OrderTicketDrawerProps> = ({ isOpen, on
     setInstrumentId('');
     setMessage(null);
   }, []);
+
+  // Look up instrument ID when symbol changes
+  useEffect(() => {
+    if (!symbol) {
+      setInstrumentId('');
+      return;
+    }
+
+    const fetchInstrument = async () => {
+      try {
+        const response = await getInstrumentBySymbol(symbol);
+        if (response.data && response.data.length > 0) {
+          setInstrumentId(response.data[0].id.toString());
+        } else {
+          setInstrumentId('');
+          setMessage({ type: 'error', text: `Instrument not found for symbol: ${symbol}` });
+        }
+      } catch (error) {
+        setInstrumentId('');
+        const errorText = getErrorText(error, 'Failed to look up instrument');
+        setMessage({ type: 'error', text: errorText });
+      }
+    };
+
+    fetchInstrument();
+  }, [symbol]);
 
   const handleToggle = useCallback(() => {
     if (!isSubmitting) {
@@ -82,12 +133,7 @@ export const OrderTicketDrawer: React.FC<OrderTicketDrawerProps> = ({ isOpen, on
           onToggle();
         }, 1500);
       } catch (error) {
-        let errorText = 'Failed to place order';
-        if (error instanceof AxiosError) {
-          errorText = (error.response?.data?.message as string) || error.message || errorText;
-        } else if (error instanceof Error) {
-          errorText = error.message;
-        }
+        const errorText = getErrorText(error, 'Failed to place order');
         setMessage({ type: 'error', text: errorText });
       } finally {
         setIsSubmitting(false);

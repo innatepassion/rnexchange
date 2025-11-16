@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Container, Row, Col, Nav, NavItem, NavLink, TabContent, TabPane, Spinner, Alert } from 'reactstrap';
+import { useLocation } from 'react-router-dom';
 import { useAppSelector } from 'app/config/store';
 import OrdersTrades from './orders-trades';
 import PortfolioCash from './portfolio-cash';
 import useTradingSubscription, { TradingWebSocketMessage } from './use-trading-subscription';
+import { getCurrentTradingAccount } from 'app/shared/api/trading.api';
 
 interface TraderDashboardProps {
   tradingAccountId?: number;
@@ -12,26 +14,74 @@ interface TraderDashboardProps {
 const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: propAccountId }) => {
   const [activeTab, setActiveTab] = useState<'portfolio' | 'orders'>('portfolio');
   const [selectedAccountId, setSelectedAccountId] = useState<number | undefined>(propAccountId);
+  const [isLoadingAccount, setIsLoadingAccount] = useState<boolean>(false);
+  const [accountError, setAccountError] = useState<string | null>(null);
 
+  const location = useLocation();
   const account = useAppSelector(state => state.authentication.account);
 
-  // Use the provided account ID or fall back to a default
+  // Use the provided account ID when coming via a deep link
   useEffect(() => {
     if (propAccountId) {
       setSelectedAccountId(propAccountId);
     }
   }, [propAccountId]);
 
+  // Resolve default trading account for the logged-in trader when none is provided
+  useEffect(() => {
+    if (propAccountId || selectedAccountId) {
+      return;
+    }
+
+    const fetchAccount = async () => {
+      try {
+        setIsLoadingAccount(true);
+        setAccountError(null);
+        const response = await getCurrentTradingAccount();
+        const id = response.data.id;
+        if (id) {
+          setSelectedAccountId(id);
+        } else {
+          setAccountError('No trading account configured for this trader.');
+        }
+      } catch (e) {
+        setAccountError('Failed to resolve trading account for current trader.');
+      } finally {
+        setIsLoadingAccount(false);
+      }
+    };
+
+    fetchAccount();
+  }, [propAccountId, selectedAccountId]);
+
+  // Keep the active tab in sync with an optional ?tab= query parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab === 'orders' || tab === 'portfolio') {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
+
   const handleOrderUpdate = useCallback((message: TradingWebSocketMessage) => {
-    console.log('Order update received:', message);
+    // Handle order updates
+    if (message) {
+      // Update UI state here
+    }
   }, []);
 
   const handleExecutionUpdate = useCallback((message: TradingWebSocketMessage) => {
-    console.log('Execution update received:', message);
+    // Handle execution updates
+    if (message) {
+      // Update UI state here
+    }
   }, []);
 
   const handlePositionUpdate = useCallback((message: TradingWebSocketMessage) => {
-    console.log('Position update received:', message);
+    // Handle position updates
+    if (message) {
+      // Update UI state here
+    }
   }, []);
 
   const connectionStatus = useTradingSubscription(selectedAccountId, handleOrderUpdate, handleExecutionUpdate, handlePositionUpdate);
@@ -62,10 +112,20 @@ const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: pro
     }
   };
 
+  if (isLoadingAccount) {
+    return (
+      <Container className="mt-5 text-center">
+        <Spinner size="sm" className="me-2" /> Resolving trading account...
+      </Container>
+    );
+  }
+
   if (!selectedAccountId) {
     return (
       <Container className="mt-5">
-        <Alert color="warning">No trading account selected. Please select a trading account to proceed.</Alert>
+        <Alert color="warning">
+          {accountError || 'No trading account selected. Please contact support to configure a trading account for this user.'}
+        </Alert>
       </Container>
     );
   }

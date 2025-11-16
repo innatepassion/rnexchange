@@ -33,6 +33,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -287,6 +288,7 @@ public class OrderResource {
      * @return OrderDTO with updated status and execution details
      */
     @PostMapping("/trading")
+    @Transactional
     public ResponseEntity<OrderDTO> placeTradingOrder(@Valid @RequestBody OrderDTO orderDTO) throws URISyntaxException {
         LOG.debug("REST request to place trading order: {}", orderDTO);
 

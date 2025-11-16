@@ -89,6 +89,42 @@ public class DailySettlementPriceService {
     }
 
     /**
+     * Get the latest available daily settlement price for an instrument.
+     *
+     * <p>
+     * This helper is primarily used by the trading matching engine (T010) to obtain
+     * a single "last known price" for MARKET and LIMIT order evaluation.
+     * </p>
+     *
+     * @param instrumentId    the JPA identifier of the instrument (may be {@code null})
+     * @param instrumentSymbol fallback symbol to use when {@code instrumentId} is unavailable
+     * @return optional DTO containing the most recent settlement price, if any
+     */
+    @Transactional(readOnly = true)
+    public Optional<DailySettlementPriceDTO> findLatestByInstrument(Long instrumentId, String instrumentSymbol) {
+        LOG.debug("Request to get latest DailySettlementPrice for instrument: id={}, symbol={}", instrumentId, instrumentSymbol);
+
+        // Prefer lookup by instrument id when available
+        if (instrumentId != null) {
+            Optional<DailySettlementPriceDTO> byId = dailySettlementPriceRepository
+                .findFirstByInstrument_IdOrderByRefDateDesc(instrumentId)
+                .map(dailySettlementPriceMapper::toDto);
+            if (byId.isPresent()) {
+                return byId;
+            }
+        }
+
+        // Fallback to symbol-based lookup (useful when seed data only populates instrument_symbol)
+        if (instrumentSymbol != null && !instrumentSymbol.isBlank()) {
+            return dailySettlementPriceRepository
+                .findFirstByInstrumentSymbolOrderByRefDateDesc(instrumentSymbol)
+                .map(dailySettlementPriceMapper::toDto);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
      * Get one dailySettlementPrice by id.
      *
      * @param id the id of the entity.

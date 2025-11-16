@@ -71,6 +71,45 @@ public class MatchingService {
     }
 
     /**
+     * Get the latest available price for an instrument using the DailySettlementPrice table.
+     *
+     * <p>
+     * This helper is used by the trading engine for M2. It queries the most recent
+     * {@code daily_settlement_price} row for the given instrument (by {@code refDate})
+     * and returns its {@code settlePrice}. If no such price is available, the result
+     * is empty and the caller can decide whether to reject the order.
+     * </p>
+     *
+     * @param instrument the instrument to get price for
+     * @return Optional containing the latest settlement price, or empty if none present
+     */
+    public Optional<BigDecimal> getLatestPriceFromSettlement(Instrument instrument) {
+        if (instrument == null) {
+            LOG.warn("Cannot get settlement price for null instrument");
+            return Optional.empty();
+        }
+
+        LOG.debug("Getting latest settlement price for instrument: id={}, symbol={}", instrument.getId(), instrument.getSymbol());
+
+        try {
+            return dailySettlementPriceService
+                .findLatestByInstrument(instrument.getId(), instrument.getSymbol())
+                .map(dto -> {
+                    LOG.debug(
+                        "Latest settlement price for {} on {} is {}",
+                        dto.getInstrumentSymbol(),
+                        dto.getRefDate(),
+                        dto.getSettlePrice()
+                    );
+                    return dto.getSettlePrice();
+                });
+        } catch (Exception e) {
+            LOG.error("Error fetching settlement price for instrument: {}", instrument.getSymbol(), e);
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Get execution price for a MARKET order.
      * Market orders are filled immediately at the latest available price.
      *

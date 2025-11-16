@@ -41,7 +41,16 @@ const marketWatchSlice = createSlice({
         symbolCount: watchlist.symbolCount ?? watchlist.symbols?.length ?? 0,
       }));
       state.isLoadingWatchlists = false;
-      if (action.payload.length > 0 && !state.selectedWatchlistId) {
+
+      if (action.payload.length === 0) {
+        state.selectedWatchlistId = null;
+        return;
+      }
+
+      const currentId = state.selectedWatchlistId;
+      const hasMatchingSelection = currentId != null && action.payload.some(watchlist => watchlist.id === currentId);
+
+      if (!hasMatchingSelection) {
         state.selectedWatchlistId = action.payload[0].id;
       }
     },

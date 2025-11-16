@@ -83,8 +83,8 @@ public class TradingService {
         // Step 1: Validate order basics
         validateOrderBasics(order, instrument, tradingAccount);
 
-        // Step 2: Get matching price from market data
-        Optional<BigDecimal> matchingPriceOpt = matchingService.getLatestPrice(instrument);
+        // Step 2: Get matching price from market data (via DailySettlementPrice)
+        Optional<BigDecimal> matchingPriceOpt = matchingService.getLatestPriceFromSettlement(instrument);
         if (matchingPriceOpt.isEmpty()) {
             String reason =
                 "❌ No price available for " +
@@ -374,8 +374,8 @@ public class TradingService {
         // Step 2: Validate SELL-specific constraints (T020)
         validateSellOrder(order, tradingAccount, instrument);
 
-        // Step 3: Get matching price from market data
-        Optional<BigDecimal> matchingPriceOpt = matchingService.getLatestPrice(instrument);
+        // Step 3: Get matching price from market data (via DailySettlementPrice)
+        Optional<BigDecimal> matchingPriceOpt = matchingService.getLatestPriceFromSettlement(instrument);
         if (matchingPriceOpt.isEmpty()) {
             String reason =
                 "❌ No price available for " +

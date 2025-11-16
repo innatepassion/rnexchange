@@ -26,6 +26,7 @@
     <include file="config/liquibase/changelog/20251112124909_added_entity_BrokerDesk.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112125009_added_entity_ExchangeOperator.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112125109_added_entity_TraderProfile.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20251114_add_watchlists.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112125209_added_entity_Instrument.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112125309_added_entity_Contract.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112125409_added_entity_DailySettlementPrice.xml" relativeToChangelogFile="false"/>

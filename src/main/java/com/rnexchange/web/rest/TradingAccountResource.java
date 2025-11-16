@@ -1,6 +1,7 @@
 package com.rnexchange.web.rest;
 
 import com.rnexchange.repository.TradingAccountRepository;
+import com.rnexchange.security.SecurityUtils;
 import com.rnexchange.service.TradingAccountQueryService;
 import com.rnexchange.service.TradingAccountService;
 import com.rnexchange.service.criteria.TradingAccountCriteria;
@@ -174,6 +175,30 @@ public class TradingAccountResource {
     public ResponseEntity<Long> countTradingAccounts(TradingAccountCriteria criteria) {
         LOG.debug("REST request to count TradingAccounts by criteria: {}", criteria);
         return ResponseEntity.ok().body(tradingAccountQueryService.countByCriteria(criteria));
+    }
+
+    /**
+     * {@code GET  /trading-accounts/current} : get the first trading account for the current trader.
+     *
+     * <p>
+     * This helper endpoint is intended for the trader dashboard to resolve a default
+     * trading account for the logged-in user without exposing trader IDs to the client.
+     * </p>
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the tradingAccountDTO,
+     * or with status {@code 400 (Bad Request)} if the user is not a trader or has no trading account configured.
+     */
+    @GetMapping("/current")
+    public ResponseEntity<TradingAccountDTO> getCurrentTradingAccount() {
+        LOG.debug("REST request to get current trader TradingAccount");
+        String traderLogin = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new BadRequestAlertException("Unable to determine current trader", ENTITY_NAME, "nologin"));
+
+        TradingAccountDTO dto = tradingAccountService
+            .findFirstByTraderLogin(traderLogin)
+            .orElseThrow(() -> new BadRequestAlertException("Trading account not found for trader", ENTITY_NAME, "notradingaccount"));
+
+        return ResponseEntity.ok(dto);
     }
 
     /**

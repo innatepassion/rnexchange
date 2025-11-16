@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import throttle from 'lodash/throttle';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { DEFAULT_TRADING_ACCOUNT_ID } from 'app/config/constants';
 import type { IQuote } from 'app/shared/model/quote.model';
 import { clearQuotes, selectWatchlist, setConnectionStatus, setWatchlistSymbols, setWatchlists, updateQuote } from './market-watch.reducer';
 import type { WatchlistSummary } from './market-watch.reducer';
@@ -503,7 +504,7 @@ const MarketWatch = () => {
         isOpen={isOrderTicketOpen}
         onToggle={() => setIsOrderTicketOpen(false)}
         symbol={selectedSymbolForOrder}
-        tradingAccountId={account?.login ? 1 : undefined}
+        tradingAccountId={account?.login ? DEFAULT_TRADING_ACCOUNT_ID : undefined}
         onOrderPlaced={response => {
           setNotice({
             type: 'success',

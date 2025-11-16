@@ -98,6 +98,23 @@ public class TradingAccountService {
     }
 
     /**
+     * Get the first trading account for a given trader login.
+     *
+     * <p>
+     * This is useful for resolving a default trading account for the currently
+     * authenticated trader.
+     * </p>
+     *
+     * @param traderLogin the login of the trader's user account
+     * @return first matching trading account, if any
+     */
+    @Transactional(readOnly = true)
+    public Optional<TradingAccountDTO> findFirstByTraderLogin(String traderLogin) {
+        LOG.debug("Request to get first TradingAccount for trader login: {}", traderLogin);
+        return tradingAccountRepository.findFirstByTrader_User_LoginOrderByIdAsc(traderLogin).map(tradingAccountMapper::toDto);
+    }
+
+    /**
      * Delete the tradingAccount by id.
      *
      * @param id the id of the entity.

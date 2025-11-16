@@ -52,11 +52,12 @@ const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId }) => {
 
       // Add orders
       orders.forEach(order => {
+        const side = order.side === 'BUY' || order.side === 'SELL' ? order.side : 'BUY';
         combined.push({
           id: `order-${order.id}`,
           orderId: order.id,
           symbol: order.instrument?.symbol,
-          side: (order.side as 'BUY' | 'SELL') || 'BUY',
+          side,
           type: order.type,
           quantity: order.qty || 0,
           status: order.status || 'UNKNOWN',
@@ -66,12 +67,13 @@ const OrdersTrades: React.FC<OrdersTradesProps> = ({ tradingAccountId }) => {
 
       // Add executions
       executions.forEach(execution => {
+        const executionSide = execution.order?.side === 'BUY' || execution.order?.side === 'SELL' ? execution.order.side : 'BUY';
         combined.push({
           id: `exec-${execution.id}`,
           executionId: execution.id,
           orderId: execution.order?.id,
           symbol: execution.order?.instrument?.symbol,
-          side: (execution.order?.side as 'BUY' | 'SELL') || 'BUY',
+          side: executionSide,
           quantity: execution.qty || 0,
           price: execution.px,
           status: 'EXECUTED',
