@@ -9,11 +9,11 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 **Purpose**: Hook settlement contracts into the existing JHipster app and create skeleton modules.
 
-- [ ] T001 Ensure settlement contracts from `specs/005-settlement/contracts/settlement.openapi.yaml` are merged into `src/main/resources/swagger/api.yml`
-- [ ] T002 Run code generation for updated OpenAPI via `./mvnw generate-sources`
-- [ ] T003 Create backend settlement service package skeleton `src/main/java/com/rnexchange/service/settlement/` (e.g., `SettlementService.java`, `StatementService.java` interfaces)
-- [ ] T004 Create backend REST package skeleton `src/main/java/com/rnexchange/web/rest/settlement/` for settlement and statements resources
-- [ ] T005 Create frontend module skeletons:
+- [x] T001 Ensure settlement contracts from `specs/005-settlement/contracts/settlement.openapi.yaml` are merged into `src/main/resources/swagger/api.yml`
+- [x] T002 Run code generation for updated OpenAPI via `./mvnw generate-sources`
+- [x] T003 Create backend settlement service package skeleton `src/main/java/com/rnexchange/service/settlement/` (e.g., `SettlementService.java`, `StatementService.java` interfaces)
+- [x] T004 Create backend REST package skeleton `src/main/java/com/rnexchange/web/rest/settlement/` for settlement and statements resources
+- [x] T005 Create frontend module skeletons:
   - `src/main/webapp/app/modules/exchange/settlement/`
   - `src/main/webapp/app/modules/broker/settlements/`
   - `src/main/webapp/app/modules/trader/statements/`
