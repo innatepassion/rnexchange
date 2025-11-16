@@ -16,8 +16,7 @@ export default tseslint.config(
       },
     },
   },
-  { ignores: ['src/main/docker/'] },
-  { ignores: ['target/classes/static/', 'target/'] },
+  { ignores: ['node_modules/', 'dist/', 'build/', 'coverage/', '*.min.js', 'src/main/docker/', 'target/classes/static/', 'target/'] },
   eslint.configs.recommended,
   {
     files: ['**/*.{js,cjs,mjs}'],

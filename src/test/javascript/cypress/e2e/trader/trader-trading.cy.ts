@@ -17,7 +17,6 @@ describe('Trader Trading Flow E2E Test', () => {
   const username = Cypress.env('E2E_USERNAME') ?? 'trader1';
   const password = Cypress.env('E2E_PASSWORD') ?? 'password';
   const tradingAccountId = Cypress.env('TRADING_ACCOUNT_ID') ?? 1;
-  const instrumentId = Cypress.env('INSTRUMENT_ID') ?? 1;
   const instrumentSymbol = Cypress.env('INSTRUMENT_SYMBOL') ?? 'RELIANCE';
 
   beforeEach(() => {
@@ -55,7 +54,6 @@ describe('Trader Trading Flow E2E Test', () => {
     cy.get('[data-cy="order-instrument-select"]').select(instrumentSymbol);
 
     // Record time before submitting order
-    const buyOrderStart = Date.now();
     cy.get('[data-cy="order-submit-button"]').click();
 
     // Wait for order submission and verify success toast
@@ -106,7 +104,6 @@ describe('Trader Trading Flow E2E Test', () => {
     cy.get('[data-cy="order-instrument-select"]').select(instrumentSymbol);
 
     // Record time before submitting SELL order
-    const sellOrderStart = Date.now();
     cy.get('[data-cy="order-submit-button"]').click();
 
     // Wait for SELL order submission
