@@ -61,7 +61,7 @@ public interface PositionRepository extends JpaRepository<Position, Long>, JpaSp
         "left join fetch position.instrument " +
         "left join position.tradingAccount ta " +
         "where ta.broker = :broker " +
-        "order by position.updatedAt desc",
+        "order by position.id desc",
         countQuery = "select count(position) from Position position " +
         "left join position.tradingAccount ta " +
         "where ta.broker = :broker"
@@ -75,7 +75,7 @@ public interface PositionRepository extends JpaRepository<Position, Long>, JpaSp
         "select position from Position position " +
         "left join position.tradingAccount ta " +
         "where ta.broker = :broker " +
-        "order by position.updatedAt desc"
+        "order by position.id desc"
     )
     List<Position> findByBrokerNonPaginated(@Param("broker") Broker broker);
 }
