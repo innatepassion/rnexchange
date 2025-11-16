@@ -2,6 +2,8 @@ package com.rnexchange.web.rest.broker;
 
 import com.rnexchange.service.broker.BrokerScopeService;
 import com.rnexchange.service.broker.BrokerTradersService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +31,7 @@ public class BrokerTradersResource {
     }
 
     @GetMapping
+    @Operation(summary = "List traders for a broker (requires BROKER_ADMIN)")
     public ResponseEntity<Map<String, Object>> list(
         @RequestParam(name = "page", defaultValue = "0") int page,
         @RequestParam(name = "size", defaultValue = "20") int size,
@@ -38,6 +41,7 @@ public class BrokerTradersResource {
     }
 
     @GetMapping("/{traderId}")
+    @Operation(summary = "Get trader details (requires BROKER_ADMIN)")
     public ResponseEntity<Map<String, Object>> details(
         @PathVariable("traderId") Long traderId,
         @RequestParam(name = "brokerId", required = false) Long brokerId

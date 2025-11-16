@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Phase 2 (T010): Broker journal controller stub guarded by BROKER_ADMIN.
  * Endpoints implemented in Phase 5.
+ *
+ * OpenAPI contract defines:
+ *  - POST /api/broker/traders/{tradingAccountId}/journal
+ *    Headers: Idempotency-Key (required)
+ *    Body: { direction: 'credit'|'debit', amount: number > 0, reason: string }
  */
 @RestController
 @RequestMapping("/api/broker")

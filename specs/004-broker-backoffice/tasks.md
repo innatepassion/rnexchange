@@ -70,13 +70,13 @@
 
 ## Phase 6 — Polish & Cross-Cutting
 
-- [ ] T030 Add stale-price indicator in UI rows where exposure excluded in `webapp/app/modules/broker/dashboard/components/UtilizationTable.tsx`
-- [ ] T031 Add audit logging for all journal actions in `src/main/java/com/rnexchange/service/broker/BrokerJournalService.java`
-- [ ] T032 Ensure RBAC tests/assertions on endpoints in `src/test/java/com/rnexchange/integration/**`
-- [ ] T033 Update Swagger doc annotations/comments in `src/main/java/com/rnexchange/web/rest/broker/BrokerOverviewResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerTradersResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerJournalResource.java`
-- [ ] T034 Update README/quickstart links if needed in `specs/004-broker-backoffice/quickstart.md`
-- [ ] T050 Add Gatling smoke test for overview and traders APIs in `src/test/gatling/simulations/BrokerBackofficeSimulation.scala` (targets: GET /broker/overview p95 < 250ms; GET /broker/traders p95 < 300ms; error rate < 1%)
-- [ ] T051 Ensure idempotency key logged in audit trail in `src/main/java/com/rnexchange/service/broker/BrokerJournalService.java`
+- [x] T030 Add stale-price indicator in UI rows where exposure excluded in `webapp/app/modules/broker/dashboard/components/UtilizationTable.tsx`
+- [x] T031 Add audit logging for all journal actions in `src/main/java/com/rnexchange/service/broker/BrokerJournalService.java`
+- [x] T032 Ensure RBAC tests/assertions on endpoints in `src/test/java/com/rnexchange/integration/**`
+- [x] T033 Update Swagger doc annotations/comments in `src/main/java/com/rnexchange/web/rest/broker/BrokerOverviewResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerTradersResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerJournalResource.java`
+- [x] T034 Update README/quickstart links if needed in `specs/004-broker-backoffice/quickstart.md`
+- [x] T050 Add Gatling smoke test for overview and traders APIs in `src/test/gatling/simulations/BrokerBackofficeSimulation.scala` (targets: GET /broker/overview p95 < 250ms; GET /broker/traders p95 < 300ms; error rate < 1%)
+- [x] T051 Ensure idempotency key logged in audit trail in `src/main/java/com/rnexchange/service/broker/BrokerJournalService.java`
 
 ## Dependencies
 

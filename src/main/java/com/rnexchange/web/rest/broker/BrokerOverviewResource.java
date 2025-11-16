@@ -3,6 +3,8 @@ package com.rnexchange.web.rest.broker;
 import com.rnexchange.service.broker.BrokerOverviewService;
 import com.rnexchange.service.broker.BrokerScopeService;
 import com.rnexchange.service.dto.BrokerOverviewDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +30,7 @@ public class BrokerOverviewResource {
     }
 
     @GetMapping
+    @Operation(summary = "Get broker overview metrics (requires BROKER_ADMIN)")
     public ResponseEntity<BrokerOverviewDTO> getOverview(@RequestParam("brokerId") Long brokerId) {
         brokerScopeService.assertBrokerAdmin();
         Long scopedBrokerId = brokerScopeService.requireBrokerId(brokerId);

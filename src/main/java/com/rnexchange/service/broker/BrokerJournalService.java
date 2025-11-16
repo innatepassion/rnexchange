@@ -15,11 +15,15 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BrokerJournalService {
+
+    private static final Logger log = LoggerFactory.getLogger(BrokerJournalService.class);
 
     private final IdempotencyTokenRepository idempotencyTokenRepository;
     private final TradingAccountRepository tradingAccountRepository;
@@ -40,8 +44,23 @@ public class BrokerJournalService {
 
     @Transactional
     public JournalResultDTO applyJournal(UUID tradingAccountId, String idempotencyKey, JournalRequestDTO request, Long brokerId) {
+        log.info(
+            "Journal request received: direction={}, amount={}, reason='{}', brokerId={}, tradingAccountId={}, idempotencyKey={}",
+            request.getDirection(),
+            request.getAmount(),
+            request.getReason(),
+            brokerId,
+            tradingAccountId,
+            idempotencyKey
+        );
         Optional<IdempotencyToken> existing = idempotencyTokenRepository.findByToken(idempotencyKey);
         if (existing.isPresent() && existing.get().getLedgerEntry() != null) {
+            log.info(
+                "Idempotent replay detected, returning original result: brokerId={}, tradingAccountId={}, idempotencyKey={}",
+                brokerId,
+                tradingAccountId,
+                idempotencyKey
+            );
             return toResult(existing.get());
         }
 
@@ -89,6 +108,15 @@ public class BrokerJournalService {
         token.setBroker(account.getBroker());
         idempotencyTokenRepository.save(token);
 
+        log.info(
+            "Journal applied successfully: direction={}, amount={}, ledgerEntryId={}, brokerId={}, tradingAccountId={}, idempotencyKey={}",
+            request.getDirection(),
+            amount,
+            entry.getId(),
+            token.getBroker() != null ? token.getBroker().getId() : null,
+            account.getId(),
+            idempotencyKey
+        );
         return toResult(token);
     }
 
