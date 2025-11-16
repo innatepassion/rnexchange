@@ -1,11 +1,11 @@
-id;ts;type;amount;ccy;balance_after;reference;remarks
-1;2025-11-11T18:39:44;meanwhile exactly;2206.19;USD;21642.48;psst;filter ajar
-2;2025-11-12T03:51:28;and;20438.15;USD;3489.79;watery yum;mid unconscious psst
-3;2025-11-12T12:01:17;along proud keel;3969.56;USD;26133.08;enthusiastically geez;indeed insolence now
-4;2025-11-11T23:14:09;ack consequently bah;31613.24;USD;29932.69;oof pitiful disk;frenetically
-5;2025-11-11T17:56:10;whoever in;3014.47;INR;29542.51;own ugh elderly;incidentally
-6;2025-11-11T15:22:54;fooey secrecy;12370.42;USD;3648.37;politely;usually sweetly mmm
-7;2025-11-11T13:23:13;inferior huzzah unnaturally;30180.74;INR;3336.62;proselytise card;owlishly
-8;2025-11-12T07:33:57;jeopardise;30929.95;INR;12988.33;longingly intently peaceful;lest
-9;2025-11-11T17:17:35;plastic tune-up;11024.55;USD;30481.83;whoever;weakly some summer
-10;2025-11-12T02:23:50;boldly incidentally;28594.32;USD;25594.93;inasmuch acidly;spring
+id;created_at;type;amount;fee;ccy;balance_after;description;reference;remarks
+1;2025-11-11T18:39:44;CREDIT;25206.74;8212.21;INR;29849.39;acidic;crackle team;towards inasmuch
+2;2025-11-12T07:29:03;CREDIT;25332.97;7830.65;INR;18149.53;evenly;neck excluding sway;afore intelligent
+3;2025-11-12T07:28:58;CREDIT;1554.83;29303.22;INR;5916.82;despite provided blue;ugh disbar;within accessorise scarily
+4;2025-11-12T02:47:57;DEBIT;25918.09;27352.97;USD;24219.92;reluctantly swing;meanwhile all;continually
+5;2025-11-12T02:08:20;DEBIT;23041.02;27027.74;INR;8876.51;longingly;in barring neat;expatiate fooey
+6;2025-11-11T14:30:44;DEBIT;20433.27;11029.05;INR;18435.21;overconfidently goose with;rewrite;starboard yowza duh
+7;2025-11-12T08:58:32;DEBIT;24082.39;13669.81;USD;26195.65;now cannibalise;proselytise card;owlishly
+8;2025-11-12T07:33:57;DEBIT;2804.95;6749.95;INR;19221.97;foretell aha not;psst;now plastic tune-up
+9;2025-11-11T21:04:38;CREDIT;30481.83;10729.26;USD;21321.4;slather;sorrowful flawless preside;provided gee
+10;2025-11-12T07:44:56;DEBIT;9210.47;18760.32;USD;2143.67;clear-cut since;banish ick whereas;optimal draft

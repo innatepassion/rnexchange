@@ -44,6 +44,7 @@ enum AlertType { MARGIN_BREACH, AUTO_SQOFF, EXPOSURE_LIMIT }
 enum ExchangeStatus { ACTIVE, INACTIVE }
 enum IntegrationStatus { DISABLED, ENABLED }
 enum Currency { INR, USD }
+enum LedgerEntryType { DEBIT, CREDIT }
 
 /* ===== Exchange & Org ===== */
 entity Exchange {
@@ -129,6 +130,7 @@ entity Order {
   stopPx BigDecimal
   tif Tif required
   status OrderStatus required
+  rejectionReason String
   venue String required            // SIM_EQ, SIM_FO, etc.
   createdAt Instant
   updatedAt Instant
@@ -136,6 +138,7 @@ entity Order {
 
 entity Execution {
   execTs Instant required
+  side OrderSide required
   px BigDecimal required
   qty BigDecimal required
   liquidity String
@@ -159,11 +162,13 @@ entity Lot {
 }
 
 entity LedgerEntry {
-  ts Instant required
-  type String required             // trade, deposit, withdrawal, margin, fee, dividend, settlement
+  createdAt Instant required
+  type LedgerEntryType required
   amount BigDecimal required
+  fee BigDecimal
   ccy Currency required
   balanceAfter BigDecimal
+  description String
   reference String
   remarks String
 }
@@ -246,6 +251,8 @@ relationship ManyToOne {
   Order{tradingAccount} to TradingAccount
   Order{instrument(symbol)} to Instrument
   Execution{order} to Order
+  Execution{tradingAccount} to TradingAccount
+  Execution{instrument(symbol)} to Instrument
 }
 
 /* Portfolio & accounting */

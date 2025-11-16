@@ -57,6 +57,9 @@ public class Order implements Serializable {
     @Column(name = "status", nullable = false)
     private OrderStatus status;
 
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
     @NotNull
     @Column(name = "venue", nullable = false)
     private String venue;
@@ -181,6 +184,19 @@ public class Order implements Serializable {
         this.status = status;
     }
 
+    public String getRejectionReason() {
+        return this.rejectionReason;
+    }
+
+    public Order rejectionReason(String rejectionReason) {
+        this.setRejectionReason(rejectionReason);
+        return this;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
     public String getVenue() {
         return this.venue;
     }
@@ -277,6 +293,7 @@ public class Order implements Serializable {
             ", stopPx=" + getStopPx() +
             ", tif='" + getTif() + "'" +
             ", status='" + getStatus() + "'" +
+            ", rejectionReason='" + getRejectionReason() + "'" +
             ", venue='" + getVenue() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +

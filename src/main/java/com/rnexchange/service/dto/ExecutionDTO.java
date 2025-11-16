@@ -1,5 +1,6 @@
 package com.rnexchange.service.dto;
 
+import com.rnexchange.domain.enumeration.OrderSide;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -18,6 +19,9 @@ public class ExecutionDTO implements Serializable {
     private Instant execTs;
 
     @NotNull
+    private OrderSide side;
+
+    @NotNull
     private BigDecimal px;
 
     @NotNull
@@ -28,6 +32,10 @@ public class ExecutionDTO implements Serializable {
     private BigDecimal fee;
 
     private OrderDTO order;
+
+    private TradingAccountDTO tradingAccount;
+
+    private InstrumentDTO instrument;
 
     public Long getId() {
         return id;
@@ -43,6 +51,14 @@ public class ExecutionDTO implements Serializable {
 
     public void setExecTs(Instant execTs) {
         this.execTs = execTs;
+    }
+
+    public OrderSide getSide() {
+        return side;
+    }
+
+    public void setSide(OrderSide side) {
+        this.side = side;
     }
 
     public BigDecimal getPx() {
@@ -85,6 +101,22 @@ public class ExecutionDTO implements Serializable {
         this.order = order;
     }
 
+    public TradingAccountDTO getTradingAccount() {
+        return tradingAccount;
+    }
+
+    public void setTradingAccount(TradingAccountDTO tradingAccount) {
+        this.tradingAccount = tradingAccount;
+    }
+
+    public InstrumentDTO getInstrument() {
+        return instrument;
+    }
+
+    public void setInstrument(InstrumentDTO instrument) {
+        this.instrument = instrument;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -112,11 +144,14 @@ public class ExecutionDTO implements Serializable {
         return "ExecutionDTO{" +
             "id=" + getId() +
             ", execTs='" + getExecTs() + "'" +
+            ", side='" + getSide() + "'" +
             ", px=" + getPx() +
             ", qty=" + getQty() +
             ", liquidity='" + getLiquidity() + "'" +
             ", fee=" + getFee() +
             ", order=" + getOrder() +
+            ", tradingAccount=" + getTradingAccount() +
+            ", instrument=" + getInstrument() +
             "}";
     }
 }

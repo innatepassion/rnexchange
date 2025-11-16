@@ -1,6 +1,9 @@
 package com.rnexchange.repository;
 
+import com.rnexchange.domain.Broker;
+import com.rnexchange.domain.Instrument;
 import com.rnexchange.domain.Position;
+import com.rnexchange.domain.TradingAccount;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -37,4 +40,42 @@ public interface PositionRepository extends JpaRepository<Position, Long>, JpaSp
 
     @Query("select position from Position position left join fetch position.instrument where position.id =:id")
     Optional<Position> findOneWithToOneRelationships(@Param("id") Long id);
+
+    /**
+     * Find position for a specific trading account and instrument.
+     * Used for position tracking during trade execution.
+     */
+    Optional<Position> findByTradingAccountAndInstrument(TradingAccount tradingAccount, Instrument instrument);
+
+    /**
+     * Find all positions for a trading account.
+     */
+    List<Position> findByTradingAccount(TradingAccount tradingAccount);
+
+    /**
+     * T024: Find all positions for a specific broker by joining through trading accounts.
+     * Used for Broker Admin portfolio views (Phase 5, US3).
+     */
+    @Query(
+        value = "select position from Position position " +
+        "left join fetch position.instrument " +
+        "left join position.tradingAccount ta " +
+        "where ta.broker = :broker " +
+        "order by position.id desc",
+        countQuery = "select count(position) from Position position " +
+        "left join position.tradingAccount ta " +
+        "where ta.broker = :broker"
+    )
+    Page<Position> findByBroker(@Param("broker") Broker broker, Pageable pageable);
+
+    /**
+     * T024: Find all positions for a specific broker (non-paginated).
+     */
+    @Query(
+        "select position from Position position " +
+        "left join position.tradingAccount ta " +
+        "where ta.broker = :broker " +
+        "order by position.id desc"
+    )
+    List<Position> findByBrokerNonPaginated(@Param("broker") Broker broker);
 }

@@ -1,5 +1,6 @@
 package com.rnexchange.service.criteria;
 
+import com.rnexchange.domain.enumeration.OrderSide;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,9 +23,28 @@ public class ExecutionCriteria implements Serializable, Criteria {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Class for filtering OrderSide
+     */
+    public static class OrderSideFilter extends Filter<OrderSide> {
+
+        public OrderSideFilter() {}
+
+        public OrderSideFilter(OrderSideFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public OrderSideFilter copy() {
+            return new OrderSideFilter(this);
+        }
+    }
+
     private LongFilter id;
 
     private InstantFilter execTs;
+
+    private OrderSideFilter side;
 
     private BigDecimalFilter px;
 
@@ -36,6 +56,10 @@ public class ExecutionCriteria implements Serializable, Criteria {
 
     private LongFilter orderId;
 
+    private LongFilter tradingAccountId;
+
+    private LongFilter instrumentId;
+
     private Boolean distinct;
 
     public ExecutionCriteria() {}
@@ -43,11 +67,14 @@ public class ExecutionCriteria implements Serializable, Criteria {
     public ExecutionCriteria(ExecutionCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.execTs = other.optionalExecTs().map(InstantFilter::copy).orElse(null);
+        this.side = other.optionalSide().map(OrderSideFilter::copy).orElse(null);
         this.px = other.optionalPx().map(BigDecimalFilter::copy).orElse(null);
         this.qty = other.optionalQty().map(BigDecimalFilter::copy).orElse(null);
         this.liquidity = other.optionalLiquidity().map(StringFilter::copy).orElse(null);
         this.fee = other.optionalFee().map(BigDecimalFilter::copy).orElse(null);
         this.orderId = other.optionalOrderId().map(LongFilter::copy).orElse(null);
+        this.tradingAccountId = other.optionalTradingAccountId().map(LongFilter::copy).orElse(null);
+        this.instrumentId = other.optionalInstrumentId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -92,6 +119,25 @@ public class ExecutionCriteria implements Serializable, Criteria {
 
     public void setExecTs(InstantFilter execTs) {
         this.execTs = execTs;
+    }
+
+    public OrderSideFilter getSide() {
+        return side;
+    }
+
+    public Optional<OrderSideFilter> optionalSide() {
+        return Optional.ofNullable(side);
+    }
+
+    public OrderSideFilter side() {
+        if (side == null) {
+            setSide(new OrderSideFilter());
+        }
+        return side;
+    }
+
+    public void setSide(OrderSideFilter side) {
+        this.side = side;
     }
 
     public BigDecimalFilter getPx() {
@@ -189,6 +235,44 @@ public class ExecutionCriteria implements Serializable, Criteria {
         this.orderId = orderId;
     }
 
+    public LongFilter getTradingAccountId() {
+        return tradingAccountId;
+    }
+
+    public Optional<LongFilter> optionalTradingAccountId() {
+        return Optional.ofNullable(tradingAccountId);
+    }
+
+    public LongFilter tradingAccountId() {
+        if (tradingAccountId == null) {
+            setTradingAccountId(new LongFilter());
+        }
+        return tradingAccountId;
+    }
+
+    public void setTradingAccountId(LongFilter tradingAccountId) {
+        this.tradingAccountId = tradingAccountId;
+    }
+
+    public LongFilter getInstrumentId() {
+        return instrumentId;
+    }
+
+    public Optional<LongFilter> optionalInstrumentId() {
+        return Optional.ofNullable(instrumentId);
+    }
+
+    public LongFilter instrumentId() {
+        if (instrumentId == null) {
+            setInstrumentId(new LongFilter());
+        }
+        return instrumentId;
+    }
+
+    public void setInstrumentId(LongFilter instrumentId) {
+        this.instrumentId = instrumentId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -220,18 +304,21 @@ public class ExecutionCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(execTs, that.execTs) &&
+            Objects.equals(side, that.side) &&
             Objects.equals(px, that.px) &&
             Objects.equals(qty, that.qty) &&
             Objects.equals(liquidity, that.liquidity) &&
             Objects.equals(fee, that.fee) &&
             Objects.equals(orderId, that.orderId) &&
+            Objects.equals(tradingAccountId, that.tradingAccountId) &&
+            Objects.equals(instrumentId, that.instrumentId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, execTs, px, qty, liquidity, fee, orderId, distinct);
+        return Objects.hash(id, execTs, side, px, qty, liquidity, fee, orderId, tradingAccountId, instrumentId, distinct);
     }
 
     // prettier-ignore
@@ -240,11 +327,14 @@ public class ExecutionCriteria implements Serializable, Criteria {
         return "ExecutionCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalExecTs().map(f -> "execTs=" + f + ", ").orElse("") +
+            optionalSide().map(f -> "side=" + f + ", ").orElse("") +
             optionalPx().map(f -> "px=" + f + ", ").orElse("") +
             optionalQty().map(f -> "qty=" + f + ", ").orElse("") +
             optionalLiquidity().map(f -> "liquidity=" + f + ", ").orElse("") +
             optionalFee().map(f -> "fee=" + f + ", ").orElse("") +
             optionalOrderId().map(f -> "orderId=" + f + ", ").orElse("") +
+            optionalTradingAccountId().map(f -> "tradingAccountId=" + f + ", ").orElse("") +
+            optionalInstrumentId().map(f -> "instrumentId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

@@ -7,12 +7,14 @@ import dayjs from 'dayjs';
 import throttle from 'lodash/throttle';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { DEFAULT_TRADING_ACCOUNT_ID } from 'app/config/constants';
 import type { IQuote } from 'app/shared/model/quote.model';
 import { clearQuotes, selectWatchlist, setConnectionStatus, setWatchlistSymbols, setWatchlists, updateQuote } from './market-watch.reducer';
 import type { WatchlistSummary } from './market-watch.reducer';
 import { useMarketDataSubscription } from './use-market-data-subscription';
 import { addWatchlistSymbol, fetchWatchlist, fetchWatchlists, removeWatchlistSymbol } from 'app/shared/api/watchlist.api';
 import WatchlistSelector from './watchlist-selector';
+import OrderTicketDrawer from './order-ticket-drawer';
 
 type ThrottledQuoteHandler = ((quote: IQuote) => void) & { cancel: () => void };
 
@@ -36,6 +38,9 @@ const MarketWatch = () => {
   const pendingQuoteTimersRef = useRef<Map<string, number>>(new Map());
   const pendingFirstQuoteRef = useRef<Map<string, number>>(new Map());
   const [staleSymbols, setStaleSymbols] = useState<Set<string>>(new Set());
+  const [isOrderTicketOpen, setIsOrderTicketOpen] = useState(false);
+  const [selectedSymbolForOrder, setSelectedSymbolForOrder] = useState<string | undefined>(undefined);
+  const account = useAppSelector(state => state.authentication.account);
 
   useEffect(() => {
     let cancelled = false;
@@ -456,6 +461,17 @@ const MarketWatch = () => {
                     )}
                   </td>
                   <td className="text-end">
+                    <button
+                      type="button"
+                      className="btn btn-link btn-sm text-primary me-2"
+                      title="Place an order for this symbol"
+                      onClick={() => {
+                        setSelectedSymbolForOrder(symbol);
+                        setIsOrderTicketOpen(true);
+                      }}
+                    >
+                      Trade
+                    </button>
                     {selectedWatchlistId && (
                       <button
                         type="button"
@@ -483,6 +499,19 @@ const MarketWatch = () => {
         <span className={connectionBadgeClass} aria-hidden="true" />
         <span className="status-indicator__text">{connectionStatusLabel}</span>
       </div>
+
+      <OrderTicketDrawer
+        isOpen={isOrderTicketOpen}
+        onToggle={() => setIsOrderTicketOpen(false)}
+        symbol={selectedSymbolForOrder}
+        tradingAccountId={account?.login ? DEFAULT_TRADING_ACCOUNT_ID : undefined}
+        onOrderPlaced={response => {
+          setNotice({
+            type: 'success',
+            message: `Order placed: ${response.message || 'Status ' + response.status}`,
+          });
+        }}
+      />
     </div>
   );
 };

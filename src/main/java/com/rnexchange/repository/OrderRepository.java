@@ -1,5 +1,6 @@
 package com.rnexchange.repository;
 
+import com.rnexchange.domain.Broker;
 import com.rnexchange.domain.Order;
 import java.util.List;
 import java.util.Optional;
@@ -37,4 +38,29 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
 
     @Query("select jhiOrder from Order jhiOrder left join fetch jhiOrder.instrument where jhiOrder.id =:id")
     Optional<Order> findOneWithToOneRelationships(@Param("id") Long id);
+
+    /**
+     * T024: Find all orders for a specific broker by joining through trading accounts.
+     * Used for Broker Admin portfolio views (Phase 5, US3).
+     */
+    @Query(
+        value = "select jhiOrder from Order jhiOrder " +
+        "left join fetch jhiOrder.instrument " +
+        "left join jhiOrder.tradingAccount ta " +
+        "where ta.broker = :broker " +
+        "order by jhiOrder.createdAt desc",
+        countQuery = "select count(jhiOrder) from Order jhiOrder " + "left join jhiOrder.tradingAccount ta " + "where ta.broker = :broker"
+    )
+    Page<Order> findByBroker(@Param("broker") Broker broker, Pageable pageable);
+
+    /**
+     * T024: Find all orders for a specific broker (non-paginated).
+     */
+    @Query(
+        "select jhiOrder from Order jhiOrder " +
+        "left join jhiOrder.tradingAccount ta " +
+        "where ta.broker = :broker " +
+        "order by jhiOrder.createdAt desc"
+    )
+    List<Order> findByBrokerNonPaginated(@Param("broker") Broker broker);
 }

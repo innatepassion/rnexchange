@@ -1,6 +1,7 @@
 package com.rnexchange.service.criteria;
 
 import com.rnexchange.domain.enumeration.Currency;
+import com.rnexchange.domain.enumeration.LedgerEntryType;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,19 +39,40 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
         }
     }
 
+    /**
+     * Class for filtering LedgerEntryType
+     */
+    public static class LedgerEntryTypeFilter extends Filter<LedgerEntryType> {
+
+        public LedgerEntryTypeFilter() {}
+
+        public LedgerEntryTypeFilter(LedgerEntryTypeFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public LedgerEntryTypeFilter copy() {
+            return new LedgerEntryTypeFilter(this);
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     private LongFilter id;
 
-    private InstantFilter ts;
+    private InstantFilter createdAt;
 
-    private StringFilter type;
+    private LedgerEntryTypeFilter type;
 
     private BigDecimalFilter amount;
+
+    private BigDecimalFilter fee;
 
     private CurrencyFilter ccy;
 
     private BigDecimalFilter balanceAfter;
+
+    private StringFilter description;
 
     private StringFilter reference;
 
@@ -64,11 +86,13 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
 
     public LedgerEntryCriteria(LedgerEntryCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
-        this.ts = other.optionalTs().map(InstantFilter::copy).orElse(null);
-        this.type = other.optionalType().map(StringFilter::copy).orElse(null);
+        this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.type = other.optionalType().map(LedgerEntryTypeFilter::copy).orElse(null);
         this.amount = other.optionalAmount().map(BigDecimalFilter::copy).orElse(null);
+        this.fee = other.optionalFee().map(BigDecimalFilter::copy).orElse(null);
         this.ccy = other.optionalCcy().map(CurrencyFilter::copy).orElse(null);
         this.balanceAfter = other.optionalBalanceAfter().map(BigDecimalFilter::copy).orElse(null);
+        this.description = other.optionalDescription().map(StringFilter::copy).orElse(null);
         this.reference = other.optionalReference().map(StringFilter::copy).orElse(null);
         this.remarks = other.optionalRemarks().map(StringFilter::copy).orElse(null);
         this.tradingAccountId = other.optionalTradingAccountId().map(LongFilter::copy).orElse(null);
@@ -99,41 +123,41 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
         this.id = id;
     }
 
-    public InstantFilter getTs() {
-        return ts;
+    public InstantFilter getCreatedAt() {
+        return createdAt;
     }
 
-    public Optional<InstantFilter> optionalTs() {
-        return Optional.ofNullable(ts);
+    public Optional<InstantFilter> optionalCreatedAt() {
+        return Optional.ofNullable(createdAt);
     }
 
-    public InstantFilter ts() {
-        if (ts == null) {
-            setTs(new InstantFilter());
+    public InstantFilter createdAt() {
+        if (createdAt == null) {
+            setCreatedAt(new InstantFilter());
         }
-        return ts;
+        return createdAt;
     }
 
-    public void setTs(InstantFilter ts) {
-        this.ts = ts;
+    public void setCreatedAt(InstantFilter createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public StringFilter getType() {
+    public LedgerEntryTypeFilter getType() {
         return type;
     }
 
-    public Optional<StringFilter> optionalType() {
+    public Optional<LedgerEntryTypeFilter> optionalType() {
         return Optional.ofNullable(type);
     }
 
-    public StringFilter type() {
+    public LedgerEntryTypeFilter type() {
         if (type == null) {
-            setType(new StringFilter());
+            setType(new LedgerEntryTypeFilter());
         }
         return type;
     }
 
-    public void setType(StringFilter type) {
+    public void setType(LedgerEntryTypeFilter type) {
         this.type = type;
     }
 
@@ -154,6 +178,25 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
 
     public void setAmount(BigDecimalFilter amount) {
         this.amount = amount;
+    }
+
+    public BigDecimalFilter getFee() {
+        return fee;
+    }
+
+    public Optional<BigDecimalFilter> optionalFee() {
+        return Optional.ofNullable(fee);
+    }
+
+    public BigDecimalFilter fee() {
+        if (fee == null) {
+            setFee(new BigDecimalFilter());
+        }
+        return fee;
+    }
+
+    public void setFee(BigDecimalFilter fee) {
+        this.fee = fee;
     }
 
     public CurrencyFilter getCcy() {
@@ -192,6 +235,25 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
 
     public void setBalanceAfter(BigDecimalFilter balanceAfter) {
         this.balanceAfter = balanceAfter;
+    }
+
+    public StringFilter getDescription() {
+        return description;
+    }
+
+    public Optional<StringFilter> optionalDescription() {
+        return Optional.ofNullable(description);
+    }
+
+    public StringFilter description() {
+        if (description == null) {
+            setDescription(new StringFilter());
+        }
+        return description;
+    }
+
+    public void setDescription(StringFilter description) {
+        this.description = description;
     }
 
     public StringFilter getReference() {
@@ -281,11 +343,13 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
         final LedgerEntryCriteria that = (LedgerEntryCriteria) o;
         return (
             Objects.equals(id, that.id) &&
-            Objects.equals(ts, that.ts) &&
+            Objects.equals(createdAt, that.createdAt) &&
             Objects.equals(type, that.type) &&
             Objects.equals(amount, that.amount) &&
+            Objects.equals(fee, that.fee) &&
             Objects.equals(ccy, that.ccy) &&
             Objects.equals(balanceAfter, that.balanceAfter) &&
+            Objects.equals(description, that.description) &&
             Objects.equals(reference, that.reference) &&
             Objects.equals(remarks, that.remarks) &&
             Objects.equals(tradingAccountId, that.tradingAccountId) &&
@@ -295,7 +359,20 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, ts, type, amount, ccy, balanceAfter, reference, remarks, tradingAccountId, distinct);
+        return Objects.hash(
+            id,
+            createdAt,
+            type,
+            amount,
+            fee,
+            ccy,
+            balanceAfter,
+            description,
+            reference,
+            remarks,
+            tradingAccountId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -303,11 +380,13 @@ public class LedgerEntryCriteria implements Serializable, Criteria {
     public String toString() {
         return "LedgerEntryCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
-            optionalTs().map(f -> "ts=" + f + ", ").orElse("") +
+            optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
             optionalType().map(f -> "type=" + f + ", ").orElse("") +
             optionalAmount().map(f -> "amount=" + f + ", ").orElse("") +
+            optionalFee().map(f -> "fee=" + f + ", ").orElse("") +
             optionalCcy().map(f -> "ccy=" + f + ", ").orElse("") +
             optionalBalanceAfter().map(f -> "balanceAfter=" + f + ", ").orElse("") +
+            optionalDescription().map(f -> "description=" + f + ", ").orElse("") +
             optionalReference().map(f -> "reference=" + f + ", ").orElse("") +
             optionalRemarks().map(f -> "remarks=" + f + ", ").orElse("") +
             optionalTradingAccountId().map(f -> "tradingAccountId=" + f + ", ").orElse("") +

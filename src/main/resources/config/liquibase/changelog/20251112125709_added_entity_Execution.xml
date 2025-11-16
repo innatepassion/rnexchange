@@ -17,6 +17,9 @@
             <column name="exec_ts" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
+            <column name="side" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
             <column name="px" type="decimal(21,2)">
                 <constraints nullable="false" />
             </column>
@@ -30,6 +33,12 @@
                 <constraints nullable="true" />
             </column>
             <column name="order_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="trading_account_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="instrument_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
@@ -55,6 +64,7 @@
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="exec_ts" type="date"/>
+            <column name="side" type="string"/>
             <column name="px" type="numeric"/>
             <column name="qty" type="numeric"/>
             <column name="liquidity" type="string"/>

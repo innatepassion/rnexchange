@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="20251115153000-1" author="speckit">
+        <addColumn tableName="jhi_order">
+            <column name="rejection_reason" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20251115153000-2" author="speckit">
+        <addColumn tableName="execution">
+            <column name="side" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trading_account_id" type="bigint"/>
+            <column name="instrument_id" type="bigint"/>
+        </addColumn>
+        <addForeignKeyConstraint
+            baseTableName="execution"
+            baseColumnNames="trading_account_id"
+            constraintName="fk_execution_trading_account"
+            referencedTableName="trading_account"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="execution"
+            baseColumnNames="instrument_id"
+            constraintName="fk_execution_instrument"
+            referencedTableName="instrument"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="20251115153000-3" author="speckit">
+        <renameColumn tableName="ledger_entry" oldColumnName="ts" newColumnName="created_at" columnDataType="timestamp"/>
+        <addColumn tableName="ledger_entry">
+            <column name="fee" type="numeric(21,2)"/>
+            <column name="description" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
+

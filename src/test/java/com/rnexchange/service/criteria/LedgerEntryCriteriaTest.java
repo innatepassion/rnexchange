@@ -76,11 +76,13 @@ class LedgerEntryCriteriaTest {
 
     private static void setAllFilters(LedgerEntryCriteria ledgerEntryCriteria) {
         ledgerEntryCriteria.id();
-        ledgerEntryCriteria.ts();
+        ledgerEntryCriteria.createdAt();
         ledgerEntryCriteria.type();
         ledgerEntryCriteria.amount();
+        ledgerEntryCriteria.fee();
         ledgerEntryCriteria.ccy();
         ledgerEntryCriteria.balanceAfter();
+        ledgerEntryCriteria.description();
         ledgerEntryCriteria.reference();
         ledgerEntryCriteria.remarks();
         ledgerEntryCriteria.tradingAccountId();
@@ -91,11 +93,13 @@ class LedgerEntryCriteriaTest {
         return new Condition<>(
             criteria ->
                 condition.apply(criteria.getId()) &&
-                condition.apply(criteria.getTs()) &&
+                condition.apply(criteria.getCreatedAt()) &&
                 condition.apply(criteria.getType()) &&
                 condition.apply(criteria.getAmount()) &&
+                condition.apply(criteria.getFee()) &&
                 condition.apply(criteria.getCcy()) &&
                 condition.apply(criteria.getBalanceAfter()) &&
+                condition.apply(criteria.getDescription()) &&
                 condition.apply(criteria.getReference()) &&
                 condition.apply(criteria.getRemarks()) &&
                 condition.apply(criteria.getTradingAccountId()) &&
@@ -108,11 +112,13 @@ class LedgerEntryCriteriaTest {
         return new Condition<>(
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
-                condition.apply(criteria.getTs(), copy.getTs()) &&
+                condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
                 condition.apply(criteria.getType(), copy.getType()) &&
                 condition.apply(criteria.getAmount(), copy.getAmount()) &&
+                condition.apply(criteria.getFee(), copy.getFee()) &&
                 condition.apply(criteria.getCcy(), copy.getCcy()) &&
                 condition.apply(criteria.getBalanceAfter(), copy.getBalanceAfter()) &&
+                condition.apply(criteria.getDescription(), copy.getDescription()) &&
                 condition.apply(criteria.getReference(), copy.getReference()) &&
                 condition.apply(criteria.getRemarks(), copy.getRemarks()) &&
                 condition.apply(criteria.getTradingAccountId(), copy.getTradingAccountId()) &&

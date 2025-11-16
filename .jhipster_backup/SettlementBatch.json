@@ -1,0 +1,44 @@
+{
+  "annotations": {
+    "changelogDate": "20251112130409"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "refDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "kind",
+      "fieldType": "SettlementKind",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "EOD,VARIATION,EXPIRY"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "SettlementStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "CREATED,PROCESSED,REVERSED"
+    },
+    {
+      "fieldName": "remarks",
+      "fieldType": "String"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "SettlementBatch",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "code",
+      "otherEntityName": "exchange",
+      "relationshipName": "exchange",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

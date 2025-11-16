@@ -16,5 +16,19 @@
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_order"
                                  />
+
+        <addForeignKeyConstraint baseColumnNames="trading_account_id"
+                                 baseTableName="execution"
+                                 constraintName="fk_execution__trading_account_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="trading_account"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="instrument_id"
+                                 baseTableName="execution"
+                                 constraintName="fk_execution__instrument_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="instrument"
+                                 />
     </changeSet>
 </databaseChangeLog>

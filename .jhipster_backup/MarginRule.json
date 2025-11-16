@@ -1,0 +1,40 @@
+{
+  "annotations": {
+    "changelogDate": "20251112130109"
+  },
+  "applications": ["rnexchange"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "scope",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "initialPct",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "maintPct",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "spanJson",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "MarginRule",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "code",
+      "otherEntityName": "exchange",
+      "relationshipName": "exchange",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

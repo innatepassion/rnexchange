@@ -11,6 +11,12 @@
       "fieldValidateRules": ["required"]
     },
     {
+      "fieldName": "side",
+      "fieldType": "OrderSide",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "BUY,SELL"
+    },
+    {
       "fieldName": "px",
       "fieldType": "BigDecimal",
       "fieldValidateRules": ["required"]
@@ -36,6 +42,19 @@
     {
       "otherEntityName": "order",
       "relationshipName": "order",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "tradingAccount",
+      "relationshipName": "tradingAccount",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "symbol",
+      "otherEntityName": "instrument",
+      "relationshipName": "instrument",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     }

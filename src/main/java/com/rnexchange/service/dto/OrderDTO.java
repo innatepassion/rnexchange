@@ -37,6 +37,8 @@ public class OrderDTO implements Serializable {
     @NotNull
     private OrderStatus status;
 
+    private String rejectionReason;
+
     @NotNull
     private String venue;
 
@@ -112,6 +114,14 @@ public class OrderDTO implements Serializable {
         this.status = status;
     }
 
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
     public String getVenue() {
         return venue;
     }
@@ -185,6 +195,7 @@ public class OrderDTO implements Serializable {
             ", stopPx=" + getStopPx() +
             ", tif='" + getTif() + "'" +
             ", status='" + getStatus() + "'" +
+            ", rejectionReason='" + getRejectionReason() + "'" +
             ", venue='" + getVenue() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +

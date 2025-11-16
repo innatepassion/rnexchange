@@ -10,7 +10,7 @@ import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 
 import { useAppDispatch } from 'app/config/store';
 import { setLocale } from 'app/shared/reducers/locale';
-import { AccountMenu, AdminMenu, EntitiesMenu, LocaleMenu, ExchangeConsoleMenu } from '../menus';
+import { AccountMenu, AdminMenu, EntitiesMenu, LocaleMenu, ExchangeConsoleMenu, TraderMenu, BrokerAdminMenu } from '../menus';
 import { Brand, Home } from './header-components';
 
 export interface IHeaderProps {
@@ -18,6 +18,7 @@ export interface IHeaderProps {
   isAdmin: boolean;
   isExchangeOperator: boolean;
   isTrader: boolean;
+  isBrokerAdmin: boolean;
   ribbonEnv: string;
   isInProduction: boolean;
   isOpenAPIEnabled: boolean;
@@ -64,13 +65,17 @@ const Header = (props: IHeaderProps) => {
             )}
             {props.isAuthenticated && props.isExchangeOperator && <ExchangeConsoleMenu />}
             {props.isAuthenticated && props.isTrader && (
-              <NavItem>
-                <NavLink tag={Link} to="/market-watch" className="d-flex align-items-center">
-                  <FontAwesomeIcon icon={faChartLine} className="me-1" />
-                  <span>Market Watch</span>
-                </NavLink>
-              </NavItem>
+              <>
+                <NavItem>
+                  <NavLink tag={Link} to="/market-watch" className="d-flex align-items-center">
+                    <FontAwesomeIcon icon={faChartLine} className="me-1" />
+                    <span>Market Watch</span>
+                  </NavLink>
+                </NavItem>
+                <TraderMenu />
+              </>
             )}
+            {props.isAuthenticated && props.isBrokerAdmin && <BrokerAdminMenu />}
             <LocaleMenu currentLocale={props.currentLocale} onClick={handleLocaleChange} />
             <AccountMenu isAuthenticated={props.isAuthenticated} />
           </Nav>

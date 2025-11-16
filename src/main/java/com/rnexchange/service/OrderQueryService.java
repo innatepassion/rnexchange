@@ -81,6 +81,7 @@ public class OrderQueryService extends QueryService<Order> {
                 buildRangeSpecification(criteria.getStopPx(), Order_.stopPx),
                 buildSpecification(criteria.getTif(), Order_.tif),
                 buildSpecification(criteria.getStatus(), Order_.status),
+                buildStringSpecification(criteria.getRejectionReason(), Order_.rejectionReason),
                 buildStringSpecification(criteria.getVenue(), Order_.venue),
                 buildRangeSpecification(criteria.getCreatedAt(), Order_.createdAt),
                 buildRangeSpecification(criteria.getUpdatedAt(), Order_.updatedAt),

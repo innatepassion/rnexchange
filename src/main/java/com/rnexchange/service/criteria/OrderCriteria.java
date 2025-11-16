@@ -110,6 +110,8 @@ public class OrderCriteria implements Serializable, Criteria {
 
     private OrderStatusFilter status;
 
+    private StringFilter rejectionReason;
+
     private StringFilter venue;
 
     private InstantFilter createdAt;
@@ -133,6 +135,7 @@ public class OrderCriteria implements Serializable, Criteria {
         this.stopPx = other.optionalStopPx().map(BigDecimalFilter::copy).orElse(null);
         this.tif = other.optionalTif().map(TifFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(OrderStatusFilter::copy).orElse(null);
+        this.rejectionReason = other.optionalRejectionReason().map(StringFilter::copy).orElse(null);
         this.venue = other.optionalVenue().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
         this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
@@ -298,6 +301,25 @@ public class OrderCriteria implements Serializable, Criteria {
         this.status = status;
     }
 
+    public StringFilter getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public Optional<StringFilter> optionalRejectionReason() {
+        return Optional.ofNullable(rejectionReason);
+    }
+
+    public StringFilter rejectionReason() {
+        if (rejectionReason == null) {
+            setRejectionReason(new StringFilter());
+        }
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(StringFilter rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
     public StringFilter getVenue() {
         return venue;
     }
@@ -430,6 +452,7 @@ public class OrderCriteria implements Serializable, Criteria {
             Objects.equals(stopPx, that.stopPx) &&
             Objects.equals(tif, that.tif) &&
             Objects.equals(status, that.status) &&
+            Objects.equals(rejectionReason, that.rejectionReason) &&
             Objects.equals(venue, that.venue) &&
             Objects.equals(createdAt, that.createdAt) &&
             Objects.equals(updatedAt, that.updatedAt) &&
@@ -450,6 +473,7 @@ public class OrderCriteria implements Serializable, Criteria {
             stopPx,
             tif,
             status,
+            rejectionReason,
             venue,
             createdAt,
             updatedAt,
@@ -471,6 +495,7 @@ public class OrderCriteria implements Serializable, Criteria {
             optionalStopPx().map(f -> "stopPx=" + f + ", ").orElse("") +
             optionalTif().map(f -> "tif=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
+            optionalRejectionReason().map(f -> "rejectionReason=" + f + ", ").orElse("") +
             optionalVenue().map(f -> "venue=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
             optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +

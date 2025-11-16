@@ -13,6 +13,7 @@ import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.LedgerEntry;
 import com.rnexchange.domain.TradingAccount;
 import com.rnexchange.domain.enumeration.Currency;
+import com.rnexchange.domain.enumeration.LedgerEntryType;
 import com.rnexchange.repository.LedgerEntryRepository;
 import com.rnexchange.service.dto.LedgerEntryDTO;
 import com.rnexchange.service.mapper.LedgerEntryMapper;
@@ -40,15 +41,19 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class LedgerEntryResourceIT {
 
-    private static final Instant DEFAULT_TS = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_TS = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_CREATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final String DEFAULT_TYPE = "AAAAAAAAAA";
-    private static final String UPDATED_TYPE = "BBBBBBBBBB";
+    private static final LedgerEntryType DEFAULT_TYPE = LedgerEntryType.DEBIT;
+    private static final LedgerEntryType UPDATED_TYPE = LedgerEntryType.CREDIT;
 
     private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal(1);
     private static final BigDecimal UPDATED_AMOUNT = new BigDecimal(2);
     private static final BigDecimal SMALLER_AMOUNT = new BigDecimal(1 - 1);
+
+    private static final BigDecimal DEFAULT_FEE = new BigDecimal(0);
+    private static final BigDecimal UPDATED_FEE = new BigDecimal(1);
+    private static final BigDecimal SMALLER_FEE = new BigDecimal(0 - 1);
 
     private static final Currency DEFAULT_CCY = Currency.INR;
     private static final Currency UPDATED_CCY = Currency.USD;
@@ -56,6 +61,9 @@ class LedgerEntryResourceIT {
     private static final BigDecimal DEFAULT_BALANCE_AFTER = new BigDecimal(1);
     private static final BigDecimal UPDATED_BALANCE_AFTER = new BigDecimal(2);
     private static final BigDecimal SMALLER_BALANCE_AFTER = new BigDecimal(1 - 1);
+
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
     private static final String DEFAULT_REFERENCE = "AAAAAAAAAA";
     private static final String UPDATED_REFERENCE = "BBBBBBBBBB";
@@ -96,11 +104,13 @@ class LedgerEntryResourceIT {
      */
     public static LedgerEntry createEntity() {
         return new LedgerEntry()
-            .ts(DEFAULT_TS)
+            .createdAt(DEFAULT_CREATED_AT)
             .type(DEFAULT_TYPE)
             .amount(DEFAULT_AMOUNT)
+            .fee(DEFAULT_FEE)
             .ccy(DEFAULT_CCY)
             .balanceAfter(DEFAULT_BALANCE_AFTER)
+            .description(DEFAULT_DESCRIPTION)
             .reference(DEFAULT_REFERENCE)
             .remarks(DEFAULT_REMARKS);
     }
@@ -113,11 +123,13 @@ class LedgerEntryResourceIT {
      */
     public static LedgerEntry createUpdatedEntity() {
         return new LedgerEntry()
-            .ts(UPDATED_TS)
+            .createdAt(UPDATED_CREATED_AT)
             .type(UPDATED_TYPE)
             .amount(UPDATED_AMOUNT)
+            .fee(UPDATED_FEE)
             .ccy(UPDATED_CCY)
             .balanceAfter(UPDATED_BALANCE_AFTER)
+            .description(UPDATED_DESCRIPTION)
             .reference(UPDATED_REFERENCE)
             .remarks(UPDATED_REMARKS);
     }
@@ -182,7 +194,7 @@ class LedgerEntryResourceIT {
     void checkTsIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null
-        ledgerEntry.setTs(null);
+        ledgerEntry.setCreatedAt(null);
 
         // Create the LedgerEntry, which fails.
         LedgerEntryDTO ledgerEntryDTO = ledgerEntryMapper.toDto(ledgerEntry);
@@ -257,7 +269,7 @@ class LedgerEntryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(ledgerEntry.getId().intValue())))
-            .andExpect(jsonPath("$.[*].ts").value(hasItem(DEFAULT_TS.toString())))
+            .andExpect(jsonPath("$.[*].ts").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].ccy").value(hasItem(DEFAULT_CCY.toString())))
@@ -278,7 +290,7 @@ class LedgerEntryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(ledgerEntry.getId().intValue()))
-            .andExpect(jsonPath("$.ts").value(DEFAULT_TS.toString()))
+            .andExpect(jsonPath("$.ts").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
             .andExpect(jsonPath("$.amount").value(sameNumber(DEFAULT_AMOUNT)))
             .andExpect(jsonPath("$.ccy").value(DEFAULT_CCY.toString()))
@@ -309,7 +321,7 @@ class LedgerEntryResourceIT {
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
         // Get all the ledgerEntryList where ts equals to
-        defaultLedgerEntryFiltering("ts.equals=" + DEFAULT_TS, "ts.equals=" + UPDATED_TS);
+        defaultLedgerEntryFiltering("ts.equals=" + DEFAULT_CREATED_AT, "ts.equals=" + UPDATED_CREATED_AT);
     }
 
     @Test
@@ -319,7 +331,7 @@ class LedgerEntryResourceIT {
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
         // Get all the ledgerEntryList where ts in
-        defaultLedgerEntryFiltering("ts.in=" + DEFAULT_TS + "," + UPDATED_TS, "ts.in=" + UPDATED_TS);
+        defaultLedgerEntryFiltering("ts.in=" + DEFAULT_CREATED_AT + "," + UPDATED_CREATED_AT, "ts.in=" + UPDATED_CREATED_AT);
     }
 
     @Test
@@ -700,7 +712,7 @@ class LedgerEntryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(ledgerEntry.getId().intValue())))
-            .andExpect(jsonPath("$.[*].ts").value(hasItem(DEFAULT_TS.toString())))
+            .andExpect(jsonPath("$.[*].ts").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].ccy").value(hasItem(DEFAULT_CCY.toString())))
@@ -755,7 +767,7 @@ class LedgerEntryResourceIT {
         // Disconnect from session so that the updates on updatedLedgerEntry are not directly saved in db
         em.detach(updatedLedgerEntry);
         updatedLedgerEntry
-            .ts(UPDATED_TS)
+            .createdAt(UPDATED_CREATED_AT)
             .type(UPDATED_TYPE)
             .amount(UPDATED_AMOUNT)
             .ccy(UPDATED_CCY)
@@ -883,7 +895,7 @@ class LedgerEntryResourceIT {
         partialUpdatedLedgerEntry.setId(ledgerEntry.getId());
 
         partialUpdatedLedgerEntry
-            .ts(UPDATED_TS)
+            .createdAt(UPDATED_CREATED_AT)
             .type(UPDATED_TYPE)
             .amount(UPDATED_AMOUNT)
             .ccy(UPDATED_CCY)

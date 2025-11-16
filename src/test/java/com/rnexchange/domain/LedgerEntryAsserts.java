@@ -48,11 +48,12 @@ public class LedgerEntryAsserts {
     public static void assertLedgerEntryUpdatableFieldsEquals(LedgerEntry expected, LedgerEntry actual) {
         assertThat(actual)
             .as("Verify LedgerEntry relevant properties")
-            .satisfies(a -> assertThat(a.getTs()).as("check ts").isEqualTo(expected.getTs()))
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
             .satisfies(a -> assertThat(a.getType()).as("check type").isEqualTo(expected.getType()))
             .satisfies(a ->
                 assertThat(a.getAmount()).as("check amount").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getAmount())
             )
+            .satisfies(a -> assertThat(a.getFee()).as("check fee").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getFee()))
             .satisfies(a -> assertThat(a.getCcy()).as("check ccy").isEqualTo(expected.getCcy()))
             .satisfies(a ->
                 assertThat(a.getBalanceAfter())
@@ -60,6 +61,7 @@ public class LedgerEntryAsserts {
                     .usingComparator(bigDecimalCompareTo)
                     .isEqualTo(expected.getBalanceAfter())
             )
+            .satisfies(a -> assertThat(a.getDescription()).as("check description").isEqualTo(expected.getDescription()))
             .satisfies(a -> assertThat(a.getReference()).as("check reference").isEqualTo(expected.getReference()))
             .satisfies(a -> assertThat(a.getRemarks()).as("check remarks").isEqualTo(expected.getRemarks()));
     }
