@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+target/
+.nyc_output/
+jest-cache/
+webpack/
+**/*.min.js
+src/main/webapp/app/**/*.test.tsx
+src/main/webapp/app/**/*.spec.tsx
+src/test/javascript/**
+
+

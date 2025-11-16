@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Placeholder for IdempotencyToken table (to be replaced when entity is added via JDL) -->
+    <changeSet id="20251116000000-IdempotencyToken-placeholder" author="speckit">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="idempotency_token"/>
+            </not>
+        </preConditions>
+        <!-- No-op placeholder to allocate changelog slot -->
+    </changeSet>
+</databaseChangeLog>
+
+

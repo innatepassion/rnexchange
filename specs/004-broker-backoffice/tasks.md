@@ -2,12 +2,12 @@
 
 ## Phase 1 — Setup
 
-- [ ] T001 Ensure OpenAPI contracts merged into `src/main/resources/swagger/api.yml`
-- [ ] T002 Generate server stubs and DTOs via `./mvnw generate-sources`
-- [ ] T003 Create backend module skeletons `src/main/java/com/rnexchange/web/rest/broker/` and `src/main/java/com/rnexchange/service/broker/`
-- [ ] T004 Create frontend module skeleton `src/main/webapp/app/modules/broker/`
-- [ ] T005 Configure role guard for `BROKER_ADMIN` routes in `src/main/webapp/app/shared/auth/private-route.tsx`
-- [ ] T006 Add Liquibase changelog placeholder for IdempotencyToken table `src/main/resources/db/changelog/` (only if not existing)
+- [x] T001 Ensure OpenAPI contracts merged into `src/main/resources/swagger/api.yml`
+- [x] T002 Generate server stubs and DTOs via `./mvnw generate-sources`
+- [x] T003 Create backend module skeletons `src/main/java/com/rnexchange/web/rest/broker/` and `src/main/java/com/rnexchange/service/broker/`
+- [x] T004 Create frontend module skeleton `src/main/webapp/app/modules/broker/`
+- [x] T005 Configure role guard for `BROKER_ADMIN` routes in `src/main/webapp/app/shared/auth/private-route.tsx`
+- [x] T006 Add Liquibase changelog placeholder for IdempotencyToken table `src/main/resources/db/changelog/` (only if not existing)
 
 ## Phase 2 — Foundational
 
