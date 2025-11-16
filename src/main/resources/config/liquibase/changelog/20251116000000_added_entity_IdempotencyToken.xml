@@ -1,18 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.22.xsd">
 
-    <!-- Placeholder for IdempotencyToken table (to be replaced when entity is added via JDL) -->
-    <changeSet id="20251116000000-IdempotencyToken-placeholder" author="speckit">
+    <changeSet id="2025-11-16T00-IdempotencyToken" author="speckit">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="idempotency_token"/>
             </not>
         </preConditions>
-        <!-- No-op placeholder to allocate changelog slot -->
+
+        <createTable tableName="idempotency_token">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="broker_id" type="bigint"/>
+            <column name="trading_account_id" type="bigint"/>
+            <column name="ledger_entry_id" type="bigint"/>
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="idempotency_token"
+                columnNames="broker_id, trading_account_id, token"
+                constraintName="uk_idempotency_scope_token"/>
+
+        <addForeignKeyConstraint
+                baseTableName="idempotency_token"
+                baseColumnNames="broker_id"
+                referencedTableName="broker"
+                referencedColumnNames="id"
+                constraintName="fk_idempotency_token__broker"/>
+
+        <addForeignKeyConstraint
+                baseTableName="idempotency_token"
+                baseColumnNames="trading_account_id"
+                referencedTableName="trading_account"
+                referencedColumnNames="id"
+                constraintName="fk_idempotency_token__trading_account"/>
+
+        <addForeignKeyConstraint
+                baseTableName="idempotency_token"
+                baseColumnNames="ledger_entry_id"
+                referencedTableName="ledger_entry"
+                referencedColumnNames="id"
+                constraintName="fk_idempotency_token__ledger_entry"/>
     </changeSet>
 </databaseChangeLog>
-
-

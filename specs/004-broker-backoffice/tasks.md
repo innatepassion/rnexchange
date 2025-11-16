@@ -17,7 +17,7 @@
 - [x] T008b [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/PositionRepository.java`
 - [x] T008c [P] Add broker-scoped queries in `src/main/java/com/rnexchange/repository/LedgerEntryRepository.java`
 - [x] T009 Define DTOs for overview, traders, and journal in `src/main/java/com/rnexchange/service/dto/`
-- [x] T010 Wire `@PreAuthorize('hasRole(\"BROKER_ADMIN\")')` on controllers in `src/main/java/com/rnexchange/web/rest/broker/BrokerOverviewResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerTradersResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerJournalResource.java`
+- [x] T010 Wire `@PreAuthorize('hasRole("BROKER_ADMIN")')` on controllers in `src/main/java/com/rnexchange/web/rest/broker/BrokerOverviewResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerTradersResource.java`, `src/main/java/com/rnexchange/web/rest/broker/BrokerJournalResource.java`
 
 ### Foundational — Entity/JDL and DB
 
@@ -39,31 +39,34 @@
 
 ## Phase 4 — User Story 2 (P1): Clients list and details
 
-- [ ] T039 [P] [US2] Contract test for GET `/api/broker/traders` in `src/test/java/com/rnexchange/contract/broker/BrokerTradersContractTest.java`
-- [ ] T040 [P] [US2] Contract test for GET `/api/broker/traders/{traderId}` in `src/test/java/com/rnexchange/contract/broker/BrokerTraderDetailsContractTest.java`
-- [ ] T017 [US2] Implement list traders endpoint GET `/api/broker/traders` in `web/rest/broker/BrokerTradersResource.java`
-- [ ] T018 [P] [US2] Service method to fetch trader summaries with P&L in `service/broker/BrokerTradersService.java`
-- [ ] T019 [US2] Implement trader details endpoint GET `/api/broker/traders/{traderId}` in `web/rest/broker/BrokerTradersResource.java`
-- [ ] T020 [P] [US2] Include recent ledger snippet (last 10) in details in `service/broker/BrokerTradersService.java`
-- [ ] T021 [US2] Frontend Clients page with table in `webapp/app/modules/broker/clients/index.tsx`
-- [ ] T022 [P] [US2] Frontend service for traders APIs in `webapp/app/modules/broker/services/traders.service.ts`
-- [ ] T023 [US2] Details drawer/modal showing core account and last 10 ledger rows in `webapp/app/modules/broker/clients/components/TraderDetailsDrawer.tsx`
-- [ ] T043 [US2] Backend integration test for broker scoping on list/details in `src/test/java/com/rnexchange/integration/broker/BrokerTradersIT.java`
-- [ ] T047 [P] [US2] Cypress E2E for clients list/details in `src/test/javascript/cypress/e2e/broker_clients.cy.ts`
+- [x] T039 [P] [US2] Contract test for GET `/api/broker/traders` in `src/test/java/com/rnexchange/contract/broker/BrokerTradersContractTest.java`
+- [x] T040 [P] [US2] Contract test for GET `/api/broker/traders/{traderId}` in `src/test/java/com/rnexchange/contract/broker/BrokerTraderDetailsContractTest.java`
+- [x] T017 [US2] Implement list traders endpoint GET `/api/broker/traders` in `web/rest/broker/BrokerTradersResource.java`
+- [x] T018 [P] [US2] Service method to fetch trader summaries with P&L in `service/broker/BrokerTradersService.java`
+- [x] T019 [US2] Implement trader details endpoint GET `/api/broker/traders/{traderId}` in `web/rest/broker/BrokerTradersResource.java`
+- [x] T020 [P] [US2] Include recent ledger snippet (last 10) in details in `service/broker/BrokerTradersService.java`
+- [x] T021 [US2] Frontend Clients page with table in `webapp/app/modules/broker/clients/index.tsx`
+- [x] T022 [P] [US2] Frontend service for traders APIs in `webapp/app/modules/broker/services/traders.service.ts`
+- [x] T023 [US2] Details drawer/modal showing core account and last 10 ledger rows in `webapp/app/modules/broker/clients/components/TraderDetailsDrawer.tsx`
+- [x] T043 [US2] Backend integration test for broker scoping on list/details in `src/test/java/com/rnexchange/integration/broker/BrokerTradersIT.java`
+- [x] T047 [P] [US2] Cypress E2E for clients list/details in `src/test/javascript/cypress/e2e/broker_clients.cy.ts`
 
 ## Phase 5 — User Story 3 (P2): Funds journal credit/debit
 
-- [ ] T041 [P] [US3] Contract test for POST `/api/broker/traders/{tradingAccountId}/journal` in `src/test/java/com/rnexchange/contract/broker/BrokerJournalContractTest.java`
-- [ ] T024 [US3] Implement POST `/api/broker/traders/{tradingAccountId}/journal` in `web/rest/broker/BrokerJournalResource.java`
-- [ ] T025 [P] [US3] Journal application service with idempotency (header `Idempotency-Key`) in `service/broker/BrokerJournalService.java`
-- [ ] T026 [P] [US3] Add `IdempotencyTokenRepository` in `src/main/java/com/rnexchange/repository/IdempotencyTokenRepository.java`
-- [ ] T026a [US3] Enforce 6h retention via cleanup job in `src/main/java/com/rnexchange/service/broker/IdempotencyCleanupService.java`
-- [ ] T027 [US3] Adjust cash balance and create `JOURNAL_CREDIT/DEBIT` ledger entries in `service/broker/BrokerJournalService.java`
-- [ ] T028 [US3] Frontend journal drawer form (credit/debit, amount, reason) in `webapp/app/modules/broker/clients/components/JournalForm.tsx`
-- [ ] T029 [P] [US3] Frontend wire-up to refresh balances and recent ledger in `webapp/app/modules/broker/clients/index.tsx`
-- [ ] T044 [US3] Backend integration test: journal updates balance and creates ledger in `src/test/java/com/rnexchange/integration/broker/BrokerJournalIT.java`
+- [x] T041 [P] [US3] Contract test for POST `/api/broker/traders/{tradingAccountId}/journal` in `src/test/java/com/rnexchange/contract/broker/BrokerJournalContractTest.java`
+- [x] T024 [US3] Implement POST `/api/broker/traders/{tradingAccountId}/journal` in `web/rest/broker/BrokerJournalResource.java`
+- [x] T025 [P] [US3] Journal application service with idempotency (header `Idempotency-Key`) in `service/broker/BrokerJournalService.java`
+- [x] T026 [P] [US3] Add `IdempotencyTokenRepository` in `src/main/java/com/rnexchange/repository/IdempotencyTokenRepository.java`
+- [x] T026a [US3] Enforce 6h retention via cleanup job in `src/main/java/com/rnexchange/service/broker/IdempotencyCleanupService.java`
+- [x] T027 [US3] Adjust cash balance and create `JOURNAL_CREDIT/DEBIT` ledger entries in `service/broker/BrokerJournalService.java`
+- [x] T028 [US3] Frontend journal drawer form (credit/debit, amount, reason) in `webapp/app/modules/broker/clients/components/JournalForm.tsx`
+- [x] T029 [P] [US3] Frontend wire-up to refresh balances and recent ledger in `webapp/app/modules/broker/clients/index.tsx`
+- [x] T044 [US3] Backend integration test: journal updates balance and creates ledger in `src/test/java/com/rnexchange/integration/broker/BrokerJournalIT.java`
 - [ ] T045 [US3] Integration test (FR‑008): downstream trading/risk reflect updated balance in `src/test/java/com/rnexchange/integration/broker/BrokerDownstreamBalanceRespectIT.java`
 - [ ] T048 [P] [US3] Cypress E2E for journal flow in `src/test/javascript/cypress/e2e/broker_journal.cy.ts`
+      **_ End Patch_**"`  `json
+      {"error":"Invalid patch content"} `  `json
+      {"note":"The previous error occurred due to extra formatting. Retrying with proper patch content."} ``` \*\*\* Begin Patch
 
 ## Phase 6 — Polish & Cross-Cutting
 

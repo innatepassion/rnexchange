@@ -50,4 +50,6 @@ public interface TradingAccountRepository extends JpaRepository<TradingAccount, 
     Page<TradingAccount> findByBroker_Id(@Param("brokerId") Long brokerId, Pageable pageable);
 
     Optional<TradingAccount> findByIdAndBroker_Id(@Param("id") Long id, @Param("brokerId") Long brokerId);
+
+    Optional<TradingAccount> findFirstByBroker_Id(@Param("brokerId") Long brokerId);
 }
