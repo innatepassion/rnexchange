@@ -20,6 +20,16 @@ import { AUTHORITIES } from 'app/config/constants';
 import { sendActivity } from 'app/config/websocket-middleware';
 import MarketWatch from 'app/modules/market-watch/market-watch';
 
+const BrokerDashboard = Loadable({
+  loader: () => import(/* webpackChunkName: "broker-dashboard" */ 'app/modules/broker/dashboard'),
+  loading: () => loading,
+});
+
+const BrokerClients = Loadable({
+  loader: () => import(/* webpackChunkName: "broker-clients" */ 'app/modules/broker/clients'),
+  loading: () => loading,
+});
+
 const TraderDashboard = Loadable({
   loader: () => import(/* webpackChunkName: "trader-dashboard" */ 'app/modules/trader'),
   loading: () => loading,
@@ -95,6 +105,22 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.TRADER]}>
               <MarketWatch />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="broker/dashboard"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BROKER_ADMIN]}>
+              <BrokerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="broker/clients"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BROKER_ADMIN]}>
+              <BrokerClients />
             </PrivateRoute>
           }
         />

@@ -40,4 +40,19 @@ public interface TraderProfileRepository extends JpaRepository<TraderProfile, Lo
 
     @EntityGraph(attributePaths = "user")
     Optional<TraderProfile> findOneByUserLogin(String login);
+
+    /**
+     * Phase 2 (T008a): Broker-scoped queries via TradingAccount join.
+     * Select distinct TraderProfile rows that have at least one TradingAccount under the given broker.
+     */
+    @Query(
+        value = "select distinct tp from TraderProfile tp " +
+        "left join tp.user u " +
+        "left join TradingAccount ta on ta.trader = tp " +
+        "where ta.broker.id = :brokerId",
+        countQuery = "select count(distinct tp) from TraderProfile tp " +
+        "left join TradingAccount ta on ta.trader = tp " +
+        "where ta.broker.id = :brokerId"
+    )
+    Page<TraderProfile> findByBrokerId(@Param("brokerId") Long brokerId, Pageable pageable);
 }

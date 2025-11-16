@@ -61,6 +61,8 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
   return false;
 };
 
+export const BROKER_ADMIN_AUTH = ['ROLE_BROKER_ADMIN'];
+
 /**
  * Checks authentication before showing the children and redirects to the
  * login page if the user is not authenticated.

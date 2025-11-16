@@ -41,6 +41,7 @@
     <include file="config/liquibase/changelog/20251112130309_added_entity_CorporateAction.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112130409_added_entity_SettlementBatch.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251115145614_added_entity_ExchangeVolatilityOverride.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20251116000000_added_entity_IdempotencyToken.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20251112124609_added_entity_constraints_Broker.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251112124709_added_entity_constraints_ExchangeIntegration.xml" relativeToChangelogFile="false"/>

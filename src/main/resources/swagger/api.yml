@@ -12,6 +12,119 @@ servers:
   - url: https://api.rnexchange.prod
     description: Production
 paths:
+  /api/broker/overview:
+    get:
+      summary: Get broker-wide overview metrics and top utilization accounts
+      operationId: getBrokerOverview
+      tags:
+        - Broker
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Overview metrics and ranked utilization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrokerOverview'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/broker/traders:
+    get:
+      summary: List all traders under the authenticated broker
+      operationId: listBrokerTraders
+      tags:
+        - Broker
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+      responses:
+        '200':
+          description: Paged list of traders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TraderPage'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/broker/traders/{traderId}:
+    get:
+      summary: Get trader details and recent ledger snippet
+      operationId: getBrokerTrader
+      tags:
+        - Broker
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: traderId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Trader details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TraderDetails'
+        '404':
+          description: Not found or not under this broker
+  /api/broker/traders/{tradingAccountId}/journal:
+    post:
+      summary: Submit a funds journal credit or debit
+      operationId: createJournalEntry
+      tags:
+        - Broker
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tradingAccountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequest'
+      responses:
+        '200':
+          description: Applied (or duplicate with original result)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResult'
+        '400':
+          description: Validation error
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Account not under this broker
   /api/orders:
     post:
       summary: Place a new cash order
@@ -235,6 +348,134 @@ components:
       description: Basic Authentication
       scheme: basic
   schemas:
+    Money:
+      type: number
+      format: double
+    BrokerOverview:
+      type: object
+      properties:
+        activeTraderCount:
+          type: integer
+        totalCash:
+          $ref: '#/components/schemas/Money'
+        totalEquityExposure:
+          $ref: '#/components/schemas/Money'
+        topUtilization:
+          type: array
+          items:
+            $ref: '#/components/schemas/UtilizationRow'
+    UtilizationRow:
+      type: object
+      properties:
+        traderId:
+          type: string
+          format: uuid
+        tradingAccountId:
+          type: string
+          format: uuid
+        traderName:
+          type: string
+        cash:
+          $ref: '#/components/schemas/Money'
+        exposure:
+          $ref: '#/components/schemas/Money'
+        utilizationPct:
+          type: number
+          minimum: 0
+          maximum: 100
+    TraderPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TraderSummary'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+    TraderSummary:
+      type: object
+      properties:
+        traderId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        login:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - disabled
+        cash:
+          $ref: '#/components/schemas/Money'
+        currentPnl:
+          $ref: '#/components/schemas/Money'
+    TraderDetails:
+      type: object
+      properties:
+        summary:
+          $ref: '#/components/schemas/TraderSummary'
+        recentLedger:
+          type: array
+          items:
+            $ref: '#/components/schemas/LedgerEntry'
+    LedgerEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - JOURNAL_CREDIT
+            - JOURNAL_DEBIT
+            - OTHER
+        amount:
+          $ref: '#/components/schemas/Money'
+        reason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdByUserId:
+          type: string
+          format: uuid
+    JournalRequest:
+      type: object
+      required:
+        - direction
+        - amount
+        - reason
+      properties:
+        direction:
+          type: string
+          enum:
+            - credit
+            - debit
+        amount:
+          $ref: '#/components/schemas/Money'
+        reason:
+          type: string
+          minLength: 1
+    JournalResult:
+      type: object
+      properties:
+        ledgerEntry:
+          $ref: '#/components/schemas/LedgerEntry'
+        account:
+          type: object
+          properties:
+            tradingAccountId:
+              type: string
+              format: uuid
+            cash:
+              $ref: '#/components/schemas/Money'
     BaselineSeedRequest:
       type: object
       properties:
@@ -399,6 +640,9 @@ components:
         detail:
           type: string
           description: Human-readable explanation, suitable for logs/UI.
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
 security:
   - bearerAuth: []
   - basic: []
