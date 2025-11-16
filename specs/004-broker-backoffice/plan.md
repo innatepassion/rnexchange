@@ -1,7 +1,7 @@
 # Implementation Plan: [FEATURE]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `004-broker-backoffice` | **Date**: 2025-11-16 | **Spec**: `/home/explorer/Development/rnexchange/specs/004-broker-backoffice/spec.md`
+**Input**: Feature specification from `/specs/004-broker-backoffice/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
@@ -27,12 +27,12 @@ Implement M3 Broker Back Office to provide broker-scoped visibility (dashboard a
 **Constraints**: TDD (tests before impl), API-first (OpenAPI → generate), strict RBAC scoping by broker, Liquibase only for schema changes  
 **Scale/Scope**: Milestone M3; typical broker has 10s–100s traders; no cross-broker access
 
-Unknowns flagged for Phase 0 research:
+Unknowns flagged for Phase 0 research (resolved; see `research.md` and `spec.md` Clarifications):
 
-- ε constant for utilization clamp (NEEDS CLARIFICATION)
-- Source of unrealized P&L and price freshness enforcement hook in M2 services (NEEDS CLARIFICATION)
-- Idempotency key storage/dedup strategy (header vs body, persistence table vs reuse of ledger unique index) (NEEDS CLARIFICATION)
-- Journal entry types mapping and audit fields alignment with existing LedgerEntry (NEEDS CLARIFICATION)
+- ε constant for utilization clamp → ε = 1.0 (currency units)
+- Unrealized P&L source and price freshness → reuse M2 valuation; exclude prices older than 60s
+- Idempotency strategy → required `Idempotency-Key` header; persist tokens; 6h retention
+- Journal entry mapping and audit → `JOURNAL_CREDIT`/`JOURNAL_DEBIT`; include audit fields and idempotency token reference
 
 ## Constitution Check
 

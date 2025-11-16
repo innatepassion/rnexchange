@@ -16,6 +16,9 @@
 - Q: How should we prevent duplicate journal debits/credits on retries? → A: Require idempotency key per journal request.
 - Q: What price freshness is required for exposure calculation? → A: Require price ≤ 1 minute old.
 - Q: How should stale (>60s) prices be handled in exposure? → A: Exclude stale prices from exposure and mark the snapshot as stale.
+- Q: Where should the idempotency key be provided? → A: HTTP header `Idempotency-Key` (required).
+- Q: How many recent ledger entries should the trader details snippet show? → A: Show last 10 entries by default.
+- Q: How long should idempotency tokens be retained? → A: Retain for 6 hours with periodic cleanup.
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -47,7 +50,7 @@ A Broker Admin wants a Clients screen that lists all trader accounts under their
 
 1. **Given** a Broker Admin with multiple traders under their broker, **When** they open the Clients view, **Then** they see a tabular list of traders that includes at least trader name, login identifier, account status (e.g., active, disabled), current cash balance, and a simple current P&L indicator derived from M2 data.
 2. **Given** there are traders belonging to other brokers in the system, **When** a Broker Admin views the Clients screen, **Then** only traders whose trading accounts are associated with that broker are shown, and no cross-broker leakage occurs.
-3. **Given** a Broker Admin selects a specific trader row, **When** they open the details drawer or modal, **Then** they can see core account details and a recent ledger snippet sufficient to understand recent balance-affecting events before deciding on any new journal entries.
+3. **Given** a Broker Admin selects a specific trader row, **When** they open the details drawer or modal, **Then** they can see core account details and a recent ledger snippet (last 10 entries) sufficient to understand recent balance-affecting events before deciding on any new journal entries.
 
 ---
 
@@ -96,7 +99,9 @@ A Broker Admin wants a simple way to credit or debit a trader’s simulated cash
 - **FR-008**: The system MUST ensure that changes to trading account balances caused by funds journal entries are respected by downstream trading and risk checks used in the existing M2 trading flow, so that a trader’s ability to place orders is consistent with the latest journaled balance.
 - **FR-009**: The system MUST provide UI surfaces for Broker Admins, including a Broker Dashboard (with overview cards and a ranked utilization table) and a Clients screen (with a traders table and a journal-entry drawer or modal) that are understandable to non-technical users.
 - **FR-010**: The system MUST record sufficient information in each journal/ledger entry (including at least timestamp, Broker Admin identity, trading account, direction, amount, reason, and idempotency key) to support basic auditing and deduplication of simulated fund movements initiated via the Broker Back Office.
-- **FR-011**: The journal submission API MUST require a client-provided idempotency key and MUST ensure at-most-once application per unique key for a given broker account; repeated submissions with the same key MUST return the original result without creating additional ledger entries.
+- **FR-011**: The journal submission API MUST require a client-provided idempotency key via the HTTP header `Idempotency-Key` and MUST ensure at-most-once application per unique key for a given broker account; repeated submissions with the same key MUST return the original result without creating additional ledger entries.
+- **FR-012**: The trader details view MUST show the last 10 ledger entries by default as the “recent ledger snippet.”
+- **FR-013**: Idempotency tokens MUST be retained for at least 6 hours for deduplication and MAY be purged by a periodic cleanup process thereafter.
 
 ### Key Entities _(include if feature involves data)_
 
