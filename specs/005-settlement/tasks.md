@@ -28,16 +28,16 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Foundational — Data Model and Enums
 
-- [ ] T006 Update `rnexchange.jdl` to extend `LedgerEntryType` with `EOD_MTM_CREDIT` and `EOD_MTM_DEBIT`, regenerate entities, and update Liquibase changelog under `src/main/resources/db/changelog/`
-- [ ] T007 Update `rnexchange.jdl` to extend `SettlementStatus` with `FAILED`, regenerate entities, and update corresponding Liquibase changelog in `src/main/resources/db/changelog/`
-- [ ] T008 Define `ReportLink`-style entity in `rnexchange.jdl` (fields: refDate, reportType, tradingAccountId, brokerId, settlementBatchId, relativeUrl), regenerate entities, and add a Liquibase changelog for the new table in `src/main/resources/db/changelog/`
+- [x] T006 Update `rnexchange.jdl` to extend `LedgerEntryType` with `EOD_MTM_CREDIT` and `EOD_MTM_DEBIT`, regenerate entities, and update Liquibase changelog under `src/main/resources/db/changelog/`
+- [x] T007 Update `rnexchange.jdl` to extend `SettlementStatus` with `FAILED`, regenerate entities, and update corresponding Liquibase changelog in `src/main/resources/db/changelog/`
+- [x] T008 Define `ReportLink`-style entity in `rnexchange.jdl` (fields: refDate, reportType, tradingAccountId, brokerId, settlementBatchId, relativeUrl), regenerate entities, and add a Liquibase changelog for the new table in `src/main/resources/db/changelog/`
 
 ### Foundational — Repositories, DTOs, and Services
 
-- [ ] T009 [P] Add settlement-specific queries in `src/main/java/com/rnexchange/repository/PositionRepository.java` and `DailySettlementPriceRepository.java` to fetch open positions and daily settlement prices by `refDate` and instrument
-- [ ] T010 [P] Add repository for report links in `src/main/java/com/rnexchange/repository/ReportLinkRepository.java`
-- [ ] T011 Define DTOs for `SettlementBatchDTO`, `StatementSummary`, and `BrokerSettlementSummary` in `src/main/java/com/rnexchange/service/dto/`
-- [ ] T012 Create `SettlementService` interface and base implementation skeleton in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` with method `runEod(LocalDate tradeDate)`
+- [x] T009 [P] Add settlement-specific queries in `src/main/java/com/rnexchange/repository/PositionRepository.java` and `DailySettlementPriceRepository.java` to fetch open positions and daily settlement prices by `refDate` and instrument
+- [x] T010 [P] Add repository for report links in `src/main/java/com/rnexchange/repository/ReportLinkRepository.java`
+- [x] T011 Define DTOs for `SettlementBatchDTO`, `StatementSummary`, and `BrokerSettlementSummary` in `src/main/java/com/rnexchange/service/dto/`
+- [x] T012 Create `SettlementService` interface and base implementation skeleton in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` with method `runEod(LocalDate tradeDate)`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin in parallel.
 

@@ -1,4 +1,13 @@
 node_modules/
+target/
+dist/
+build/
+coverage/
+*.min.js
+webpack/
+src/main/resources/static/
+
+node_modules/
 dist/
 build/
 coverage/

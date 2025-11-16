@@ -1,6 +1,7 @@
 package com.rnexchange.repository;
 
 import com.rnexchange.domain.DailySettlementPrice;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -58,4 +59,9 @@ public interface DailySettlementPriceRepository
      * </p>
      */
     Optional<DailySettlementPrice> findFirstByInstrumentSymbolOrderByRefDateDesc(String instrumentSymbol);
+
+    /**
+     * T009/T007: Find the daily settlement price for a given date and instrument id.
+     */
+    Optional<DailySettlementPrice> findByRefDateAndInstrument_Id(LocalDate refDate, Long instrumentId);
 }

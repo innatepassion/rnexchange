@@ -45,6 +45,8 @@ enum ExchangeStatus { ACTIVE, INACTIVE }
 enum IntegrationStatus { DISABLED, ENABLED }
 enum Currency { INR, USD }
 enum LedgerEntryType { DEBIT, CREDIT }
+enum SettlementStatus { CREATED, PROCESSED, REVERSED, FAILED }
+enum LedgerEntryType { DEBIT, CREDIT, EOD_MTM_CREDIT, EOD_MTM_DEBIT }
 
 /* ===== Exchange & Org ===== */
 entity Exchange {
@@ -211,6 +213,13 @@ entity SettlementBatch {
   remarks String
 }
 
+/* ===== Reporting Links (for statements and summaries) ===== */
+entity ReportLink {
+  refDate LocalDate required
+  reportType String required                  // TRADER_STATEMENT or BROKER_SUMMARY
+  relativeUrl String required
+}
+
 /* ===== Relationships ===== */
 
 /* Profiles bound to built-in User (JWT + skipUserManagement=false) */
@@ -275,6 +284,13 @@ relationship ManyToOne {
   CorporateAction{instrument(symbol)} to Instrument
   SettlementBatch{exchange(code)} to Exchange
   ExchangeVolatilityOverride{exchange(code)} to Exchange
+  ReportLink{settlementBatch} to SettlementBatch
+}
+
+/* Reporting link ownership (nullable owner depending on type) */
+relationship ManyToOne {
+  ReportLink{tradingAccount} to TradingAccount
+  ReportLink{broker(code)} to Broker
 }
 
 /* ===== Global generation options ===== */
