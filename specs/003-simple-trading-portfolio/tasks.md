@@ -7,6 +7,8 @@
 
 **Organization**: Tasks are grouped by user story so each story can be implemented and tested independently.
 
+> **Phase status & next steps**: At the end of this M2 phase, multiple functionalities may still be incomplete or partially non-working. This is an expected part of the plan; we will move forward to implement and integrate the remaining modules and aim to complete the overall MVP in upcoming phases.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)

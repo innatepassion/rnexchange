@@ -6,6 +6,8 @@
 
 **Duration**: ~15–20 minutes | **Prerequisites**: Java 17+, Node.js, PostgreSQL running
 
+> **Phase status note**: At the end of this M2 phase, several functionalities may remain incomplete or partially non-working. This is expected for the current milestone; we are moving forward to implement the remaining modules and will complete the overall MVP in upcoming phases.
+
 ---
 
 ## 1. Pre-requisites
