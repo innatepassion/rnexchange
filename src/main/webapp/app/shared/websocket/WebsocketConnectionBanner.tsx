@@ -47,7 +47,7 @@ const WebsocketConnectionBanner: React.FC<WebsocketConnectionBannerProps> = ({ t
 
     // T020 [US1]: Log to console for debugging (can be disabled in production)
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`[WebSocket] Connection status: ${connectionStatus}`, {
+      console.warn(`[WebSocket] Connection status: ${connectionStatus}`, {
         tradingAccountId,
         timestamp: new Date().toISOString(),
       });
