@@ -47,6 +47,6 @@ class GetStatementHtmlContractTest {
         // This will return 404 once ownership checks are implemented
         mockMvc
             .perform(get("/api/statements/{statementId}/html", statementId).accept(MediaType.TEXT_HTML))
-            .andExpect(status().isNotFound().or(status().isForbidden()));
+            .andExpect(status().isNotFound());
     }
 }

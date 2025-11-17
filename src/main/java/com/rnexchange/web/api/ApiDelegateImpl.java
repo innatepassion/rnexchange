@@ -46,7 +46,6 @@ public class ApiDelegateImpl implements ApiApiDelegate {
         JournalResultDTO result = brokerJournalService.applyJournal(tradingAccountId, idempotencyKey, req, null);
 
         LedgerEntry le = new LedgerEntry()
-            .id(result.getLedgerEntry().getId())
             .type(LedgerEntry.TypeEnum.fromValue(result.getLedgerEntry().getType()))
             .amount(result.getLedgerEntry().getAmount().doubleValue())
             .reason(result.getLedgerEntry().getReason())

@@ -213,7 +213,7 @@ class EodIdempotencyIT {
                     le.getTradingAccount() != null &&
                     le.getTradingAccount().getId().equals(account.getId()) &&
                     (le.getType() == LedgerEntryType.EOD_MTM_CREDIT || le.getType() == LedgerEntryType.EOD_MTM_DEBIT) &&
-                    le.getCreatedAt().toLocalDate().equals(tradeDate) &&
+                    le.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDate().equals(tradeDate) &&
                     (le.getReference() == null || !le.getReference().startsWith("SUPERSEDED-"))
             )
             .toList();
@@ -261,7 +261,7 @@ class EodIdempotencyIT {
                     le.getTradingAccount() != null &&
                     le.getTradingAccount().getId().equals(account.getId()) &&
                     (le.getType() == LedgerEntryType.EOD_MTM_CREDIT || le.getType() == LedgerEntryType.EOD_MTM_DEBIT) &&
-                    le.getCreatedAt().toLocalDate().equals(tradeDate) &&
+                    le.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDate().equals(tradeDate) &&
                     (le.getReference() == null || !le.getReference().startsWith("SUPERSEDED-"))
             )
             .toList();
@@ -314,7 +314,7 @@ class EodIdempotencyIT {
                     le.getTradingAccount() != null &&
                     le.getTradingAccount().getId().equals(account.getId()) &&
                     (le.getType() == LedgerEntryType.EOD_MTM_CREDIT || le.getType() == LedgerEntryType.EOD_MTM_DEBIT) &&
-                    le.getCreatedAt().toLocalDate().equals(tradeDate) &&
+                    le.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDate().equals(tradeDate) &&
                     (le.getReference() == null || !le.getReference().startsWith("SUPERSEDED-"))
             )
             .toList();

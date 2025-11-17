@@ -100,7 +100,7 @@ class BrokerSettlementsIT {
                 Broker b = new Broker();
                 b.setCode("TEST_BROKER");
                 b.setName("Test Broker");
-                b.setStatus(BrokerStatus.ACTIVE);
+                b.setStatus("ACTIVE");
                 b.setExchange(exchange);
                 return brokerRepository.save(b);
             });
@@ -114,7 +114,7 @@ class BrokerSettlementsIT {
                 Broker b = new Broker();
                 b.setCode("OTHER_BROKER");
                 b.setName("Other Broker");
-                b.setStatus(BrokerStatus.ACTIVE);
+                b.setStatus("ACTIVE");
                 b.setExchange(exchange);
                 return brokerRepository.save(b);
             });

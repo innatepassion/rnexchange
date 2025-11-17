@@ -91,7 +91,7 @@ class TraderStatementsIT {
                 Broker b = new Broker();
                 b.setCode("TEST_BROKER");
                 b.setName("Test Broker");
-                b.setStatus(BrokerStatus.ACTIVE);
+                b.setStatus("ACTIVE");
                 return brokerRepository.save(b);
             });
 
@@ -160,7 +160,7 @@ class TraderStatementsIT {
                 inst.setLotSize(10L);
                 inst.setCurrency(Currency.INR);
                 inst.setStatus("active");
-                inst.setExchange(exchange);
+                inst.setExchange(exchangeRepository.findAll().stream().findFirst().orElse(exchange));
                 return instrumentRepository.save(inst);
             });
 

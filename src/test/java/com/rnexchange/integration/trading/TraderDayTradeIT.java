@@ -6,6 +6,7 @@ import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.*;
 import com.rnexchange.domain.enumeration.*;
 import com.rnexchange.repository.*;
+import com.rnexchange.security.AuthoritiesConstants;
 import com.rnexchange.service.TradingService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
@@ -104,7 +105,7 @@ class TraderDayTradeIT {
                 inst.setExchange(exchange);
                 inst.setName("Reliance Industries Ltd");
                 inst.setStatus("ACTIVE");
-                inst.setLotSize(1);
+                inst.setLotSize(1L);
                 inst.setTickSize(new BigDecimal("0.05"));
                 return instrumentRepository.save(inst);
             });
@@ -117,16 +118,12 @@ class TraderDayTradeIT {
                 DailySettlementPrice price = new DailySettlementPrice();
                 price.setInstrument(instrument);
                 price.setRefDate(today);
-                price.setOpenPx(new BigDecimal("2500.00"));
-                price.setHighPx(new BigDecimal("2550.00"));
-                price.setLowPx(new BigDecimal("2480.00"));
-                price.setClosePx(new BigDecimal("2520.00")); // Latest price for matching
-                price.setLastPx(new BigDecimal("2520.00"));
+                price.setSettlePrice(new BigDecimal("2520.00")); // Settlement price for matching
                 return dailySettlementPriceRepository.save(price);
             });
 
-        // Update last price to current
-        settlementPrice.setLastPx(new BigDecimal("2520.00"));
+        // Update settlement price to current
+        settlementPrice.setSettlePrice(new BigDecimal("2520.00"));
         settlementPrice = dailySettlementPriceRepository.save(settlementPrice);
 
         em.flush();
@@ -242,7 +239,7 @@ class TraderDayTradeIT {
         BigDecimal secondOrderPrice = new BigDecimal("2550.00");
 
         // Update settlement price for first order
-        settlementPrice.setLastPx(firstOrderPrice);
+        settlementPrice.setSettlePrice(firstOrderPrice);
         settlementPrice = dailySettlementPriceRepository.save(settlementPrice);
 
         // When: Place first order
@@ -260,7 +257,7 @@ class TraderDayTradeIT {
         Order processedOrder1 = tradingService.processBuyOrder(order1, tradingAccount, instrument);
 
         // Update settlement price for second order
-        settlementPrice.setLastPx(secondOrderPrice);
+        settlementPrice.setSettlePrice(secondOrderPrice);
         settlementPrice = dailySettlementPriceRepository.save(settlementPrice);
 
         // When: Place second order

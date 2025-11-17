@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnexchange.IntegrationTest;
+import com.rnexchange.domain.enumeration.LedgerEntryType;
 import com.rnexchange.service.dto.LedgerEntryDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ class RbacNegativePathIT {
     void testCreateLedgerEntryUnauthenticated() throws Exception {
         LedgerEntryDTO dto = new LedgerEntryDTO();
         dto.setAmount(java.math.BigDecimal.valueOf(100.00));
-        dto.setType("CREDIT");
+        dto.setType(LedgerEntryType.CREDIT);
 
         mockMvc
             .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
@@ -58,7 +59,7 @@ class RbacNegativePathIT {
     void testCreateLedgerEntryAsTrader() throws Exception {
         LedgerEntryDTO dto = new LedgerEntryDTO();
         dto.setAmount(java.math.BigDecimal.valueOf(100.00));
-        dto.setType("CREDIT");
+        dto.setType(LedgerEntryType.CREDIT);
 
         mockMvc
             .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
@@ -70,7 +71,7 @@ class RbacNegativePathIT {
     void testCreateLedgerEntryAsExchangeOperator() throws Exception {
         LedgerEntryDTO dto = new LedgerEntryDTO();
         dto.setAmount(java.math.BigDecimal.valueOf(100.00));
-        dto.setType("CREDIT");
+        dto.setType(LedgerEntryType.CREDIT);
 
         mockMvc
             .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))

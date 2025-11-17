@@ -171,7 +171,10 @@ public class SettlementServiceImpl implements SettlementService {
                 new SettlementCompletedEvent(batch.getId(), tradeDate, accountsProcessed, positionsProcessed, totalNetPnl)
             );
         } catch (Exception e) {
-            String correlationId = MDC.get("correlationId");
+            correlationId = MDC.get("correlationId");
+            if (correlationId == null) {
+                correlationId = UUID.randomUUID().toString();
+            }
             LOG.error("[correlationId={}] EOD settlement failed for {}: {}", correlationId, tradeDate, e.getMessage(), e);
             batch.setStatus(SettlementStatus.FAILED);
             batch.setRemarks("{\"error\":\"" + e.getMessage().replace("\"", "\\\"") + "\"}");
@@ -258,7 +261,7 @@ public class SettlementServiceImpl implements SettlementService {
                     le.getTradingAccount() != null &&
                     le.getTradingAccount().getId().equals(account.getId()) &&
                     (le.getType() == LedgerEntryType.EOD_MTM_CREDIT || le.getType() == LedgerEntryType.EOD_MTM_DEBIT) &&
-                    le.getCreatedAt().toLocalDate().equals(tradeDate) &&
+                    le.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDate().equals(tradeDate) &&
                     (le.getReference() == null || !le.getReference().startsWith("SUPERSEDED-"))
             )
             .toList();
