@@ -19,7 +19,7 @@ import { AUTHORITIES } from 'app/config/constants';
 export const ROLE_LANDING_ROUTES: Record<string, string> = {
   [AUTHORITIES.TRADER]: '/market-watch',
   [AUTHORITIES.BROKER_ADMIN]: '/broker/dashboard',
-  [AUTHORITIES.EXCHANGE_OPERATOR]: '/exchange-console',
+  [AUTHORITIES.EXCHANGE_OPERATOR]: '/exchange/overview',
   // Fallback for admin and other roles
   [AUTHORITIES.ADMIN]: '/admin',
   [AUTHORITIES.USER]: '/',

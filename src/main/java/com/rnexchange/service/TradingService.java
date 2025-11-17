@@ -142,23 +142,43 @@ public class TradingService {
         // Step 5: Create execution and settle trade
         Execution execution = createExecution(order, instrument, tradingAccount, matchingPrice);
         executionRepository.save(execution);
+        executionRepository.flush(); // T015 [US1]: Ensure execution is immediately visible
 
         // Step 6: Update position with average cost
         updatePositionForExecution(tradingAccount, instrument, execution);
+        positionRepository.flush(); // T015 [US1]: Ensure position update is immediately visible
 
         // Step 7: Update ledger and account balance
         updateLedgerAndBalance(tradingAccount, instrument, execution);
+        ledgerEntryRepository.flush(); // T015 [US1]: Ensure ledger entry is immediately visible
+        tradingAccountRepository.flush(); // T015 [US1]: Ensure balance update is immediately visible
 
         // Step 8: Update order status
         order.setStatus(OrderStatus.FILLED);
         order.setUpdatedAt(Instant.now());
         order = orderRepository.save(order);
+        orderRepository.flush(); // T015 [US1]: Ensure order status update is immediately visible
 
-        LOG.info("BUY order {} filled at {} for {} units", order.getId(), matchingPrice, order.getQty());
+        LOG.info("BUY order {} filled at {} for {} units - position and ledger updated", order.getId(), matchingPrice, order.getQty());
 
-        // Step 9: Publish WebSocket notifications (T014)
+        // Step 9: Publish WebSocket notifications (T018 [US1])
         // Notify subscribers about order and execution
         webSocketService.publishTradeCompletedNotification(order, execution);
+
+        // T018 [US1]: Publish position and ledger updates for real-time portfolio refresh
+        Optional<Position> updatedPosition = positionRepository.findByTradingAccountAndInstrument(tradingAccount, instrument);
+        if (updatedPosition.isPresent()) {
+            webSocketService.publishPositionUpdateNotification(tradingAccount.getId(), updatedPosition.get());
+        }
+
+        // Publish latest ledger entry for cash balance updates
+        ledgerEntryRepository
+            .findAll()
+            .stream()
+            .filter(entry -> entry.getTradingAccount() != null && entry.getTradingAccount().getId().equals(tradingAccount.getId()))
+            .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            .findFirst()
+            .ifPresent(ledgerEntry -> webSocketService.publishLedgerUpdateNotification(tradingAccount.getId(), ledgerEntry));
 
         return order;
     }
@@ -412,22 +432,48 @@ public class TradingService {
         // Step 5: Create execution and settle trade
         Execution execution = createExecution(order, instrument, tradingAccount, matchingPrice);
         executionRepository.save(execution);
+        executionRepository.flush(); // T015 [US1]: Ensure execution is immediately visible
 
         // Step 6: Update position and calculate realized P&L (T021)
         BigDecimal realizedPnl = updatePositionForSellExecution(tradingAccount, instrument, execution);
+        positionRepository.flush(); // T015 [US1]: Ensure position update is immediately visible
 
         // Step 7: Update ledger and account balance with credit (T021)
         updateLedgerAndBalanceForSell(tradingAccount, instrument, execution, realizedPnl);
+        ledgerEntryRepository.flush(); // T015 [US1]: Ensure ledger entry is immediately visible
+        tradingAccountRepository.flush(); // T015 [US1]: Ensure balance update is immediately visible
 
         // Step 8: Update order status
         order.setStatus(OrderStatus.FILLED);
         order.setUpdatedAt(Instant.now());
         order = orderRepository.save(order);
+        orderRepository.flush(); // T015 [US1]: Ensure order status update is immediately visible
 
-        LOG.info("SELL order {} filled at {} for {} units, realized P&L: {}", order.getId(), matchingPrice, order.getQty(), realizedPnl);
+        LOG.info(
+            "SELL order {} filled at {} for {} units, realized P&L: {} - position and ledger updated",
+            order.getId(),
+            matchingPrice,
+            order.getQty(),
+            realizedPnl
+        );
 
-        // Step 9: Publish WebSocket notifications
+        // Step 9: Publish WebSocket notifications (T018 [US1])
         webSocketService.publishTradeCompletedNotification(order, execution);
+
+        // T018 [US1]: Publish position and ledger updates for real-time portfolio refresh
+        Optional<Position> updatedPosition = positionRepository.findByTradingAccountAndInstrument(tradingAccount, instrument);
+        if (updatedPosition.isPresent()) {
+            webSocketService.publishPositionUpdateNotification(tradingAccount.getId(), updatedPosition.get());
+        }
+
+        // Publish latest ledger entry for cash balance updates
+        ledgerEntryRepository
+            .findAll()
+            .stream()
+            .filter(entry -> entry.getTradingAccount() != null && entry.getTradingAccount().getId().equals(tradingAccount.getId()))
+            .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            .findFirst()
+            .ifPresent(ledgerEntry -> webSocketService.publishLedgerUpdateNotification(tradingAccount.getId(), ledgerEntry));
 
         return order;
     }

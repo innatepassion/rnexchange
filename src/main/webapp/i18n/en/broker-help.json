@@ -1,0 +1,71 @@
+{
+  "title": "How to use RNExchange (Broker Admin)",
+  "subtitle": "A guide to managing traders and accounts in the RNExchange simulator",
+  "introduction": "Welcome to RNExchange Broker Admin! This is a simulated trading environment designed for educational purposes. All account balances, journal entries, and positions are simulated — this is NOT real money.",
+  "responsibilities": {
+    "title": "Your Responsibilities as a Broker Admin",
+    "items": [
+      "Manage traders under your broker",
+      "Post funds journal entries (credits and debits) for trader accounts",
+      "Monitor trader balances and buying power",
+      "Review risk alerts and account status",
+      "Access trader statements and settlement reports"
+    ]
+  },
+  "screens": {
+    "title": "Main Screens You'll Use",
+    "items": [
+      {
+        "name": "Broker Dashboard",
+        "description": "Overview of active traders, total cash, and exposure across your broker"
+      },
+      {
+        "name": "Clients",
+        "description": "List of all traders, their balances, and current P&L. Click Details to manage individual accounts"
+      },
+      {
+        "name": "Funds Journal",
+        "description": "Create credit or debit journal entries to adjust trader account balances"
+      },
+      {
+        "name": "Settlements",
+        "description": "View settlement batches and access trader statements after end-of-day processing"
+      }
+    ]
+  },
+  "flows": {
+    "title": "Key Flows You Can Perform",
+    "items": [
+      {
+        "step": 1,
+        "title": "View Trader List",
+        "description": "Go to Clients to see all traders under your broker, their balances, and status"
+      },
+      {
+        "step": 2,
+        "title": "Credit Funds to a Trader",
+        "description": "Navigate to Funds Journal, select a trader, choose Credit, enter amount and reason, then submit"
+      },
+      {
+        "step": 3,
+        "title": "Debit Funds from a Trader",
+        "description": "In Funds Journal, select a trader, choose Debit, enter amount and reason. Note: Negative balances are allowed but will be flagged"
+      },
+      {
+        "step": 4,
+        "title": "Monitor Account Status",
+        "description": "Check the Clients list or individual trader details to see if accounts are negative or at-risk"
+      },
+      {
+        "step": 5,
+        "title": "Review Trader Statements",
+        "description": "After end-of-day processing, access trader statements to verify balances and P&L reconciliation"
+      }
+    ]
+  },
+  "demoUsers": {
+    "title": "Demo Users",
+    "description": "For testing and demos, use the broker_demo account. This account has access to demo traders and can be reset between demo sessions."
+  },
+  "disclaimer": "Remember: RNExchange is a simulated environment. All account management and journal entries are for educational purposes only. This is NOT real money or real trading."
+}

@@ -49,6 +49,8 @@ export interface LedgerEntryView {
   fee?: number;
   description?: string;
   createdAt?: string;
+  balanceAfter?: number; // T017 [US1]: Running balance after this transaction
+  reference?: string; // T017 [US1]: Order reference (e.g., "ORD-123")
 }
 
 export interface CashBalanceView {

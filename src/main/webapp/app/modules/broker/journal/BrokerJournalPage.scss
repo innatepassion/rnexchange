@@ -1,0 +1,117 @@
+.broker-journal-page {
+  padding: 20px;
+
+  h2 {
+    margin-bottom: 10px;
+  }
+
+  .journal-form-container {
+    max-width: 600px;
+    margin-top: 20px;
+  }
+
+  .journal-form {
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+
+        .required {
+          color: #dc3545;
+        }
+      }
+
+      select,
+      input[type='text'],
+      input[type='number'] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+    }
+
+    .trader-info {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+
+      .balance {
+        font-weight: 500;
+        margin-bottom: 5px;
+
+        &.negative {
+          color: #dc3545;
+        }
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        margin-left: 10px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: 600;
+
+        &.badge-danger {
+          background-color: #dc3545;
+          color: white;
+        }
+      }
+
+      .alert {
+        padding: 8px;
+        border-radius: 4px;
+        margin-top: 5px;
+
+        &.alert-warning {
+          background-color: #fff3cd;
+          border: 1px solid #ffc107;
+          color: #856404;
+        }
+      }
+    }
+
+    .alert {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+
+      &.alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+
+      &.alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+    }
+
+    button[type='submit'] {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+
+      &:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: #0056b3;
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package com.rnexchange.web.rest;
 
 import com.rnexchange.repository.LedgerEntryRepository;
+import com.rnexchange.security.AuthoritiesConstants;
 import com.rnexchange.service.LedgerEntryQueryService;
 import com.rnexchange.service.LedgerEntryService;
 import com.rnexchange.service.criteria.LedgerEntryCriteria;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -28,6 +30,7 @@ import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.rnexchange.domain.LedgerEntry}.
+ * M6 User Story 2: Enhanced with RBAC protection for broker journal entries (T025).
  */
 @RestController
 @RequestMapping("/api/ledger-entries")
@@ -58,12 +61,15 @@ public class LedgerEntryResource {
 
     /**
      * {@code POST  /ledger-entries} : Create a new ledgerEntry.
+     * M6 User Story 2: Protected with RBAC - only BROKER_ADMIN can create journal entries (CREDIT/DEBIT).
+     * Allows negative balances per FR-004.
      *
      * @param ledgerEntryDTO the ledgerEntryDTO to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new ledgerEntryDTO, or with status {@code 400 (Bad Request)} if the ledgerEntry has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasRole('" + AuthoritiesConstants.BROKER_ADMIN + "')")
     public ResponseEntity<LedgerEntryDTO> createLedgerEntry(@Valid @RequestBody LedgerEntryDTO ledgerEntryDTO) throws URISyntaxException {
         LOG.debug("REST request to save LedgerEntry : {}", ledgerEntryDTO);
         if (ledgerEntryDTO.getId() != null) {

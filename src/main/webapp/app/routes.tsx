@@ -30,6 +30,11 @@ const BrokerClients = Loadable({
   loading: () => loading,
 });
 
+const BrokerJournal = Loadable({
+  loader: () => import(/* webpackChunkName: "broker-journal" */ 'app/modules/broker/journal/BrokerJournalPage'),
+  loading: () => loading,
+});
+
 const TraderDashboard = Loadable({
   loader: () => import(/* webpackChunkName: "trader-dashboard" */ 'app/modules/trader'),
   loading: () => loading,
@@ -54,6 +59,11 @@ const Admin = Loadable({
 
 const ExchangeConsole = Loadable({
   loader: () => import(/* webpackChunkName: "exchange-console" */ 'app/modules/exchange-console'),
+  loading: () => loading,
+});
+
+const ExchangeOverview = Loadable({
+  loader: () => import(/* webpackChunkName: "exchange-overview" */ 'app/modules/exchange/overview/ExchangeOverviewPage'),
   loading: () => loading,
 });
 
@@ -101,6 +111,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="exchange/overview"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.EXCHANGE_OPERATOR]}>
+              <ExchangeOverview />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="market-watch"
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.TRADER]}>
@@ -121,6 +139,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BROKER_ADMIN]}>
               <BrokerClients />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="broker/journal"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BROKER_ADMIN]}>
+              <BrokerJournal />
             </PrivateRoute>
           }
         />

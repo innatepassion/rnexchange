@@ -1,7 +1,10 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
+import { Alert, Spinner } from 'reactstrap';
 import { getBrokerOverview, type BrokerOverview } from '../services/overview.service';
 import UtilizationTable, { type UtilizationRow } from './components/UtilizationTable';
+import RoleHelpPanel from 'app/shared/components/RoleHelpPanel';
+import SimulatedBanner from 'app/shared/components/SimulatedBanner';
 
 const BrokerDashboard: React.FC<{ brokerId?: number }> = ({ brokerId }) => {
   const [overview, setOverview] = useState<BrokerOverview | null>(null);
@@ -23,9 +26,16 @@ const BrokerDashboard: React.FC<{ brokerId?: number }> = ({ brokerId }) => {
 
   return (
     <div>
-      <h2>Broker Dashboard</h2>
+      <SimulatedBanner />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2>Broker Dashboard</h2>
+        <RoleHelpPanel />
+      </div>
       {loading && <div>Loading...</div>}
       {error && <div className="alert alert-danger">{error}</div>}
+      {!loading && !error && !overview && (
+        <Alert color="info">No overview data available. Overview will appear once traders are configured.</Alert>
+      )}
       {overview && (
         <div className="row">
           <div className="col-md-4">
@@ -54,8 +64,17 @@ const BrokerDashboard: React.FC<{ brokerId?: number }> = ({ brokerId }) => {
           </div>
         </div>
       )}
-      <h3>Top Utilization</h3>
-      <UtilizationTable rows={utilizationRows} />
+      {overview && (
+        <>
+          <h3>Top Utilization</h3>
+          <UtilizationTable rows={utilizationRows} />
+          {utilizationRows.length === 0 && (
+            <Alert color="info" className="mt-3">
+              No utilization data available.
+            </Alert>
+          )}
+        </>
+      )}
     </div>
   );
 };

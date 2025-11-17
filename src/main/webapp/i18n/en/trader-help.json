@@ -1,0 +1,76 @@
+{
+  "title": "How to use RNExchange (Trader)",
+  "subtitle": "A guide to trading in the RNExchange simulator",
+  "introduction": "Welcome to RNExchange! This is a simulated trading environment designed for educational purposes. All trades, balances, and positions are simulated — this is NOT real money.",
+  "responsibilities": {
+    "title": "Your Responsibilities as a Trader",
+    "items": [
+      "Place orders (buy/sell) in supported instruments",
+      "Manage your watchlist of instruments to monitor",
+      "Track your positions and portfolio performance",
+      "Review your ledger and daily statements",
+      "Monitor your buying power and account balance"
+    ]
+  },
+  "screens": {
+    "title": "Main Screens You'll Use",
+    "items": [
+      {
+        "name": "Market Watch",
+        "description": "View live market data, add instruments to your watchlist, and place orders"
+      },
+      {
+        "name": "Portfolio",
+        "description": "See your open positions, unrealized P&L, and portfolio summary"
+      },
+      {
+        "name": "Ledger",
+        "description": "View all cash movements, trade settlements, and running balance"
+      },
+      {
+        "name": "Statements",
+        "description": "Access daily statements showing opening/closing balances and P&L"
+      }
+    ]
+  },
+  "flows": {
+    "title": "Key Flows You Can Perform",
+    "items": [
+      {
+        "step": 1,
+        "title": "Add to Watchlist",
+        "description": "Go to Market Watch, search for an instrument (e.g., RELIANCE on NSE), and add it to your watchlist"
+      },
+      {
+        "step": 2,
+        "title": "Place a Market Order",
+        "description": "Select an instrument from your watchlist, choose Buy or Sell, enter quantity, and submit a market order"
+      },
+      {
+        "step": 3,
+        "title": "Monitor Execution",
+        "description": "Watch your order fill in real-time. Your position and cash balance will update automatically"
+      },
+      {
+        "step": 4,
+        "title": "View Portfolio",
+        "description": "Navigate to Portfolio to see your updated positions, unrealized P&L, and total portfolio value"
+      },
+      {
+        "step": 5,
+        "title": "Check Ledger",
+        "description": "Review your Ledger to see the cash movement from the trade, including any fees"
+      },
+      {
+        "step": 6,
+        "title": "Review Statements",
+        "description": "After end-of-day processing, access your daily statement to see opening/closing balances and P&L"
+      }
+    ]
+  },
+  "demoUsers": {
+    "title": "Demo Users",
+    "description": "For testing and demos, use the trader_demo account. This account has a starting balance and can be reset between demo sessions."
+  },
+  "disclaimer": "Remember: RNExchange is a simulated environment. All trading activity is for educational purposes only. This is NOT real money or real trading."
+}

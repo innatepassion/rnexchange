@@ -3,6 +3,7 @@ import { Table, Button, Alert, Spinner, UncontrolledTooltip } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { getStatements, type StatementSummary } from './services/statements.service';
+import SimulatedBanner from 'app/shared/components/SimulatedBanner';
 
 const TraderStatementsModule: React.FC = () => {
   const [statements, setStatements] = useState<StatementSummary[]>([]);
@@ -47,6 +48,7 @@ const TraderStatementsModule: React.FC = () => {
 
   return (
     <div className="trader-statements">
+      <SimulatedBanner />
       <h2>
         Daily Statements{' '}
         <FontAwesomeIcon icon={faInfoCircle} id="trader-statements-info-tooltip" className="text-info ms-2" style={{ cursor: 'help' }} />
@@ -112,6 +114,13 @@ const TraderStatementsModule: React.FC = () => {
                 <td className={statement.eodMtmPnl >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(statement.eodMtmPnl)}</td>
                 <td>
                   <strong>{formatCurrency(statement.closingBalance)}</strong>
+                  {/* M6 User Story 3, Task T038: Highlight reconciliation status */}
+                  {Math.abs(statement.openingBalance + (statement.netCashFlows || 0) + statement.eodMtmPnl - statement.closingBalance) <
+                    0.01 && (
+                    <span className="badge bg-success ms-2" title="Balances reconcile correctly">
+                      ✓ Reconciled
+                    </span>
+                  )}
                 </td>
                 <td>
                   <Button color="primary" size="sm" onClick={() => handleViewStatement(statement.htmlUrl)}>

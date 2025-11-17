@@ -1,0 +1,67 @@
+{
+  "title": "How to use RNExchange (Exchange Operator)",
+  "subtitle": "A guide to operating the exchange and running settlements in the RNExchange simulator",
+  "introduction": "Welcome to RNExchange Exchange Operator! This is a simulated trading environment designed for educational purposes. All settlement processing, statements, and system operations are simulated — this is NOT real money.",
+  "responsibilities": {
+    "title": "Your Responsibilities as an Exchange Operator",
+    "items": [
+      "Run end-of-day (EOD) settlement processing for trading days",
+      "Monitor exchange health and system status",
+      "View settlement batches and metrics",
+      "Oversee broker and trader account reconciliation",
+      "Access system-wide reports and statements"
+    ]
+  },
+  "screens": {
+    "title": "Main Screens You'll Use",
+    "items": [
+      {
+        "name": "Exchange Overview",
+        "description": "Dashboard showing EOD batches, key metrics (accounts processed, positions processed, net P&L), and system status"
+      },
+      {
+        "name": "Settlement Batches",
+        "description": "List of all EOD settlement runs with dates, status, and processing metrics"
+      },
+      {
+        "name": "System Status",
+        "description": "Monitor exchange health, broker status, and trading system availability"
+      }
+    ]
+  },
+  "flows": {
+    "title": "Key Flows You Can Perform",
+    "items": [
+      {
+        "step": 1,
+        "title": "Monitor Exchange Status",
+        "description": "Go to Exchange Overview to see current system health and active trading activity"
+      },
+      {
+        "step": 2,
+        "title": "Run End-of-Day Settlement",
+        "description": "Select a trading date and trigger EOD processing. This will revalue positions, generate MTM entries, and create daily statements"
+      },
+      {
+        "step": 3,
+        "title": "Review Settlement Batch",
+        "description": "After EOD completes, view the settlement batch details including accounts processed, positions processed, and net P&L"
+      },
+      {
+        "step": 4,
+        "title": "Verify Statement Generation",
+        "description": "Confirm that daily statements have been generated for traders and brokers for the processed date"
+      },
+      {
+        "step": 5,
+        "title": "Handle Reruns",
+        "description": "EOD is idempotent — rerunning for the same date will recompute and overwrite previous statements without duplication"
+      }
+    ]
+  },
+  "demoUsers": {
+    "title": "Demo Users",
+    "description": "For testing and demos, use the exchange_demo account. This account has full system access and can run EOD for any trading date."
+  },
+  "disclaimer": "Remember: RNExchange is a simulated environment. All settlement processing and system operations are for educational purposes only. This is NOT real money or real trading."
+}

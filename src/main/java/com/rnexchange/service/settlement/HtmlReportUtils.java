@@ -26,12 +26,14 @@ public final class HtmlReportUtils {
 
     /**
      * Simulated environment disclaimer HTML.
+     * M6 User Story 3, Task T036A: Prominent disclaimer consistent with FR-018 and Educational Transparency rules.
      */
     public static final String SIMULATED_ENVIRONMENT_DISCLAIMER =
         """
-        <div class="disclaimer">
-        <strong>Simulated Environment Notice:</strong><br/>
+        <div class="disclaimer" style="background-color: #fff3cd; padding: 15px; margin: 20px 0; border-left: 4px solid #ffc107; font-weight: bold;">
+        <strong>⚠️ This is a simulated environment — not real trading or money</strong><br/>
         This statement is generated from simulated EOD settlement data. Prices and P&L are from internal mock feeds and are for training purposes only.
+        No real money is involved in this simulation.
         </div>
         """;
 

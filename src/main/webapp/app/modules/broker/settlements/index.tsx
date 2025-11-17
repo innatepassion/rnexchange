@@ -3,6 +3,7 @@ import { Table, Button, Alert, Spinner, UncontrolledTooltip } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { getBrokerSettlements, type BrokerSettlementSummary } from './services/broker-settlements.service';
+import SimulatedBanner from 'app/shared/components/SimulatedBanner';
 
 const BrokerSettlementsModule: React.FC = () => {
   const [settlements, setSettlements] = useState<BrokerSettlementSummary[]>([]);
@@ -53,6 +54,7 @@ const BrokerSettlementsModule: React.FC = () => {
 
   return (
     <div className="broker-settlements">
+      <SimulatedBanner />
       <h2>
         Settlement Reports{' '}
         <FontAwesomeIcon icon={faInfoCircle} id="broker-settlement-info-tooltip" className="text-info ms-2" style={{ cursor: 'help' }} />
@@ -115,6 +117,12 @@ const BrokerSettlementsModule: React.FC = () => {
                 <td>{formatCurrency(settlement.totalOpeningBalance)}</td>
                 <td>
                   <strong>{formatCurrency(settlement.totalClosingBalance)}</strong>
+                  {/* M6 User Story 3, Task T038: Highlight reconciliation status */}
+                  {settlement.totalOpeningBalance + settlement.totalEodMtmPnl === settlement.totalClosingBalance && (
+                    <span className="badge bg-success ms-2" title="Balances reconcile correctly">
+                      ✓ Reconciled
+                    </span>
+                  )}
                 </td>
                 <td className={settlement.totalEodMtmPnl >= 0 ? 'text-success' : 'text-danger'}>
                   {formatCurrency(settlement.totalEodMtmPnl)}

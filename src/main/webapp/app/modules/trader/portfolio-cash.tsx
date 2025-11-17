@@ -3,6 +3,8 @@ import { Spinner, Alert, Table, Badge, Row, Col, Card, CardBody, CardHeader } fr
 import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { getPositions, getLedgerEntries, getCashBalance, PositionView, LedgerEntryView, CashBalanceView } from 'app/shared/api/trading.api';
+import { SimulatedBanner } from 'app/shared/components/SimulatedBanner';
+import WebsocketConnectionBanner from 'app/shared/websocket/WebsocketConnectionBanner';
 
 interface PortfolioCashProps {
   tradingAccountId: number;
@@ -95,6 +97,10 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
 
   return (
     <div className="portfolio-cash">
+      {/* T021 [US1]: Persistent SIMULATED banner */}
+      <SimulatedBanner />
+      {/* T020 [US1]: WebSocket connection status banner */}
+      <WebsocketConnectionBanner tradingAccountId={tradingAccountId} />
       {/* Cash Balance Summary */}
       <Row className="mb-4">
         <Col md="6">
@@ -199,7 +205,9 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
                   <th title="DEBIT: cash out (buying) | CREDIT: cash in (selling)">Type</th>
                   <th title="Amount debited or credited">Amount</th>
                   <th title="Trading fee charged per transaction (₹25)">Fee</th>
+                  <th title="Running balance after this transaction">Balance After</th>
                   <th title="Detailed transaction description including symbol, quantity, price, and P&L">Description</th>
+                  <th title="Order reference number">Reference</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +218,7 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
                       <td>{formatDate(entry.createdAt)}</td>
                       <td>
                         <Badge color={entry.type === 'DEBIT' ? 'danger' : entry.type === 'CREDIT' ? 'success' : 'secondary'}>
-                          {entry.type}
+                          {entry.type === 'DEBIT' ? 'DEBIT' : entry.type === 'CREDIT' ? 'CREDIT' : entry.type || '—'}
                         </Badge>
                       </td>
                       <td>
@@ -220,10 +228,16 @@ const PortfolioCash: React.FC<PortfolioCashProps> = ({ tradingAccountId }) => {
                         </span>
                       </td>
                       <td>{entry.fee ? formatCurrency(entry.fee) : '—'}</td>
+                      <td>
+                        <strong className={entry.balanceAfter !== undefined && entry.balanceAfter < 0 ? 'text-danger' : ''}>
+                          {entry.balanceAfter !== undefined ? formatCurrency(entry.balanceAfter) : '—'}
+                        </strong>
+                      </td>
                       <td className="small">
                         {entry.description || '—'}
                         {isSell && <span className="ms-2 badge bg-info">SELL</span>}
                       </td>
+                      <td className="small text-muted">{entry.reference || '—'}</td>
                     </tr>
                   );
                 })}

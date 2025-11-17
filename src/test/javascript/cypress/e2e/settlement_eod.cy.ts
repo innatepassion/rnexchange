@@ -108,4 +108,60 @@ describe('Settlement EOD', () => {
     cy.contains('button', 'Refresh').click();
     cy.wait('@getSettlements');
   });
+
+  it('should verify statements generated after EOD contain simulation disclaimer', () => {
+    // M6 User Story 3, Task T036B: Assert disclaimer appears in statements after EOD
+    cy.intercept('POST', '/api/settlements/eod*', {
+      statusCode: 202,
+      body: {
+        id: 1,
+        refDate: new Date().toISOString().split('T')[0],
+        kind: 'EOD',
+        status: 'PROCESSED',
+        accountsProcessed: 1,
+        positionsProcessed: 1,
+        netPnl: 500,
+      },
+    }).as('runEodSuccess');
+
+    cy.intercept('GET', '/api/statements*', {
+      statusCode: 200,
+      body: [
+        {
+          id: 1,
+          refDate: new Date().toISOString().split('T')[0],
+          tradingAccountId: 1,
+          openingBalance: 10000,
+          eodMtmPnl: 500,
+          closingBalance: 10500,
+          htmlUrl: '/api/statements/1/html',
+        },
+      ],
+    }).as('getStatements');
+
+    // Mock HTML statement with disclaimer
+    cy.intercept('GET', '/api/statements/1/html', {
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/html' },
+      body: '<html><body><div class="disclaimer">⚠️ This is a simulated environment — not real trading or money</div></body></html>',
+    }).as('getStatementHtml');
+
+    cy.visit('/exchange/settlement');
+    cy.wait('@getSettlements');
+
+    // Run EOD
+    cy.contains('button', 'Run EOD for Today').click();
+    cy.wait('@runEodSuccess');
+
+    // Verify statement HTML contains disclaimer
+    cy.request({
+      method: 'GET',
+      url: '/api/statements/1/html',
+      headers: { Cookie: cy.getCookie('XSRF-TOKEN') },
+    }).then(response => {
+      expect(response.status).to.eq(200);
+      expect(response.body).to.include('simulated environment');
+      expect(response.body).to.include('not real trading or money');
+    });
+  });
 });

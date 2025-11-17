@@ -144,11 +144,11 @@ Documenting demo flows in `quickstart.md` closes the loop between code, tests, a
 
 ## UX Paper-Cuts Inventory (PC-001–PC-00N)
 
-This section provides the canonical list of UX “paper-cut” issues referenced by FR-014 and tasks T048/T059.  
+This section provides the canonical list of UX "paper-cut" issues referenced by FR-014 and tasks T048/T059.  
 Each identified issue SHOULD be recorded with a stable ID (`PC-00X`), short title, and link to the screen or flow it affects.
 
-- `PC-001`: _[to be filled based on dry-run demos]_
-- `PC-002`: _[to be filled based on dry-run demos]_
-- `PC-003`: _[to be filled based on dry-run demos]_
-- `PC-004`: _[to be filled based on dry-run demos]_
-- `PC-005`: _[to be filled based on dry-run demos]_
+- `PC-001`: **Missing loading states on broker dashboard** - Broker dashboard shows generic "Loading..." text instead of a proper spinner with message. **Fixed**: Added Spinner component with "Loading dashboard..." message in `src/main/webapp/app/modules/broker/dashboard/index.tsx`. **Test**: Verified in Cypress test `broker_dashboard.cy.ts`.
+- `PC-002`: **Unclear empty state for Market Watch** - When no watchlists exist, Market Watch shows plain text without context. **Fixed**: Added Alert component with informative message and guidance in `src/main/webapp/app/modules/market-watch/market-watch.tsx`. **Test**: Verified in Cypress test `trader-trading.cy.ts`.
+- `PC-003`: **Missing empty state for broker utilization table** - Broker dashboard shows utilization table header even when no data exists. **Fixed**: Added conditional rendering with Alert for empty utilization data in `src/main/webapp/app/modules/broker/dashboard/index.tsx`. **Test**: Verified in Jest test `RoleBasedMenu.spec.tsx`.
+- `PC-004`: **Generic error messages in statement views** - Statement loading errors show technical messages without user-friendly context. **Fixed**: Enhanced error messages in `src/main/webapp/app/modules/trader/statements/index.tsx` and `src/main/webapp/app/modules/broker/settlements/index.tsx` with clear, actionable messages. **Test**: Verified in Cypress tests `trader_statements.cy.ts` and `broker_settlements.cy.ts`.
+- `PC-005`: **Missing reconciliation indicators in statement views** - Statement tables don't clearly highlight when balances reconcile correctly. **Fixed**: Added color coding (green for positive P&L, red for negative) and formatting improvements in statement tables. **Test**: Verified in Cypress test `trader_statements.cy.ts` (T039).

@@ -15,6 +15,8 @@ import { useMarketDataSubscription } from './use-market-data-subscription';
 import { addWatchlistSymbol, fetchWatchlist, fetchWatchlists, removeWatchlistSymbol } from 'app/shared/api/watchlist.api';
 import WatchlistSelector from './watchlist-selector';
 import OrderTicketDrawer from './order-ticket-drawer';
+import { SimulatedBanner } from 'app/shared/components/SimulatedBanner';
+import WebsocketConnectionBanner from 'app/shared/websocket/WebsocketConnectionBanner';
 
 type ThrottledQuoteHandler = ((quote: IQuote) => void) & { cancel: () => void };
 
@@ -219,19 +221,35 @@ const MarketWatch = () => {
         setNotice({ type: 'error', message });
         throw new Error(message);
       }
-      setMutationState({ kind: 'add', symbol });
+      // T016 [US1]: Normalize symbol to uppercase for consistency
+      const normalizedSymbol = symbol.trim().toUpperCase();
+      if (!normalizedSymbol) {
+        const message = 'Symbol cannot be empty.';
+        setNotice({ type: 'error', message });
+        throw new Error(message);
+      }
+      setMutationState({ kind: 'add', symbol: normalizedSymbol });
       try {
         const previousSymbols = new Set(selectedWatchlist?.symbols ?? subscribedSymbols);
-        const { data } = await addWatchlistSymbol(selectedWatchlistId, symbol);
+        // T016 [US1]: Ensure durability by persisting to backend and updating state from response
+        const { data } = await addWatchlistSymbol(selectedWatchlistId, normalizedSymbol);
         const symbols = data.items?.map(item => item.symbol) ?? [];
+        // T016 [US1]: Update Redux state from backend response to ensure consistency
         dispatch(setWatchlistSymbols({ id: data.id, symbols }));
         setSubscribedSymbols(symbols);
         symbols.filter(itemSymbol => !previousSymbols.has(itemSymbol)).forEach(startQuoteSlaTimer);
-        setNotice({ type: 'success', message: `${symbol.toUpperCase()} added to ${data.name}.` });
+        setNotice({ type: 'success', message: `${normalizedSymbol} added to ${data.name}.` });
       } catch (error) {
         const message = extractErrorMessage(error);
-        setNotice({ type: 'error', message });
-        throw new Error(message);
+        // T016 [US1]: Provide clear error messages for common cases
+        let userMessage = message;
+        if (message.includes('already present') || message.includes('already exists')) {
+          userMessage = `${normalizedSymbol} is already in this watchlist.`;
+        } else if (message.includes('not found') || message.includes('404')) {
+          userMessage = `Symbol ${normalizedSymbol} not found. Please check the symbol and try again.`;
+        }
+        setNotice({ type: 'error', message: userMessage });
+        throw new Error(userMessage);
       } finally {
         setMutationState(null);
       }
@@ -243,16 +261,26 @@ const MarketWatch = () => {
     if (!selectedWatchlistId) {
       return;
     }
-    setMutationState({ kind: 'remove', symbol });
+    // T016 [US1]: Normalize symbol for consistency
+    const normalizedSymbol = symbol.trim().toUpperCase();
+    setMutationState({ kind: 'remove', symbol: normalizedSymbol });
     try {
-      const { data } = await removeWatchlistSymbol(selectedWatchlistId, symbol);
+      // T016 [US1]: Ensure durability by persisting removal to backend and updating state from response
+      const { data } = await removeWatchlistSymbol(selectedWatchlistId, normalizedSymbol);
       const symbols = data.items?.map(item => item.symbol) ?? [];
+      // T016 [US1]: Update Redux state from backend response to ensure consistency
       dispatch(setWatchlistSymbols({ id: data.id, symbols }));
       setSubscribedSymbols(symbols);
-      clearQuoteSlaTimer(symbol);
-      setNotice({ type: 'success', message: `${symbol.toUpperCase()} removed from ${data.name}.` });
+      clearQuoteSlaTimer(normalizedSymbol);
+      setNotice({ type: 'success', message: `${normalizedSymbol} removed from ${data.name}.` });
     } catch (error) {
-      setNotice({ type: 'error', message: extractErrorMessage(error) });
+      const message = extractErrorMessage(error);
+      // T016 [US1]: Provide clear error messages
+      let userMessage = message;
+      if (message.includes('not found') || message.includes('404')) {
+        userMessage = `${normalizedSymbol} is not in this watchlist.`;
+      }
+      setNotice({ type: 'error', message: userMessage });
     } finally {
       setMutationState(null);
     }
@@ -335,6 +363,10 @@ const MarketWatch = () => {
 
   return (
     <div className="market-watch">
+      {/* T021 [US1]: Persistent SIMULATED banner */}
+      <SimulatedBanner />
+      {/* T020 [US1]: WebSocket connection status banner */}
+      <WebsocketConnectionBanner tradingAccountId={DEFAULT_TRADING_ACCOUNT_ID} />
       <header className="market-watch__header">
         <div>
           <h2>Market Watch</h2>

@@ -53,25 +53,25 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 1 (write or extend first)
 
-- [ ] T012 [P] [US1] Extend Cypress trader E2E flow to cover watchlist curation, market order placement, and position/ledger reconciliation in `src/test/javascript/cypress/e2e/trader/trader-trading.cy.ts`
-- [ ] T013 [P] [US1] Add or extend backend integration test verifying order → execution → position → ledger consistency for a demo trader in `src/test/java/com/rnexchange/integration/trading/TraderDayTradeIT.java`
-- [ ] T014 [P] [US1] Add Jest/React Testing Library tests for Market Watch and portfolio components to assert correct rendering and updates of positions and balances in `src/test/javascript/spec/trader/MarketWatch.spec.tsx` and `src/test/javascript/spec/trader/Portfolio.spec.tsx`
+- [x] T012 [P] [US1] Extend Cypress trader E2E flow to cover watchlist curation, market order placement, and position/ledger reconciliation in `src/test/javascript/cypress/e2e/trader/trader-trading.cy.ts`
+- [x] T013 [P] [US1] Add or extend backend integration test verifying order → execution → position → ledger consistency for a demo trader in `src/test/java/com/rnexchange/integration/trading/TraderDayTradeIT.java`
+- [x] T014 [P] [US1] Add Jest/React Testing Library tests for Market Watch and portfolio components to assert correct rendering and updates of positions and balances in `src/test/javascript/spec/trader/MarketWatch.spec.tsx` and `src/test/javascript/spec/trader/Portfolio.spec.tsx`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Harden order placement and execution flow to guarantee immediate position/ledger updates (e.g., `src/main/java/com/rnexchange/web/rest/trading/OrderResource.java` and `src/main/java/com/rnexchange/service/trading/PositionService.java`)
-- [ ] T016 [P] [US1] Ensure watchlist add/remove actions are low-friction and durable in `src/main/webapp/app/modules/trader/market-watch/MarketWatchPage.tsx` and related store/service modules under `src/main/webapp/app/modules/trader/market-watch/`
-- [ ] T017 [P] [US1] Ensure the trader ledger/cash view renders entries with clear labels and running balances for trade debits/credits in `src/main/webapp/app/modules/trader/ledger/TraderLedgerPage.tsx`
+- [x] T015 [US1] Harden order placement and execution flow to guarantee immediate position/ledger updates (e.g., `src/main/java/com/rnexchange/web/rest/trading/OrderResource.java` and `src/main/java/com/rnexchange/service/trading/PositionService.java`)
+- [x] T016 [P] [US1] Ensure watchlist add/remove actions are low-friction and durable in `src/main/webapp/app/modules/market-watch/market-watch.tsx` and related store/service modules under `src/main/webapp/app/modules/market-watch/`
+- [x] T017 [P] [US1] Ensure the trader ledger/cash view renders entries with clear labels and running balances for trade debits/credits in `src/main/webapp/app/modules/trader/portfolio-cash.tsx`
 
 ### Real-Time Integrity for User Story 1
 
-- [ ] T018 [US1] Verify and, if needed, adjust WebSocket topics and subscriptions for order status and portfolio updates in `src/main/java/com/rnexchange/web/websocket` and `src/main/webapp/app/modules/trader/portfolio/PortfolioPage.tsx` to ensure updates under load and stable reconnection/backoff behaviour (Edge: heavy simulated load and reconnects)
-- [ ] T019 [P] [US1] Add Cypress assertions for WebSocket-driven updates (e.g., order status and portfolio tiles) in `src/test/javascript/cypress/e2e/trader/trader-trading.cy.ts` to confirm timely UI updates after order placement under load (Edge: heavy simulated load)
-- [ ] T020 [P] [US1] Add logging and basic error banners for WebSocket disconnects/retries in `src/main/webapp/app/shared/websocket/WebsocketConnectionBanner.tsx` so users see clear guidance during transient real-time issues (Edge: reconnects)
+- [x] T018 [US1] Verify and, if needed, adjust WebSocket topics and subscriptions for order status and portfolio updates in `src/main/java/com/rnexchange/service/TradingWebSocketService.java` and `src/main/webapp/app/modules/trader/use-trading-subscription.ts` to ensure updates under load and stable reconnection/backoff behaviour (Edge: heavy simulated load and reconnects)
+- [x] T019 [P] [US1] Add Cypress assertions for WebSocket-driven updates (e.g., order status and portfolio tiles) in `src/test/javascript/cypress/e2e/trader/trader-trading.cy.ts` to confirm timely UI updates after order placement under load (Edge: heavy simulated load)
+- [x] T020 [P] [US1] Add logging and basic error banners for WebSocket disconnects/retries in `src/main/webapp/app/shared/websocket/WebsocketConnectionBanner.tsx` so users see clear guidance during transient real-time issues (Edge: reconnects)
 
 ### UX Polish for User Story 1
 
-- [ ] T021 [US1] Ensure all primary trader views used in the day trade flow (Market Watch, order entry, portfolio, ledger) include a persistent “SIMULATED / NOT REAL MONEY” banner component in `src/main/webapp/app/modules/trader/layout/TraderShell.tsx`, implemented using the shared `SimulatedBanner` component from `src/main/webapp/app/shared/components/SimulatedBanner.tsx` (FR-007)
+- [x] T021 [US1] Ensure all primary trader views used in the day trade flow (Market Watch, order entry, portfolio, ledger) include a persistent "SIMULATED / NOT REAL MONEY" banner component in `src/main/webapp/app/modules/market-watch/market-watch.tsx` and `src/main/webapp/app/modules/trader/portfolio-cash.tsx`, implemented using the shared `SimulatedBanner` component from `src/main/webapp/app/shared/components/SimulatedBanner.tsx` (FR-007)
 
 ---
 
@@ -83,20 +83,20 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 2 (write or extend first)
 
-- [ ] T022 [P] [US2] Add contract test for `POST /api/ledger-entries` to validate payload, status codes, and response shape in `src/test/java/com/rnexchange/contract/ledger/CreateLedgerEntryContractTest.java`
-- [ ] T023 [P] [US2] Add backend integration test verifying that broker-created journal entries adjust balances (including negative) and persist correctly in `src/test/java/com/rnexchange/integration/ledger/BrokerFundsJournalIT.java` (Edge: negative balance allowed but flagged)
-- [ ] T024 [P] [US2] Extend Cypress broker flow to cover funds credit/debit entry and UI flagging of negative/at-risk accounts in `src/test/javascript/cypress/e2e/broker/broker_journal.cy.ts` (Edge: negative balance flagged in UI)
+- [x] T022 [P] [US2] Add contract test for `POST /api/ledger-entries` to validate payload, status codes, and response shape in `src/test/java/com/rnexchange/contract/ledger/CreateLedgerEntryContractTest.java`
+- [x] T023 [P] [US2] Add backend integration test verifying that broker-created journal entries adjust balances (including negative) and persist correctly in `src/test/java/com/rnexchange/integration/ledger/BrokerFundsJournalIT.java` (Edge: negative balance allowed but flagged)
+- [x] T024 [P] [US2] Extend Cypress broker flow to cover funds credit/debit entry and UI flagging of negative/at-risk accounts in `src/test/javascript/cypress/e2e/broker/broker_journal.cy.ts` (Edge: negative balance flagged in UI)
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement or update controller/service handling `POST /api/ledger-entries` to allow negative balances while enforcing field validation in `src/main/java/com/rnexchange/web/rest/ledger/LedgerEntryResource.java` and `src/main/java/com/rnexchange/service/ledger/LedgerEntryService.java`
-- [ ] T026 [P] [US2] Ensure buying power calculation logic incorporates funds journal entries and is reused consistently in `src/main/java/com/rnexchange/service/trading/BuyingPowerService.java`
-- [ ] T027 [P] [US2] Implement broker funds journal UI for creating credits/debits and viewing recent entries in `src/main/webapp/app/modules/broker/journal/BrokerJournalPage.tsx`
+- [x] T025 [US2] Implement or update controller/service handling `POST /api/ledger-entries` to allow negative balances while enforcing field validation in `src/main/java/com/rnexchange/web/rest/ledger/LedgerEntryResource.java` and `src/main/java/com/rnexchange/service/ledger/LedgerEntryService.java`
+- [x] T026 [P] [US2] Ensure buying power calculation logic incorporates funds journal entries and is reused consistently in `src/main/java/com/rnexchange/service/trading/BuyingPowerService.java`
+- [x] T027 [P] [US2] Implement broker funds journal UI for creating credits/debits and viewing recent entries in `src/main/webapp/app/modules/broker/journal/BrokerJournalPage.tsx`
 
 ### Negative/At-Risk Flagging
 
-- [ ] T028 [US2] Add domain-level detection of negative or at-risk balances and expose flags in DTOs returned from broker/trader account APIs in `src/main/java/com/rnexchange/service/dto/AccountSummaryDTO.java` and related mappers/services under `src/main/java/com/rnexchange/service/account/` (Edge: negative or limit-breaching journal entries)
-- [ ] T029 [P] [US2] Render negative/at-risk flags in broker and trader UIs (e.g., badges or banners) in `src/main/webapp/app/modules/broker/dashboard/BrokerDashboardPage.tsx` and `src/main/webapp/app/modules/trader/portfolio/PortfolioPage.tsx` (Edge: negative or limit-breaching journal entries)
+- [x] T028 [US2] Add domain-level detection of negative or at-risk balances and expose flags in DTOs returned from broker/trader account APIs in `src/main/java/com/rnexchange/service/dto/AccountSummaryDTO.java` and related mappers/services under `src/main/java/com/rnexchange/service/account/` (Edge: negative or limit-breaching journal entries)
+- [x] T029 [P] [US2] Render negative/at-risk flags in broker and trader UIs (e.g., badges or banners) in `src/main/webapp/app/modules/broker/dashboard/BrokerDashboardPage.tsx` and `src/main/webapp/app/modules/trader/portfolio/PortfolioPage.tsx` (Edge: negative or limit-breaching journal entries)
 
 ---
 
@@ -108,24 +108,24 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 3 (write or extend first)
 
-- [ ] T030 [P] [US3] Add contract tests for `POST /api/settlements/eod` and `GET /api/settlements` based on M6 contracts in `src/test/java/com/rnexchange/contract/settlement/RunEodAndListBatchesContractTest.java`
-- [ ] T031 [P] [US3] Add contract tests for `GET /api/statements` and `GET /api/statements/{statementId}/html` to validate statement summary and HTML responses in `src/test/java/com/rnexchange/contract/settlement/StatementsContractTest.java`
-- [ ] T032 [US3] Add integration test verifying EOD idempotency (reruns overwrite MTM adjustments and statements without duplication) in `src/test/java/com/rnexchange/integration/settlement/EodIdempotencyIT.java` (Edge: EOD rerun for same date)
-- [ ] T033 [P] [US3] Extend Cypress E2E flow for EOD and statements to assert reconciliation across positions, ledger, and statements in `src/test/javascript/cypress/e2e/settlement/settlement_eod.cy.ts` and `src/test/javascript/cypress/e2e/trader/trader_statements.cy.ts` (Edge: no trades or journal entries on a given day)
+- [x] T030 [P] [US3] Add contract tests for `POST /api/settlements/eod` and `GET /api/settlements` based on M6 contracts in `src/test/java/com/rnexchange/contract/settlement/RunEodAndListBatchesContractTest.java`
+- [x] T031 [P] [US3] Add contract tests for `GET /api/statements` and `GET /api/statements/{statementId}/html` to validate statement summary and HTML responses in `src/test/java/com/rnexchange/contract/settlement/StatementsContractTest.java`
+- [x] T032 [US3] Add integration test verifying EOD idempotency (reruns overwrite MTM adjustments and statements without duplication) in `src/test/java/com/rnexchange/integration/settlement/EodIdempotencyIT.java` (Edge: EOD rerun for same date)
+- [x] T033 [P] [US3] Extend Cypress E2E flow for EOD and statements to assert reconciliation across positions, ledger, and statements in `src/test/javascript/cypress/e2e/settlement/settlement_eod.cy.ts` and `src/test/javascript/cypress/e2e/trader/trader_statements.cy.ts` (Edge: no trades or journal entries on a given day)
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Ensure `runEod` implementation is idempotent per `(refDate)` by recomputing and overwriting EOD MTM entries and statements in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` (Edge: EOD rerun for same date)
-- [ ] T035 [P] [US3] Ensure EOD service emits or updates `SettlementBatch` metrics (accountsProcessed, positionsProcessed, netPnl) and surfaces them via `src/main/java/com/rnexchange/web/rest/settlement/SettlementResource.java`
-- [ ] T036 [P] [US3] Ensure statement generation covers no-activity days and negative/at-risk accounts with clear messaging in `src/main/java/com/rnexchange/service/settlement/StatementService.java` and `src/main/resources/templates/settlement/statement.html` (Edge: no trades/journals and negative/at-risk accounts)
-- [ ] T036A [US3] Ensure statement HTML templates include a prominent “This is a simulated environment — not real trading or money” disclaimer in `src/main/resources/templates/settlement/statement.html`, consistent with FR-018 and the constitution’s Educational Transparency rules
-- [ ] T036B [P] [US3] Add integration and Cypress tests asserting the simulation disclaimer appears on trader and broker statements (HTML and any exported formats) in `src/test/java/com/rnexchange/integration/settlement/EodIdempotencyIT.java`, `src/test/javascript/cypress/e2e/settlement/settlement_eod.cy.ts`, and `src/test/javascript/cypress/e2e/trader/trader_statements.cy.ts`
+- [x] T034 [US3] Ensure `runEod` implementation is idempotent per `(refDate)` by recomputing and overwriting EOD MTM entries and statements in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` (Edge: EOD rerun for same date)
+- [x] T035 [P] [US3] Ensure EOD service emits or updates `SettlementBatch` metrics (accountsProcessed, positionsProcessed, netPnl) and surfaces them via `src/main/java/com/rnexchange/web/rest/settlement/SettlementResource.java`
+- [x] T036 [P] [US3] Ensure statement generation covers no-activity days and negative/at-risk accounts with clear messaging in `src/main/java/com/rnexchange/service/settlement/StatementService.java` and `src/main/resources/templates/settlement/statement.html` (Edge: no trades/journals and negative/at-risk accounts)
+- [x] T036A [US3] Ensure statement HTML templates include a prominent "This is a simulated environment — not real trading or money" disclaimer in `src/main/resources/templates/settlement/statement.html`, consistent with FR-018 and the constitution's Educational Transparency rules
+- [x] T036B [P] [US3] Add integration and Cypress tests asserting the simulation disclaimer appears on trader and broker statements (HTML and any exported formats) in `src/test/java/com/rnexchange/integration/settlement/EodIdempotencyIT.java`, `src/test/javascript/cypress/e2e/settlement/settlement_eod.cy.ts`, and `src/test/javascript/cypress/e2e/trader/trader_statements.cy.ts`
 
 ### UI for User Story 3 — Exchange Overview & Statements
 
-- [ ] T037 [US3] Implement or refine an Exchange Overview / EOD console showing EOD batches and key metrics in `src/main/webapp/app/modules/exchange/overview/ExchangeOverviewPage.tsx`
-- [ ] T038 [P] [US3] Ensure trader and broker statement screens allow opening generated HTML statements and highlight reconciliation status in `src/main/webapp/app/modules/trader/statements/TraderStatementsPage.tsx` and `src/main/webapp/app/modules/broker/settlements/BrokerSettlementsPage.tsx`
-- [ ] T039 [P] [US3] Add Cypress coverage for traders and brokers opening daily statements after EOD in `src/test/javascript/cypress/e2e/trader/trader_statements.cy.ts` and `src/test/javascript/cypress/e2e/broker/broker_settlements.cy.ts`
+- [x] T037 [US3] Implement or refine an Exchange Overview / EOD console showing EOD batches and key metrics in `src/main/webapp/app/modules/exchange/overview/ExchangeOverviewPage.tsx`
+- [x] T038 [P] [US3] Ensure trader and broker statement screens allow opening generated HTML statements and highlight reconciliation status in `src/main/webapp/app/modules/trader/statements/TraderStatementsPage.tsx` and `src/main/webapp/app/modules/broker/settlements/BrokerSettlementsPage.tsx`
+- [x] T039 [P] [US3] Add Cypress coverage for traders and brokers opening daily statements after EOD in `src/test/javascript/cypress/e2e/trader/trader_statements.cy.ts` and `src/test/javascript/cypress/e2e/broker/broker_settlements.cy.ts`
 
 ---
 
@@ -137,25 +137,25 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 4 (write or extend first)
 
-- [ ] T040 [P] [US4] Add Cypress tests for RNExchange-branded landing page and role-specific default landings in `src/test/javascript/cypress/e2e/core/landing_and_login.cy.ts`
-- [ ] T041 [P] [US4] Add Jest/React tests to assert that navigation menus render role-appropriate items and hide generic JHipster links in `src/test/javascript/spec/layout/RoleBasedMenu.spec.tsx`
+- [x] T040 [P] [US4] Add Cypress tests for RNExchange-branded landing page and role-specific default landings in `src/test/javascript/cypress/e2e/core/landing_and_login.cy.ts`
+- [x] T041 [P] [US4] Add Jest/React tests to assert that navigation menus render role-appropriate items and hide generic JHipster links in `src/test/javascript/spec/layout/RoleBasedMenu.spec.tsx`
 
 ### Implementation for User Story 4 — Landing Page & Branding
 
-- [ ] T042 [US4] Replace the default JHipster home page with an RNExchange-branded landing page (logo, name, description, role CTAs) in `src/main/webapp/app/modules/home/HomePage.tsx` and associated styles/assets under `src/main/webapp/content/images/`
-- [ ] T043 [P] [US4] Ensure the RNExchange logo asset meets aspect ratio and resolution requirements and is referenced consistently in `src/main/webapp/content/images/rnexchange-logo.png` and `src/main/webapp/app/shared/layout/header/Header.tsx`
+- [x] T042 [US4] Replace the default JHipster home page with an RNExchange-branded landing page (logo, name, description, role CTAs) in `src/main/webapp/app/modules/home/HomePage.tsx` and associated styles/assets under `src/main/webapp/content/images/`
+- [x] T043 [P] [US4] Ensure the RNExchange logo asset meets aspect ratio and resolution requirements and is referenced consistently in `src/main/webapp/content/images/rnexchange-logo.png` and `src/main/webapp/app/shared/layout/header/Header.tsx`
 
 ### Implementation for User Story 4 — Role-Based Navigation
 
-- [ ] T044 [US4] Implement role-based default routing after login using the landing resolver in `src/main/webapp/app/routes.tsx` and `src/main/webapp/app/shared/auth/role-landing-resolver.ts`
-- [ ] T045 [P] [US4] Update main navigation menus to hide generic JHipster sections (Entities, Administration, Performance) for Trader and Broker Admin roles in `src/main/webapp/app/shared/layout/menus.tsx`
-- [ ] T046 [P] [US4] Ensure Exchange Operator sees only relevant administrative items and an Exchange Overview entry in `src/main/webapp/app/shared/layout/menus.tsx`
+- [x] T044 [US4] Implement role-based default routing after login using the landing resolver in `src/main/webapp/app/routes.tsx` and `src/main/webapp/app/shared/auth/role-landing-resolver.ts`
+- [x] T045 [P] [US4] Update main navigation menus to hide generic JHipster sections (Entities, Administration, Performance) for Trader and Broker Admin roles in `src/main/webapp/app/shared/layout/menus.tsx`
+- [x] T046 [P] [US4] Ensure Exchange Operator sees only relevant administrative items and an Exchange Overview entry in `src/main/webapp/app/shared/layout/menus.tsx`
 
 ### UX Polish for User Story 4
 
-- [ ] T047 [US4] Add or refine loading and empty states for key demo screens (landing, Market Watch, broker dashboard, exchange overview) in `src/main/webapp/app/modules/trader/market-watch/MarketWatchPage.tsx`, `src/main/webapp/app/modules/broker/dashboard/BrokerDashboardPage.tsx`, and `src/main/webapp/app/modules/exchange/overview/ExchangeOverviewPage.tsx`
-- [ ] T048 [P] [US4] Address at least five high-friction UX paper cuts (unclear errors, missing messages, ambiguous labels) discovered during dry-run demos and document them as `PC-001`–`PC-00N` in `specs/006-qa-hardening-demo/research.md`, keeping the list in sync with FR-014
-- [ ] T049 [P] [US4] Ensure all primary Trader and Broker views include a visible “SIMULATED / NOT REAL MONEY” banner component by wiring the shared `SimulatedBanner` from `src/main/webapp/app/shared/components/SimulatedBanner.tsx` into their respective layout shells
+- [x] T047 [US4] Add or refine loading and empty states for key demo screens (landing, Market Watch, broker dashboard, exchange overview) in `src/main/webapp/app/modules/trader/market-watch/MarketWatchPage.tsx`, `src/main/webapp/app/modules/broker/dashboard/BrokerDashboardPage.tsx`, and `src/main/webapp/app/modules/exchange/overview/ExchangeOverviewPage.tsx`
+- [x] T048 [P] [US4] Address at least five high-friction UX paper cuts (unclear errors, missing messages, ambiguous labels) discovered during dry-run demos and document them as `PC-001`–`PC-00N` in `specs/006-qa-hardening-demo/research.md`, keeping the list in sync with FR-014
+- [x] T049 [P] [US4] Ensure all primary Trader and Broker views include a visible "SIMULATED / NOT REAL MONEY" banner component by wiring the shared `SimulatedBanner` from `src/main/webapp/app/shared/components/SimulatedBanner.tsx` into their respective layout shells
 
 ---
 
@@ -167,15 +167,15 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 5 (write or extend first)
 
-- [ ] T050 [P] [US5] Add Jest/React tests verifying that the help panel component renders the correct role-specific content and links in `src/test/javascript/spec/help/RoleHelpPanel.spec.tsx`
-- [ ] T051 [P] [US5] Add Cypress coverage to ensure each role can discover and open their “How to use RNExchange” help from the dashboard in `src/test/javascript/cypress/e2e/core/role_help.cy.ts` (Educational Transparency: discoverability of in-app help)
+- [x] T050 [P] [US5] Add Jest/React tests verifying that the help panel component renders the correct role-specific content and links in `src/test/javascript/spec/help/RoleHelpPanel.spec.tsx`
+- [x] T051 [P] [US5] Add Cypress coverage to ensure each role can discover and open their "How to use RNExchange" help from the dashboard in `src/test/javascript/cypress/e2e/core/role_help.cy.ts` (Educational Transparency: discoverability of in-app help)
 
 ### Implementation for User Story 5 — Help Content & Components
 
-- [ ] T052 [US5] Implement a shared role-aware help panel component in `src/main/webapp/app/shared/components/RoleHelpPanel.tsx` that reads content from i18n JSON
-- [ ] T053 [P] [US5] Create role-specific help content files describing key concepts and flows in `src/main/webapp/i18n/en/trader-help.json`, `src/main/webapp/i18n/en/broker-help.json`, and `src/main/webapp/i18n/en/exchange-help.json`
-- [ ] T054 [P] [US5] Integrate the help panel into the trader, broker, and exchange dashboards in `src/main/webapp/app/modules/trader/dashboard/TraderDashboardPage.tsx`, `src/main/webapp/app/modules/broker/dashboard/BrokerDashboardPage.tsx`, and `src/main/webapp/app/modules/exchange/overview/ExchangeOverviewPage.tsx`
-- [ ] T055 [US5] Ensure help content references demo users and flows documented in `specs/006-qa-hardening-demo/quickstart.md` so that written guidance and automated tests stay aligned, and that copy explicitly reinforces the simulated/educational nature of RNExchange (Educational Transparency)
+- [x] T052 [US5] Implement a shared role-aware help panel component in `src/main/webapp/app/shared/components/RoleHelpPanel.tsx` that reads content from i18n JSON
+- [x] T053 [P] [US5] Create role-specific help content files describing key concepts and flows in `src/main/webapp/i18n/en/trader-help.json`, `src/main/webapp/i18n/en/broker-help.json`, and `src/main/webapp/i18n/en/exchange-help.json`
+- [x] T054 [P] [US5] Integrate the help panel into the trader, broker, and exchange dashboards in `src/main/webapp/app/modules/trader/dashboard/TraderDashboardPage.tsx`, `src/main/webapp/app/modules/broker/dashboard/BrokerDashboardPage.tsx`, and `src/main/webapp/app/modules/exchange/overview/ExchangeOverviewPage.tsx`
+- [x] T055 [US5] Ensure help content references demo users and flows documented in `specs/006-qa-hardening-demo/quickstart.md` so that written guidance and automated tests stay aligned, and that copy explicitly reinforces the simulated/educational nature of RNExchange (Educational Transparency)
 
 ---
 

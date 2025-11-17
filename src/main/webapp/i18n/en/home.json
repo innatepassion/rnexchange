@@ -1,19 +1,24 @@
 {
   "home": {
-    "title": "Welcome, Java Hipster!",
-    "subtitle": "This is your homepage",
+    "title": "RNExchange",
+    "subtitle": "A simulated stock exchange platform for learning and training. Practice trading with virtual money in a realistic market environment.",
+    "disclaimer": "This is a simulated trading environment. No real money is involved. All prices, trades, and balances are for educational purposes only.",
     "logged": {
-      "message": "You are logged in as user \"{{username}}\"."
+      "message": "You are logged in as {{username}}."
     },
-    "question": "If you have any question on JHipster:",
-    "link": {
-      "homepage": "JHipster homepage",
-      "stackoverflow": "JHipster on Stack Overflow",
-      "bugtracker": "JHipster bug tracker",
-      "chat": "JHipster public chat room",
-      "follow": "follow @jhipster on Twitter"
+    "goToDashboard": "Go to Dashboard",
+    "getStarted": "Get Started",
+    "chooseRole": "Choose your role to begin:",
+    "role": {
+      "trader": "Trader",
+      "trader.desc": "Place orders, manage your portfolio, and track your positions.",
+      "broker": "Broker Admin",
+      "broker.desc": "Manage trader accounts, adjust funds, and review settlements.",
+      "exchange": "Exchange Operator",
+      "exchange.desc": "Run end-of-day settlement and monitor exchange operations."
     },
-    "like": "If you like JHipster, don't forget to give us a star on",
-    "github": "GitHub"
+    "loginAsTrader": "Login as Trader",
+    "loginAsBroker": "Login as Broker",
+    "loginAsExchange": "Login as Exchange"
   }
 }

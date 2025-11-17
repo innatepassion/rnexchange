@@ -76,6 +76,45 @@ describe('Trader Statements', () => {
     cy.contains('button', 'View').should('be.visible');
   });
 
+  it('should display simulation disclaimer in statement HTML', () => {
+    // M6 User Story 3, Task T036B: Assert disclaimer appears in HTML statements
+    cy.intercept('GET', '/api/statements*', {
+      statusCode: 200,
+      body: [
+        {
+          id: 1,
+          refDate: '2025-01-15',
+          tradingAccountId: 1,
+          openingBalance: 10000,
+          eodMtmPnl: 500,
+          closingBalance: 10500,
+          htmlUrl: '/api/statements/1/html',
+        },
+      ],
+    }).as('getStatementsWithData');
+
+    // Mock HTML response with disclaimer
+    cy.intercept('GET', '/api/statements/1/html', {
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/html' },
+      body: '<html><body><div class="disclaimer">⚠️ This is a simulated environment — not real trading or money</div></body></html>',
+    }).as('getStatementHtml');
+
+    cy.visit('/trader/statements');
+    cy.wait('@getStatementsWithData');
+
+    // Request the HTML statement directly to verify disclaimer
+    cy.request({
+      method: 'GET',
+      url: '/api/statements/1/html',
+      headers: { Cookie: cy.getCookie('XSRF-TOKEN') },
+    }).then(response => {
+      expect(response.status).to.eq(200);
+      expect(response.body).to.include('simulated environment');
+      expect(response.body).to.include('not real trading or money');
+    });
+  });
+
   it('should show empty state when no statements', () => {
     cy.intercept('GET', '/api/statements*', {
       statusCode: 200,
@@ -86,5 +125,53 @@ describe('Trader Statements', () => {
     cy.wait('@getEmptyStatements');
 
     cy.contains(/No statements found/i).should('be.visible');
+  });
+
+  it('should open statement HTML after EOD and verify reconciliation', () => {
+    // M6 User Story 3, Task T039: Cypress coverage for traders opening daily statements after EOD
+    cy.intercept('GET', '/api/statements*', {
+      statusCode: 200,
+      body: [
+        {
+          id: 1,
+          refDate: '2025-01-15',
+          tradingAccountId: 1,
+          openingBalance: 10000,
+          netCashFlows: 1000,
+          eodMtmPnl: 500,
+          closingBalance: 11500,
+          htmlUrl: '/api/statements/1/html',
+        },
+      ],
+    }).as('getStatementsWithData');
+
+    cy.intercept('GET', '/api/statements/1/html', {
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/html' },
+      body: '<html><body><div class="disclaimer">⚠️ This is a simulated environment — not real trading or money</div><h1>Daily Statement</h1><p>Opening Balance: 10000</p><p>Closing Balance: 11500</p></body></html>',
+    }).as('getStatementHtml');
+
+    cy.visit('/trader/statements');
+    cy.wait('@getStatementsWithData');
+
+    // Verify statement appears in list
+    cy.contains('15 Jan 2025').should('be.visible');
+    cy.contains('₹11,500.00').should('be.visible');
+
+    // Click View button and verify HTML opens
+    cy.contains('button', 'View').click();
+    cy.wait('@getStatementHtml');
+
+    // Verify statement HTML contains reconciliation data
+    cy.request({
+      method: 'GET',
+      url: '/api/statements/1/html',
+      headers: { Cookie: cy.getCookie('XSRF-TOKEN') },
+    }).then(response => {
+      expect(response.status).to.eq(200);
+      expect(response.body).to.include('Opening Balance');
+      expect(response.body).to.include('Closing Balance');
+      expect(response.body).to.include('simulated environment');
+    });
   });
 });

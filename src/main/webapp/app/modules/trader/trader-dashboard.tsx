@@ -6,6 +6,9 @@ import OrdersTrades from './orders-trades';
 import PortfolioCash from './portfolio-cash';
 import useTradingSubscription, { TradingWebSocketMessage } from './use-trading-subscription';
 import { getCurrentTradingAccount } from 'app/shared/api/trading.api';
+import RoleHelpPanel from 'app/shared/components/RoleHelpPanel';
+import SimulatedBanner from 'app/shared/components/SimulatedBanner';
+import WebsocketConnectionBanner from 'app/shared/websocket/WebsocketConnectionBanner';
 
 interface TraderDashboardProps {
   tradingAccountId?: number;
@@ -132,6 +135,10 @@ const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: pro
 
   return (
     <Container fluid className="trader-dashboard py-4">
+      {/* T021 [US1]: Persistent SIMULATED banner */}
+      <SimulatedBanner />
+      {/* T020 [US1]: WebSocket connection status banner */}
+      <WebsocketConnectionBanner tradingAccountId={selectedAccountId} />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -139,7 +146,8 @@ const TraderDashboard: React.FC<TraderDashboardProps> = ({ tradingAccountId: pro
               <h2>Trading Dashboard</h2>
               <small className="text-muted">Account ID: {selectedAccountId}</small>
             </div>
-            <div>
+            <div className="d-flex align-items-center gap-3">
+              <RoleHelpPanel />
               <div className={`badge bg-${getStatusBadgeColor(connectionStatus)}`}>{getStatusLabel(connectionStatus)}</div>
             </div>
           </div>

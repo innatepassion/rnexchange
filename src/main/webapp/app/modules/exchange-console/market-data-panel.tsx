@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faPlay, faStop, faCircle } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import RoleHelpPanel from 'app/shared/components/RoleHelpPanel';
 import './market-data-panel.scss';
 
 interface ExchangeStatus {
@@ -92,7 +93,10 @@ const MarketDataPanel: React.FC = () => {
 
   return (
     <div className="market-data-panel">
-      <div className="panel-header">
+      <div
+        className="panel-header"
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}
+      >
         <h3>
           Market Data Feed Control
           <FontAwesomeIcon
@@ -107,6 +111,7 @@ const MarketDataPanel: React.FC = () => {
             active instruments across NSE, BSE, and MCX exchanges.
           </UncontrolledTooltip>
         </h3>
+        <RoleHelpPanel />
       </div>
 
       <div className="status-section mb-4">
