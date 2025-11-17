@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Translate } from 'react-jhipster';
 import { AUTHORITIES } from 'app/config/constants';
 import { useAppSelector } from 'app/config/store';
-import { hasAnyAuthority } from 'app/shared/auth/authorities';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import './RoleHelpPanel.scss';
 
 /**
@@ -55,7 +55,7 @@ const RoleHelpPanel: React.FC = () => {
               <ul>
                 {[1, 2, 3, 4, 5].map(i => (
                   <li key={i}>
-                    <Translate contentKey={`${helpKey}.responsibilities.items.${i - 1}`}>Responsibility {i}</Translate>
+                    <Translate contentKey={`${helpKey}.responsibilities.items.${i - 1}`}>Responsibility {String(i)}</Translate>
                   </li>
                 ))}
               </ul>
@@ -85,9 +85,9 @@ const RoleHelpPanel: React.FC = () => {
                 {[1, 2, 3, 4, 5, 6].map(step => (
                   <li key={step}>
                     <strong>
-                      <Translate contentKey={`${helpKey}.flows.items.${step - 1}.title`}>Step {step} title</Translate>
+                      <Translate contentKey={`${helpKey}.flows.items.${step - 1}.title`}>Step {String(step)} title</Translate>
                     </strong>
-                    : <Translate contentKey={`${helpKey}.flows.items.${step - 1}.description`}>Step {step} description</Translate>
+                    : <Translate contentKey={`${helpKey}.flows.items.${step - 1}.description`}>Step {String(step)} description</Translate>
                   </li>
                 ))}
               </ol>

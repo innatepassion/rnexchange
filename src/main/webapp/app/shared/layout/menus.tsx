@@ -136,3 +136,12 @@ export const resolveRoleMenuConfig = (authorities: string[] = []): RoleMenuConfi
 export const getRoleMenuConfig = (role: string): RoleMenuConfig => {
   return ROLE_MENU_CONFIG[role] || ROLE_MENU_CONFIG[AUTHORITIES.USER];
 };
+
+// Re-export menu components for convenience
+export { AccountMenu } from './menus/account';
+export { AdminMenu } from './menus/admin';
+export { EntitiesMenu } from './menus/entities';
+export { LocaleMenu } from './menus/locale';
+export { ExchangeConsoleMenu } from './menus/exchange-console';
+export { TraderMenu } from './menus/trader';
+export { BrokerAdminMenu } from './menus/broker-admin';
