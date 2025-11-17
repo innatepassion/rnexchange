@@ -10,6 +10,37 @@ This quickstart explains how to run the RNExchange demo for M6 and how to execut
 - Node.js and npm matching the versions in `pom.xml` (Java 17) and `package.json` (Node 22.x via the embedded `target/node` or your system).
 - Docker (optional but recommended) if you want to use the PostgreSQL or services docker-compose files.
 
+### 1.1 M6-Specific Setup
+
+Before running M6 demo flows or tests, ensure the following:
+
+1. **OpenAPI Contracts Merged**: The M6 contracts from `specs/006-qa-hardening-demo/contracts/m6-qa-hardening.openapi.yaml` have been merged into `src/main/resources/swagger/api.yml` and code generation has been run:
+
+   ```bash
+   ./mvnw generate-sources
+   ```
+
+   This generates delegate interfaces in `src/main/java/com/rnexchange/web/api/` and DTOs in `src/main/java/com/rnexchange/service/api/dto/`.
+
+2. **Baseline Seed Applied**: Ensure the baseline seed has been run to create demo users (`trader_demo`, `broker_demo`, `exchange_demo`) with known starting balances:
+
+   ```bash
+   # Start the application with baseline context
+   npm run watch
+   # Then trigger baseline seed via API or use the admin endpoint
+   ```
+
+3. **Environment Variables** (if needed): Check `src/main/resources/config/application-dev.yml` for any M6-specific configuration, such as:
+
+   - Liquibase contexts (should include `baseline` for demo data)
+   - Demo user credentials and initial balances
+   - WebSocket configuration for real-time updates
+
+4. **Test Scripts Verified**: Confirm that Cypress, Jest, and Gatling are properly configured:
+   - Cypress: `cypress.config.ts` exists and `npm run e2e:headless` works
+   - Jest: `npm test` runs React component tests
+   - Gatling: `./mvnw gatling:test` runs performance simulations
+
 ---
 
 ## 2. Start the Application (Dev Baseline)
@@ -119,10 +150,17 @@ This executes the Maven-based backend suite, including contract, integration, an
 To evaluate demo-scale performance for M6:
 
 ```bash
-./mvnw -ntp gatling:test -Pperformance
+# Run Gatling performance tests (no profile needed, uses default test profile)
+./mvnw -ntp gatling:test
 ```
 
-(If a dedicated `performance` profile is not yet present, it should be added as part of M6 work; otherwise, run the existing Gatling simulations using the standard test profile.)
+**Note**: A dedicated `performance` profile can be added to `pom.xml` in the future to gate heavy load tests separately from standard builds. For now, Gatling simulations run with the default test profile.
+
+**M6 Performance Targets** (from constitution):
+
+- p95 order placement latency <250 ms
+- EOD settlement for ~10,000 positions completes within 5 minutes
+- WebSocket tick throughput ~10,000 updates/sec without demo-breaking errors
 
 Gatling simulations should be configured to approximate:
 

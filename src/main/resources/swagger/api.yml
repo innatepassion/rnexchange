@@ -1,11 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Baseline Seed Admin API
+  title: RNExchange API
   version: 1.0.0
   description: >
-    Administrative endpoints for resetting legacy demo data and applying the curated
+    RNExchange API including administrative endpoints for resetting legacy demo data and applying the curated
     trading baseline required for the RNExchange MVP (exchanges, broker, instruments,
-    contracts, holidays, margin rules, and role mappings).
+    contracts, holidays, margin rules, and role mappings), plus M6 QA hardening endpoints
+    for trader statements, broker funds journal entries, and exchange operator EOD settlement control.
 servers:
   - url: https://api.rnexchange.local
     description: Local development/staging
@@ -259,6 +260,49 @@ paths:
                 $ref: '#/components/schemas/ProblemDetail'
         '403':
           description: Forbidden for this trading account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /api/ledger-entries:
+    post:
+      summary: Create a funds journal entry
+      description: >
+        Creates a new ledger entry (e.g., broker funds credit/debit) for a trader account.
+        Validation rules allow negative balances but downstream UI and statements must flag at-risk accounts.
+      operationId: createLedgerEntry
+      tags:
+        - Ledger
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LedgerEntryRequest'
+      responses:
+        '201':
+          description: Ledger entry created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerEntry'
+        '400':
+          description: Validation error (e.g., missing required fields).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Forbidden - requires BROKER_ADMIN role
           content:
             application/json:
               schema:
@@ -681,28 +725,118 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LedgerEntry'
-    LedgerEntry:
+    LedgerEntryRequest:
       type: object
+      required:
+        - tradingAccountId
+        - refDate
+        - amount
+        - currency
+        - type
+        - description
       properties:
-        id:
+        tradingAccountId:
+          oneOf:
+            - type: string
+              format: uuid
+            - type: integer
+              format: int64
+          description: Trading account identifier
+        refDate:
           type: string
-          format: uuid
+          format: date
+          description: Reference date for the ledger entry
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: Amount (positive or negative)
+        currency:
+          type: string
+          example: INR
+          description: Currency code
         type:
           type: string
           enum:
             - JOURNAL_CREDIT
             - JOURNAL_DEBIT
+            - TRADE_DEBIT
+            - TRADE_CREDIT
+            - FEE
+            - DEPOSIT
+            - WITHDRAWAL
+            - EOD_MTM_CREDIT
+            - EOD_MTM_DEBIT
             - OTHER
+          description: >
+            Ledger entry type (e.g., TRADE_DEBIT, TRADE_CREDIT, FEE, DEPOSIT, WITHDRAWAL, EOD_MTM_CREDIT, EOD_MTM_DEBIT).
+        description:
+          type: string
+          description: Human-readable description of the entry
+        reference:
+          type: string
+          nullable: true
+          description: Optional reference identifier (e.g., order ID, settlement batch ID)
+    LedgerEntry:
+      type: object
+      properties:
+        id:
+          oneOf:
+            - type: string
+              format: uuid
+            - type: integer
+              format: int64
+          nullable: true
+          description: Ledger entry identifier (UUID for existing entries, int64 for new entries)
+        tradingAccountId:
+          oneOf:
+            - type: string
+              format: uuid
+            - type: integer
+              format: int64
+          description: Trading account identifier
+        refDate:
+          type: string
+          format: date
+          description: Reference date for the ledger entry
+        type:
+          type: string
+          enum:
+            - JOURNAL_CREDIT
+            - JOURNAL_DEBIT
+            - TRADE_DEBIT
+            - TRADE_CREDIT
+            - FEE
+            - DEPOSIT
+            - WITHDRAWAL
+            - EOD_MTM_CREDIT
+            - EOD_MTM_DEBIT
+            - OTHER
+          description: >
+            Ledger entry type (e.g., TRADE_DEBIT, TRADE_CREDIT, FEE, DEPOSIT, WITHDRAWAL, EOD_MTM_CREDIT, EOD_MTM_DEBIT).
         amount:
           $ref: '#/components/schemas/Money'
+          description: Amount (positive or negative)
+        currency:
+          type: string
+          example: INR
+          description: Currency code
+        description:
+          type: string
+          description: Human-readable description of the entry
+        reference:
+          type: string
+          nullable: true
+          description: Optional reference identifier (e.g., order ID, settlement batch ID)
         reason:
           type: string
+          description: Reason for the entry (legacy field, use description when possible)
         createdAt:
           type: string
           format: date-time
+          description: Creation timestamp (read-only)
         createdByUserId:
           type: string
           format: uuid
+          description: User ID who created the entry (read-only)
     JournalRequest:
       type: object
       required:

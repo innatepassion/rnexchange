@@ -11,10 +11,10 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 **Purpose**: Align OpenAPI contracts, generators, and baseline test tooling to support M6 QA hardening work.
 
-- [ ] T001 Ensure M6 contracts from `specs/006-qa-hardening-demo/contracts/m6-qa-hardening.openapi.yaml` are merged into `src/main/resources/swagger/api.yml` and consistent with existing settlement, statements, and ledger paths
-- [ ] T002 Run OpenAPI code generation for updated API spec via `./mvnw generate-sources` and verify updated delegate interfaces under `src/main/java/com/rnexchange/web/rest/` and DTOs under `src/main/java/com/rnexchange/service/dto/`
-- [ ] T003 [P] Verify Cypress, Jest, and Gatling scripts for M6 flows are present and wired in `package.json` and `src/test/javascript/cypress.config.ts`, adjusting commands (e.g., `npm run e2e:headless`, `./mvnw -ntp gatling:test -Pperformance`) as documented in `specs/006-qa-hardening-demo/quickstart.md`
-- [ ] T004 [P] Document any additional M6-specific setup steps (e.g., environment variables for demo users) in `specs/006-qa-hardening-demo/quickstart.md` so that the QA and demo flows are reproducible from a clean repo clone
+- [x] T001 Ensure M6 contracts from `specs/006-qa-hardening-demo/contracts/m6-qa-hardening.openapi.yaml` are merged into `src/main/resources/swagger/api.yml` and consistent with existing settlement, statements, and ledger paths
+- [x] T002 Run OpenAPI code generation for updated API spec via `./mvnw generate-sources` and verify updated delegate interfaces under `src/main/java/com/rnexchange/web/rest/` and DTOs under `src/main/java/com/rnexchange/service/dto/`
+- [x] T003 [P] Verify Cypress, Jest, and Gatling scripts for M6 flows are present and wired in `package.json` and `src/test/javascript/cypress.config.ts`, adjusting commands (e.g., `npm run e2e:headless`, `./mvnw -ntp gatling:test -Pperformance`) as documented in `specs/006-qa-hardening-demo/quickstart.md`
+- [x] T004 [P] Document any additional M6-specific setup steps (e.g., environment variables for demo users) in `specs/006-qa-hardening-demo/quickstart.md` so that the QA and demo flows are reproducible from a clean repo clone
 
 ---
 
