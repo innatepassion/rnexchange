@@ -63,8 +63,12 @@ public class BrokerTradersService {
             );
             // Group by trader ID, taking the first account for each trader
             for (TradingAccount account : allTradingAccounts) {
-                Long traderId = account.getTrader().getId();
-                tradingAccountMap.putIfAbsent(traderId, account);
+                if (account.getTrader() != null) {
+                    Long traderId = account.getTrader().getId();
+                    if (traderId != null) {
+                        tradingAccountMap.putIfAbsent(traderId, account);
+                    }
+                }
             }
         }
 
