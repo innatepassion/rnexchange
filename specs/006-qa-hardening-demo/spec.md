@@ -77,7 +77,8 @@ A team member using fixed demo users can quickly navigate and demonstrate a full
 
 ### User Story 5 - Per-role “How to use RNExchange” help guides (Priority: P3)
 
-Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How to use RNExchange” help section from their main dashboard or a clearly labeled help entry, acting as a lightweight user manual that explains key concepts and step-by-step flows for that role.
+Each login type (Trader, Broker Admin, Exchange Operator) sees a clearly labeled “How to use RNExchange” help section from their main dashboard or a primary navigation entry, acting as a lightweight user manual that explains key concepts and step-by-step flows for that role.  
+Each role’s help content MUST, at minimum, cover: (a) that role’s primary responsibilities in RNExchange, (b) the main screens they will use, and (c) a short, ordered list of 3–7 key flows they can perform, with references or links to the relevant screens.
 
 **Why this priority**: Having integrated, role-specific help makes the platform easier to adopt, reduces demo friction, and allows new users to self-serve basic questions without needing separate documentation.
 
@@ -85,9 +86,9 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 
 **Acceptance Scenarios**:
 
-1. **Given** a trader is logged in and on their primary dashboard/landing page, **When** they open the “How to use RNExchange (Trader)” help section, **Then** they see a concise guide covering concepts such as watchlists, placing orders, viewing positions, and reviewing ledger/statement information, with links or cues to the relevant screens.
-2. **Given** a broker admin is logged in, **When** they access the “How to use RNExchange (Broker Admin)” help section, **Then** they see guidance on managing traders, posting funds journal entries, reviewing risk and statements, and understanding what they can and cannot do compared to other roles.
-3. **Given** an exchange operator is logged in, **When** they access the “How to use RNExchange (Exchange Operator)” help section, **Then** they see guidance on monitoring exchange health, running EOD, generating statements, and any other operational responsibilities, written in clear, non-technical language.
+1. **Given** a trader is logged in and on their primary dashboard/landing page, **When** they open the “How to use RNExchange (Trader)” help section, **Then** they see a concise guide covering concepts such as watchlists, placing orders, viewing positions, and reviewing ledger/statement information, with links or cues to the relevant screens, and at least one end-to-end “day in the life” flow they can follow.
+2. **Given** a Broker Admin is logged in, **When** they access the “How to use RNExchange (Broker Admin)” help section, **Then** they see guidance on managing traders, posting funds journal entries (including negative or at-risk scenarios), reviewing risk and statements, and understanding what they can and cannot do compared to other roles, with at least one example flow that starts from login and ends in a statement or report.
+3. **Given** an Exchange Operator is logged in, **When** they access the “How to use RNExchange (Exchange Operator)” help section, **Then** they see guidance on monitoring exchange health, running EOD, generating statements, and any other operational responsibilities, written in clear, non-technical language and including at least one example of a full trading day they can run.
 
 ---
 
@@ -95,10 +96,10 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 
 - When EOD is run more than once for the same date, it MUST behave idempotently: the system recomputes results and overwrites that date’s statements without double-counting trades or cash movements.
 - How does the system handle a trader with no trades or journal entries on a given day when generating statements (empty or minimal statements should still be valid and readable)?
-- If a broker attempts a funds journal entry that would result in a negative balance or violate internal limits, the system MUST still allow the entry but MUST clearly flag the trader account as negative or at-risk in both UI and statements, without silently masking the condition.
+- If a Broker Admin attempts a funds journal entry that would result in a negative balance or violate internal limits, the system MUST still allow the entry but MUST clearly flag the trader account as negative or at-risk in both UI and statements, without silently masking the condition.
 - How does the system behave when order placement is attempted during heavy simulated load (orders should still be accepted, processed, and reflected without user-facing failures)?
 - What happens when a demo user attempts an action outside their role (e.g., trader trying to access broker-only screens; access should be blocked with a clear message)?
-- For all generated trader and broker statements, the simulation disclaimer (e.g., "This is a simulated environment — not real trading or money") MUST remain visible even when printed or exported, and MUST NOT be removable via simple theme or CSS changes.
+- For all generated trader and Broker Admin statements, the simulation disclaimer (e.g., "This is a simulated environment — not real trading or money") MUST remain visible even when printed or exported, and MUST NOT be removable via simple theme or CSS changes (see **Disclaimers & Simulation Messaging**).
 
 ## Requirements _(mandatory)_
 
@@ -106,22 +107,28 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 
 - **FR-001**: The system MUST allow authenticated traders to log in and manage a personal market watchlist, including adding and removing symbols such as RELIANCE on NSE.
 - **FR-002**: The system MUST allow traders to place market orders in supported instruments and, upon execution, MUST update the trader’s positions and cash ledger consistently and immediately in the UI.
-- **FR-003**: The system MUST ensure that role-based access is explicit and enforced for at least three roles: Trader, Broker Admin, and Exchange Operator, preventing access to restricted actions and screens for other roles.
+- **FR-003**: The system MUST ensure that role-based access is explicit and enforced for at least three roles: Trader, Broker Admin, and Exchange Operator, preventing access to restricted actions and screens for other roles. When a user attempts an action outside their role, the system MUST respond with a clear, role-appropriate message (e.g., “You’re signed in as a Trader — this area is only available to Broker Admins”) and MUST NOT expose the underlying resource.
 - **FR-004**: The system MUST allow broker admins to create funds journal entries (credits and debits) for a trader and MUST update the trader’s buying power and ledger balances accordingly, even when this results in a negative balance, provided that such negative or limit-breaching conditions are clearly flagged in the UI and statements.
 - **FR-005**: The system MUST allow an exchange operator to run an end-of-day process for a specific date that consolidates trades, positions, and journal entries into generated daily statements for traders and brokers, and this process MUST be idempotent for a given date (re-running recomputes results and overwrites statements without duplicating effects).
 - **FR-006**: The system MUST provide traders and brokers with access to their generated daily statements via the UI and MUST display balances, P&L, and key cash movements that reconcile with positions and ledger history.
-- **FR-007**: The system MUST display a clear, always-visible "SIMULATED / NOT REAL MONEY" banner or equivalent warning on primary Trader and Broker views.
+- **FR-007**: The system MUST display a clear, always-visible "SIMULATED / NOT REAL MONEY" banner or equivalent warning on primary Trader and Broker Admin views, consistent with the rules defined under **Disclaimers & Simulation Messaging**.
 - **FR-008**: The system MUST define predictable default landing pages by role: Trader → Market Watch, Broker Admin → Broker Dashboard, Exchange Operator → Exchange Overview, all reachable immediately after login without exposing generic JHipster home content.
 - **FR-009**: The system MUST provide a primary welcome/landing page for the application that is NOT the generic JHipster welcome page, and instead prominently displays RNExchange branding (logo showing "RNX", application name "RNExchange") and a brief description of the simulator.
 - **FR-010**: The RNExchange logo asset used in the application MUST support at least a 3:1 horizontal aspect ratio and be provided in a minimum resolution of 600×200 pixels (preferably vector or high-resolution PNG) so it renders crisply on common desktop and mobile displays.
 - **FR-011**: The system MUST provide per-role, easily discoverable “How to use RNExchange” help sections accessible from each role’s main dashboard or header, written in plain language as a lightweight user manual for that role.
 - **FR-012**: The system MUST ensure that menu items and UI elements are filtered by role, such that irrelevant generic JHipster sections (e.g., "Entities", "Administration", "Performance") are not visible to Trader and Broker Admin users and only truly relevant administrative items are shown to Exchange Operator users.
-- **FR-013**: The system MUST ensure that each user role (Trader, Broker Admin, Exchange Operator) has all relevant functionality and navigation accessible from their main dashboard or primary navigation (e.g., Traders can access watchlists, order entry, positions, and ledger; Broker Admins can access trader management, funds journals, and statements; Exchange Operators can access EOD tools, statements, and system overview).
-- **FR-014**: The system MUST address at least five high-friction UX "paper-cut" issues (e.g., unclear error messages, missing loading states, missing empty-state messages, or ambiguous button labels), tracked as `PC-001`–`PC-00N` in `specs/006-qa-hardening-demo/research.md`, such that core demo flows can be completed without confusion.
-- **FR-015**: The system MUST provide automated end-to-end, contract, and integration tests for the three critical demo flows, as specified in **NFR-002 (Reliability & Testability)** and **SC-002**, and these tests MUST run as part of CI.
+- **FR-013**: The system MUST ensure that each user role (Trader, Broker Admin, Exchange Operator) has all relevant functionality and navigation accessible from their main dashboard or primary navigation (e.g., Traders can access watchlists, order entry, positions, and ledger; Broker Admins can access trader management, funds journals, and statements; Exchange Operators can access EOD tools, statements, and system overview), as detailed in the **Role Capabilities & Navigation Matrix** below.
+- **FR-014**: The system MUST address at least five high-friction UX "paper-cut" issues (e.g., unclear error messages, missing loading states, missing empty-state messages, or ambiguous button labels), tracked as `PC-001`–`PC-00N` in `specs/006-qa-hardening-demo/research.md`, such that core demo flows can be completed without confusion. Each paper-cut entry MUST (a) affect a core demo screen or flow, (b) be observed during dry-run demos or QA sessions, and (c) include a brief “before vs after” description and reference to the tests that guard against regression.
+- **FR-015**: The system MUST provide automated end-to-end, contract, and integration tests for the three critical demo flows, and these tests MUST run as part of CI, in order to satisfy **NFR-002 (Reliability & Testability)** and **SC-002**.
 - **FR-016**: The system MUST include performance tests sufficient to validate **NFR-001 (Performance)** and **SC-003**, including order placement latency, EOD duration, and WebSocket market data throughput targets defined in the RNExchange constitution.
 - **FR-017**: The system MUST provide fixed demo users (e.g., `trader_demo`, `broker_demo`, `exchange_demo`) with stable starting balances and positions so that demo flows are repeatable across environments without manual data manipulation.
-- **FR-018**: All trader and broker statements and reports (including HTML or printable exports) MUST prominently display a clear simulation disclaimer such as "This is a simulated environment — not real trading or money" in line with the RNExchange constitution’s Educational Transparency rules.
+- **FR-018**: All trader and Broker Admin statements and reports (including HTML or printable exports) MUST prominently display a clear simulation disclaimer such as "This is a simulated environment — not real trading or money" in line with the RNExchange constitution’s Educational Transparency rules and the **Disclaimers & Simulation Messaging** rules.
+
+### Disclaimers & Simulation Messaging (Cross-cutting)
+
+- The "SIMULATED / NOT REAL MONEY" banner MUST be visible on all primary Trader and Broker Admin views and MUST remain visible during navigation within those roles.
+- Statement and report views for Trader and Broker Admin MUST include a disclaimer such as "This is a simulated environment — not real trading or money" that remains visible when printed or exported and cannot be removed via simple CSS or theme overrides.
+- Per-role help content (User Story 5) MUST reinforce that RNExchange is a simulated, educational environment, including at least one explicit mention of the simulation context per role.
 
 ### Non-Functional Requirements
 
@@ -132,7 +139,7 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 ### Key Entities _(include if feature involves data)_
 
 - **Trader**: Represents an end user placing simulated trades; key attributes include identity, credentials, role, buying power, open positions, and ledger history.
-- **Broker Admin / Broker**: Represents an administrative user responsible for managing traders’ cash and overseeing accounts; key attributes include identity, role, and access to a set of trader accounts and journal entries.
+- **Broker Admin**: Represents an administrative user responsible for managing traders’ cash and overseeing accounts; key attributes include identity, role, and access to a set of trader accounts and journal entries, typically acting on behalf of a Broker organization.
 - **Exchange Operator**: Represents an operational user who can run closing processes and oversee system-wide trading-day health; key attributes include identity, role, and access to EOD tools and reports.
 - **Order**: Represents a requested trade by a trader, including symbol, side, quantity, price type (e.g., market), status, execution details, and timestamps.
 - **Position**: Represents the aggregated holdings for a trader in a given instrument, including quantity, average price, and mark-to-market values used for P&L.
@@ -140,6 +147,23 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 - **Daily Statement**: Represents a generated end-of-day summary for a trader or broker, including opening balance, closing balance, realized/unrealized P&L, and key cash movements.
 - **Watchlist**: Represents a list of instruments a trader is monitoring, including symbol identifiers and ordering preferences.
 - **Demo User Configuration**: Represents predefined demo accounts, their starting balances, positions, and any special flags to keep their state stable and resettable.
+
+### Role Capabilities & Navigation Matrix
+
+The following matrix makes FR-003, FR-008, FR-012, and FR-013 concrete by mapping core capabilities to role-specific landing pages and navigation:
+
+| Capability / Screen                         | Trader (TRADER)                      | Broker Admin (BROKER_ADMIN)                      | Exchange Operator (EXCHANGE_OPERATOR)                |
+| ------------------------------------------- | ------------------------------------ | ------------------------------------------------ | ---------------------------------------------------- |
+| Default landing after login                 | Market Watch (`/market-watch`)       | Broker Dashboard (`/broker/dashboard`)           | Exchange Overview (`/exchange/overview`)             |
+| Watchlist management                        | Yes (Market Watch module)            | No                                               | No                                                   |
+| Order entry & open orders                   | Yes (Trader trading modules)         | No                                               | No                                                   |
+| Trader positions & P&L                      | Yes (Portfolio module)               | Read-only via trader overview where applicable   | Aggregated in Exchange overview where applicable     |
+| Funds journal entry (credits/debits)        | No                                   | Yes (Broker journal module)                      | No                                                   |
+| Trader ledger / cash movement view          | Yes (Ledger module)                  | Yes for traders under their broker               | Aggregated where required                            |
+| Daily statements access                     | Yes (Trader statements module)       | Yes (Broker settlements/statements module)       | Yes (via settlement/statement monitoring UIs)        |
+| EOD run / settlement batch controls         | No                                   | No                                               | Yes (EOD console / Exchange Overview)                |
+| Per-role “How to use RNExchange” help panel | Yes (Trader dashboard)               | Yes (Broker Admin dashboard)                     | Yes (Exchange overview/dashboard)                    |
+| Admin/navigation menus                      | Trader-only menus; no Entities/Admin | Broker-specific menus; no generic JHipster menus | Exchange administration menus relevant to operations |
 
 ## Success Criteria _(mandatory)_
 
