@@ -92,8 +92,11 @@ describe('RNExchange Landing Page and Role-Based Navigation', () => {
       });
 
       // Should land on Exchange Overview/Console
-      cy.url().should('satisfy', url => {
-        return url.includes('/exchange') || url.includes('/exchange-console') || url.includes('/exchange/overview');
+      cy.url().then(url => {
+        const isExpectedUrl = ['/exchange', '/exchange-console', '/exchange/overview'].some(path => url.includes(path));
+        if (!isExpectedUrl) {
+          throw new Error(`Expected exchange operator to land on exchange console/overview, but was at: ${url}`);
+        }
       });
       cy.contains(/exchange|overview|console/i).should('be.visible');
     });

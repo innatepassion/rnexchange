@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -75,10 +76,11 @@ describe('MarketDataPanel', () => {
       </Provider>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /start feed/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /stop feed/i })).toBeInTheDocument();
-    });
+    const startButton = await screen.findByRole('button', { name: /start feed/i });
+    const stopButton = await screen.findByRole('button', { name: /stop feed/i });
+
+    expect(startButton).toBeInTheDocument();
+    expect(stopButton).toBeInTheDocument();
   });
 
   it('displays global feed state', async () => {
@@ -91,7 +93,8 @@ describe('MarketDataPanel', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/RUNNING/i)).toBeInTheDocument();
+      const runningBadges = screen.getAllByText(/RUNNING/i);
+      expect(runningBadges.length).toBeGreaterThan(0);
     });
   });
 
@@ -187,7 +190,7 @@ describe('MarketDataPanel', () => {
 
     // Look for tooltip triggers (info icons or hoverable elements)
     await waitFor(() => {
-      const tooltipTriggers = screen.queryAllByRole('button', { name: /info/i });
+      const tooltipTriggers = screen.queryAllByLabelText(/info/i);
       expect(tooltipTriggers.length).toBeGreaterThan(0);
     });
   });

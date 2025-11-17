@@ -16,7 +16,7 @@ describe('Broker Funds Journal', () => {
 
     // Select a trader
     cy.get('[data-cy="journal-trader-select"]').select(1);
-    cy.wait(500); // Wait for trader info to load
+    cy.get('.trader-info .balance', { timeout: 5000 }).should('be.visible');
 
     // Fill in credit form
     cy.get('[data-cy="journal-direction"]').select('credit');
@@ -36,7 +36,7 @@ describe('Broker Funds Journal', () => {
 
     // Select a trader
     cy.get('[data-cy="journal-trader-select"]').select(1);
-    cy.wait(500);
+    cy.get('.trader-info .balance', { timeout: 5000 }).should('be.visible');
 
     // Fill in debit form
     cy.get('[data-cy="journal-direction"]').select('debit');
@@ -56,7 +56,7 @@ describe('Broker Funds Journal', () => {
 
     // Select a trader
     cy.get('[data-cy="journal-trader-select"]').select(1);
-    cy.wait(500);
+    cy.get('.trader-info .balance', { timeout: 5000 }).should('be.visible');
 
     // Get current balance
     let currentBalance = 0;
@@ -78,13 +78,11 @@ describe('Broker Funds Journal', () => {
     // Submit
     cy.get('[data-cy="journal-submit"]').click();
 
-    // Wait for success and refresh
+    // Wait for success
     cy.get('[data-cy="journal-success"]').should('be.visible');
-    cy.wait(1000); // Wait for trader list refresh
 
     // Re-select the trader to see updated balance
     cy.get('[data-cy="journal-trader-select"]').select(1);
-    cy.wait(500);
 
     // Verify negative balance flag is shown
     cy.get('[data-cy="negative-balance-flag"]').should('be.visible').and('contain', 'NEGATIVE');

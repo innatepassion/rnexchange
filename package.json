@@ -121,6 +121,7 @@
     "webstomp-client": "1.2.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "16.3.0",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.16",
@@ -131,6 +132,7 @@
     "@types/redux": "3.6.31",
     "@types/webpack-env": "1.18.8",
     "autoprefixer": "10.4.21",
+    "axios-mock-adapter": "^2.1.0",
     "browser-sync": "3.0.4",
     "browser-sync-webpack-plugin": "2.3.0",
     "concurrently": "9.1.2",

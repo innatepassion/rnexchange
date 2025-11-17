@@ -166,7 +166,8 @@ describe('Role Help Discovery', () => {
 
     it('should be keyboard accessible', () => {
       cy.visit('/trader');
-      cy.get('[data-cy="help-toggle-button"]').focus().should('be.focused');
+      cy.get('[data-cy="help-toggle-button"]').focus();
+      cy.get('[data-cy="help-toggle-button"]').should('be.focused');
       cy.get('[data-cy="help-toggle-button"]').type('{enter}');
       cy.get('[data-cy="help-content"]').should('be.visible');
     });

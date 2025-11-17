@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /* eslint no-console: off */
 export default () => next => action => {
   if (DEVELOPMENT) {

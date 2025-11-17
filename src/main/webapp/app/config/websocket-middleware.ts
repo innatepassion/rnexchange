@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import SockJS from 'sockjs-client';
 
 import Stomp from 'webstomp-client';

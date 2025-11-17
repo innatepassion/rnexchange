@@ -59,7 +59,7 @@ const ExchangeSettlementModule: React.FC = () => {
         setSuccess(`EOD settlement started for ${date}. Batch ID: ${batch.id}`);
         // Start polling for status updates
         setPolling(true);
-        pollBatchStatus(batch.id!, date);
+        pollBatchStatus(batch.id, date);
         // Reload batches list
         setTimeout(() => {
           loadBatches();

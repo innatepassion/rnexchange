@@ -207,7 +207,7 @@ public class SettlementServiceImpl implements SettlementService {
     }
 
     private BigDecimal resolveSettlementPrice(Instrument instrument, LocalDate tradeDate) {
-        // First try DailySettlementPrice
+        // First try DailySettlementPrice for the given trade date
         Optional<DailySettlementPrice> settlementPrice = dailySettlementPriceRepository.findByRefDateAndInstrument_Id(
             tradeDate,
             instrument.getId()
@@ -217,21 +217,23 @@ public class SettlementServiceImpl implements SettlementService {
             return settlementPrice.get().getSettlePrice();
         }
 
-        // Fallback: try to get latest settlement price for this instrument
+        // Fallback: use the latest available settlement price that is not after the trade date
         Optional<DailySettlementPrice> latestPrice = dailySettlementPriceRepository.findFirstByInstrument_IdOrderByRefDateDesc(
             instrument.getId()
         );
 
-        if (
-            (latestPrice.isPresent() && latestPrice.get().getRefDate().equals(tradeDate)) ||
-            latestPrice.get().getRefDate().isBefore(tradeDate)
-        ) {
-            return latestPrice.get().getSettlePrice();
+        if (latestPrice.isPresent()) {
+            DailySettlementPrice latest = latestPrice.get();
+            if (!latest.getRefDate().isAfter(tradeDate)) {
+                return latest.getSettlePrice();
+            }
         }
 
         // TODO: Fallback to 1-minute bar close price (not implemented yet)
-        // For now, throw exception if no price found
-        throw new IllegalStateException("No settlement price found for instrument " + instrument.getSymbol() + " on date " + tradeDate);
+        // For now, throw a clear exception if no usable price is found
+        throw new IllegalStateException(
+            "No settlement price found for instrument " + instrument.getSymbol() + " on or before date " + tradeDate
+        );
     }
 
     private BigDecimal calculateMtm(Position position, BigDecimal settlePrice) {

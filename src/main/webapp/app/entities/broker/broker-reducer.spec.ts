@@ -15,7 +15,7 @@ describe('Entities reducer tests', () => {
     return Object.keys(element).length === 0;
   }
 
-  const initialState: EntityState<IBroker> = {
+  const initialState: EntityState<IBroker> & { baseline: unknown } = {
     loading: false,
     errorMessage: null,
     entities: [],
@@ -23,6 +23,7 @@ describe('Entities reducer tests', () => {
     totalItems: 0,
     updating: false,
     updateSuccess: false,
+    baseline: null,
   };
 
   function testInitialState(state) {

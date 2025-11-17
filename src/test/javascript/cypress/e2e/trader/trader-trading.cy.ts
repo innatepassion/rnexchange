@@ -80,7 +80,8 @@ describe('Trader Trading Flow E2E Test', () => {
     // Fill order form
     cy.get('[data-cy="order-side-select"]').select('BUY');
     cy.get('[data-cy="order-type-select"]').select('MARKET');
-    cy.get('[data-cy="order-qty-input"]').clear().type('10');
+    cy.get('[data-cy="order-qty-input"]').clear();
+    cy.get('[data-cy="order-qty-input"]').type('10');
 
     // Record initial cash balance
     cy.visit('/trader/portfolio-cash');
@@ -106,7 +107,8 @@ describe('Trader Trading Flow E2E Test', () => {
     cy.get('[data-cy="order-ticket-drawer"]', { timeout: 3000 }).should('be.visible');
     cy.get('[data-cy="order-side-select"]').select('BUY');
     cy.get('[data-cy="order-type-select"]').select('MARKET');
-    cy.get('[data-cy="order-qty-input"]').clear().type('10');
+    cy.get('[data-cy="order-qty-input"]').clear();
+    cy.get('[data-cy="order-qty-input"]').type('10');
     cy.get('[data-cy="order-submit-button"]').click();
 
     // Step 3: Wait for order submission and verify success
@@ -357,7 +359,6 @@ describe('Trader Trading Flow E2E Test', () => {
 
     // Record initial state
     let initialBalance = 0;
-    let initialPositionQty = 0;
 
     cy.get('[data-cy="cash-balance"]')
       .invoke('text')
@@ -368,27 +369,12 @@ describe('Trader Trading Flow E2E Test', () => {
         }
       });
 
-    // Check if position already exists
-    cy.get('body').then($body => {
-      if ($body.find(`[data-testid="position-row-${instrumentSymbol}"]`).length > 0) {
-        cy.get(`[data-testid="position-row-${instrumentSymbol}"]`)
-          .find('td')
-          .eq(1) // Quantity column
-          .invoke('text')
-          .then(text => {
-            const match = text.match(/\d+/);
-            if (match) {
-              initialPositionQty = parseInt(match[0], 10);
-            }
-          });
-      }
-    });
-
     // Place a BUY order
     cy.get('[data-cy="order-ticket-button"]').click();
     cy.get('[data-cy="order-side-select"]').select('BUY');
     cy.get('[data-cy="order-type-select"]').select('MARKET');
-    cy.get('[data-cy="order-qty-input"]').clear().type('10');
+    cy.get('[data-cy="order-qty-input"]').clear();
+    cy.get('[data-cy="order-qty-input"]').type('10');
     cy.get('[data-cy="order-instrument-select"]').select(instrumentSymbol);
 
     // T019 [US1]: Record timestamp before order submission to measure WebSocket latency
@@ -442,18 +428,20 @@ describe('Trader Trading Flow E2E Test', () => {
       });
 
     // T019 [US1]: Verify ledger entry appears in real-time (WebSocket-driven)
+    cy.get('[data-testid^="ledger-row-"]', { timeout: 3000 }).first().should('exist');
+
     cy.get('[data-testid^="ledger-row-"]', { timeout: 3000 })
       .first()
-      .should('exist')
       .within(() => {
         cy.contains('DEBIT').should('exist');
         cy.contains(instrumentSymbol).should('exist');
-      })
-      .then(() => {
-        const ledgerUpdateLatency = Date.now() - orderSubmitTime;
-        cy.log(`⏱️ Ledger update latency: ${ledgerUpdateLatency}ms (SC-004 target: <2000ms)`);
-        expect(ledgerUpdateLatency).to.be.lessThan(2000);
       });
+
+    cy.then(() => {
+      const ledgerUpdateLatency = Date.now() - orderSubmitTime;
+      cy.log(`⏱️ Ledger update latency: ${ledgerUpdateLatency}ms (SC-004 target: <2000ms)`);
+      expect(ledgerUpdateLatency).to.be.lessThan(2000);
+    });
 
     cy.log('✓✓✓ [US1] WebSocket-driven updates verified: order status, position, cash balance, and ledger all updated within 2 seconds');
   });
@@ -472,7 +460,8 @@ describe('Trader Trading Flow E2E Test', () => {
       cy.get('[data-cy="order-ticket-button"]').click();
       cy.get('[data-cy="order-side-select"]').select('BUY');
       cy.get('[data-cy="order-type-select"]').select('MARKET');
-      cy.get('[data-cy="order-qty-input"]').clear().type('5');
+      cy.get('[data-cy="order-qty-input"]').clear();
+      cy.get('[data-cy="order-qty-input"]').type('5');
       cy.get('[data-cy="order-instrument-select"]').select(instrumentSymbol);
 
       const submitTime = Date.now();
@@ -491,8 +480,7 @@ describe('Trader Trading Flow E2E Test', () => {
           expect(latency).to.be.lessThan(2000);
         });
 
-      // Small delay between orders to avoid overwhelming the system
-      cy.wait(500);
+      // Orders are placed sequentially; no additional fixed delay needed between them
     }
 
     // Verify final position reflects all orders

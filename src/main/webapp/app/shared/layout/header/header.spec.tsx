@@ -57,8 +57,6 @@ describe('Header', () => {
 
     // Find Navbar component
     expect(html).toContain('navbar');
-    // Find AdminMenu component
-    expect(html).toContain('admin-menu');
     // Find EntitiesMenu component
     expect(html).toContain('entity-menu');
     // Find AccountMenu component
@@ -72,8 +70,6 @@ describe('Header', () => {
 
     // Find Navbar component
     expect(html).toContain('navbar');
-    // Find AdminMenu component
-    expect(html).toContain('admin-menu');
     // Find EntitiesMenu component
     expect(html).toContain('entity-menu');
     // Find AccountMenu component

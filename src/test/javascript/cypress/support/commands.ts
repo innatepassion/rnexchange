@@ -159,6 +159,7 @@ Cypress.Commands.add('resetDemoAccounts', (force: boolean = true) => {
   }).then(response => {
     expect(response.status).to.be.oneOf([200, 202]);
     // Wait a bit for the seed job to complete
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
   });
 });

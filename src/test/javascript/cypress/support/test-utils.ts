@@ -22,13 +22,13 @@ export function waitForElement(
     .get(selector, { timeout })
     .should('be.visible')
     .then(
-      element => {
+      (element: JQuery<HTMLElement>) => {
         if (!element || element.length === 0) {
           throw new Error(errorMessage);
         }
         return element;
       },
-      error => {
+      (error: Error) => {
         cy.log(`Retrying wait for ${selector}...`);
         throw new Error(`${errorMessage}: ${error.message}`);
       },
@@ -45,18 +45,18 @@ export function waitForApiResponse(
     timeout?: number;
     expectedStatus?: number;
   },
-): Cypress.Chainable<Cypress.Response<any>> {
+): Cypress.Chainable<Cypress.Response<unknown>> {
   const timeout = options?.timeout ?? 30000;
   const expectedStatus = options?.expectedStatus ?? 200;
 
-  return cy.wait(`@${alias}`, { timeout }).then((interception: any) => {
+  return cy.wait(`@${alias}`, { timeout }).then((interception: Cypress.Interception) => {
     if (!interception || !interception.response) {
       throw new Error(`API call ${alias} did not complete`);
     }
     if (interception.response.statusCode !== expectedStatus) {
       cy.log(`Warning: ${alias} returned status ${interception.response.statusCode}, expected ${expectedStatus}`);
     }
-    return interception.response;
+    return interception.response as Cypress.Response<unknown>;
   });
 }
 
@@ -103,20 +103,20 @@ export function withIsolatedTestData<T>(setup: () => Promise<T>, cleanup: (data:
  * Wait for WebSocket updates with timeout.
  * Useful for testing real-time features.
  */
-export function waitForWebSocketUpdate(
-  checkFn: () => Cypress.Chainable<any>,
+export function waitForWebSocketUpdate<T>(
+  checkFn: () => Cypress.Chainable<T | null | undefined>,
   options?: {
     timeout?: number;
     interval?: number;
   },
-): Cypress.Chainable<any> {
+): Cypress.Chainable<T> {
   const timeout = options?.timeout ?? 10000;
   const interval = options?.interval ?? 500;
   const startTime = Date.now();
 
-  function attempt(): Cypress.Chainable<any> {
+  function attempt(): Cypress.Chainable<T> {
     return checkFn().then(
-      result => {
+      (result: T | null | undefined) => {
         if (result) {
           return result;
         }
@@ -126,7 +126,7 @@ export function waitForWebSocketUpdate(
         cy.wait(interval);
         return attempt();
       },
-      error => {
+      (error: Error) => {
         if (Date.now() - startTime > timeout) {
           throw error;
         }
@@ -173,8 +173,8 @@ export const stableSelectors = {
  * Reduces flakiness from race conditions with async requests.
  */
 export function waitForNetworkIdle(timeout = 2000): void {
-  cy.window().then(win => {
-    const originalFetch = win.fetch;
+  cy.window().then((win: Window & typeof globalThis) => {
+    const originalFetch: typeof window.fetch = win.fetch.bind(win);
     let requestCount = 0;
     let idleTimer: ReturnType<typeof setTimeout>;
 
@@ -187,14 +187,13 @@ export function waitForNetworkIdle(timeout = 2000): void {
       }
     };
 
-    win.fetch = function (...args) {
+    win.fetch = (...args: Parameters<typeof window.fetch>): ReturnType<typeof window.fetch> => {
       requestCount++;
-      const promise = originalFetch.apply(this, args);
-      promise.finally(() => {
+      const promise = originalFetch(...args);
+      return promise.finally(() => {
         requestCount--;
         checkIdle();
       });
-      return promise;
     };
 
     checkIdle();

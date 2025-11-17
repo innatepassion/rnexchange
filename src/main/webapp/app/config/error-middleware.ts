@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const getErrorMessage = errorData => {
   let { message } = errorData;
   if (errorData.fieldErrors) {

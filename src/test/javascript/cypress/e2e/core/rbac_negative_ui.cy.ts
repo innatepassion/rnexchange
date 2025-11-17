@@ -297,8 +297,11 @@ describe('RBAC Negative Path UI Tests', () => {
       cy.visit('/broker/dashboard');
 
       // Should eventually land on trader-appropriate page
-      cy.url().should('satisfy', url => {
-        return url.includes('/market-watch') || url.includes('/trader') || url === '/';
+      cy.url().then(url => {
+        const isExpectedUrl = url.includes('/market-watch') || url.includes('/trader') || url === '/';
+        if (!isExpectedUrl) {
+          throw new Error(`Expected redirect to trader-appropriate page after unauthorized access, but was at: ${url}`);
+        }
       });
     });
   });
