@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "M6 – QA, Hardening & Demo-Ready Polish (stabilization, automated critical flows, demo-ready). Refine to include RNExchange-branded landing page, per-role help guides, and removal of irrelevant JHipster UI elements so each role sees only relevant, production-ready navigation."
 
+## Clarifications
+
+### Session 2025-11-17
+
+- Q: How should EOD behave if run more than once for the same date? → A: Idempotent; recompute and overwrite statements.
+- Q: What should happen if a broker posts a funds journal entry that would otherwise push a trader’s balance negative or violate internal limits? → A: Allow entry but clearly flag negative/at-risk state.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Trader day trade flow is reliable (Priority: P1)
@@ -86,9 +93,9 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 
 ### Edge Cases
 
-- What happens when EOD is run more than once for the same date (idempotency and consistent statements)?
+- When EOD is run more than once for the same date, it MUST behave idempotently: the system recomputes results and overwrites that date’s statements without double-counting trades or cash movements.
 - How does the system handle a trader with no trades or journal entries on a given day when generating statements (empty or minimal statements should still be valid and readable)?
-- What happens if a broker attempts a funds journal entry that would result in a negative balance or violates internal limits?
+- If a broker attempts a funds journal entry that would result in a negative balance or violate internal limits, the system MUST still allow the entry but MUST clearly flag the trader account as negative or at-risk in both UI and statements, without silently masking the condition.
 - How does the system behave when order placement is attempted during heavy simulated load (orders should still be accepted, processed, and reflected without user-facing failures)?
 - What happens when a demo user attempts an action outside their role (e.g., trader trying to access broker-only screens; access should be blocked with a clear message)?
 
@@ -99,8 +106,8 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 - **FR-001**: The system MUST allow authenticated traders to log in and manage a personal market watchlist, including adding and removing symbols such as RELIANCE on NSE.
 - **FR-002**: The system MUST allow traders to place market orders in supported instruments and, upon execution, MUST update the trader’s positions and cash ledger consistently and immediately in the UI.
 - **FR-003**: The system MUST ensure that role-based access is explicit and enforced for at least three roles: Trader, Broker Admin, and Exchange Operator, preventing access to restricted actions and screens for other roles.
-- **FR-004**: The system MUST allow broker admins to create funds journal entries (credits and debits) for a trader and MUST update the trader’s buying power and ledger balances accordingly.
-- **FR-005**: The system MUST allow an exchange operator to run an end-of-day process for a specific date that consolidates trades, positions, and journal entries into generated daily statements for traders and brokers.
+- **FR-004**: The system MUST allow broker admins to create funds journal entries (credits and debits) for a trader and MUST update the trader’s buying power and ledger balances accordingly, even when this results in a negative balance, provided that such negative or limit-breaching conditions are clearly flagged in the UI and statements.
+- **FR-005**: The system MUST allow an exchange operator to run an end-of-day process for a specific date that consolidates trades, positions, and journal entries into generated daily statements for traders and brokers, and this process MUST be idempotent for a given date (re-running recomputes results and overwrites statements without duplicating effects).
 - **FR-006**: The system MUST provide traders and brokers with access to their generated daily statements via the UI and MUST display balances, P&L, and key cash movements that reconcile with positions and ledger history.
 - **FR-007**: The system MUST display a clear, always-visible "SIMULATED / NOT REAL MONEY" banner or equivalent warning on primary Trader and Broker views.
 - **FR-008**: The system MUST define predictable default landing pages by role: Trader → Market Watch, Broker Admin → Broker Dashboard, Exchange Operator → Exchange Overview, all reachable immediately after login without exposing generic JHipster home content.
