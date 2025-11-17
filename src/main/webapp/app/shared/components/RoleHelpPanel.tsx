@@ -53,16 +53,11 @@ const RoleHelpPanel: React.FC = () => {
                 <Translate contentKey={`${helpKey}.responsibilities.title`}>Your Responsibilities</Translate>
               </h4>
               <ul>
-                {[0, 1, 2, 3, 4].map(i => {
-                  const key = `${helpKey}.responsibilities.items.${i}`;
-                  return (
-                    <li key={i}>
-                      <Translate contentKey={key} defaultValue={key.includes('translation-not-found') ? '' : undefined}>
-                        Responsibility {String(i + 1)}
-                      </Translate>
-                    </li>
-                  );
-                })}
+                {[0, 1, 2, 3, 4].map(i => (
+                  <li key={i}>
+                    <Translate contentKey={`${helpKey}.responsibilities.items.${i}`}>Responsibility {String(i + 1)}</Translate>
+                  </li>
+                ))}
               </ul>
             </section>
 

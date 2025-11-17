@@ -52,4 +52,10 @@ public interface TradingAccountRepository extends JpaRepository<TradingAccount, 
     Optional<TradingAccount> findByIdAndBroker_Id(@Param("id") Long id, @Param("brokerId") Long brokerId);
 
     Optional<TradingAccount> findFirstByBroker_Id(@Param("brokerId") Long brokerId);
+
+    @Query("select ta from TradingAccount ta where ta.trader.id = :traderId and ta.broker.id = :brokerId")
+    List<TradingAccount> findByTraderIdAndBrokerId(@Param("traderId") Long traderId, @Param("brokerId") Long brokerId);
+
+    @Query("select ta from TradingAccount ta where ta.broker.id = :brokerId and ta.trader.id in :traderIds")
+    List<TradingAccount> findByBrokerIdAndTraderIdIn(@Param("brokerId") Long brokerId, @Param("traderIds") List<Long> traderIds);
 }

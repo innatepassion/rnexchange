@@ -1,5 +1,7 @@
 package com.rnexchange.service.broker;
 
+import com.rnexchange.domain.TraderProfile;
+import com.rnexchange.domain.TradingAccount;
 import com.rnexchange.repository.TraderProfileRepository;
 import com.rnexchange.repository.TradingAccountRepository;
 import com.rnexchange.service.api.dto.TraderDetails;
@@ -11,14 +13,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class BrokerTradersService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BrokerTradersService.class);
 
     private final BrokerScopeService brokerScopeService;
     private final TraderProfileRepository traderProfileRepository;
@@ -39,22 +49,56 @@ public class BrokerTradersService {
         Long scopedBrokerId = brokerScopeService.requireBrokerId(brokerId);
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
 
-        Page<?> traderPage = traderProfileRepository.findByBrokerId(scopedBrokerId, pageable);
+        Page<TraderProfile> traderPage = traderProfileRepository.findByBrokerId(scopedBrokerId, pageable);
 
-        List<BrokerTraderSummaryDTO> summaries = new ArrayList<>();
-        traderPage
-            .getContent()
-            .forEach(tp -> {
-                BrokerTraderSummaryDTO dto = new BrokerTraderSummaryDTO();
-                dto.setTraderId(null);
-                dto.setDisplayName(null);
-                dto.setTradingAccountId(null);
-                dto.setCashBalance(BigDecimal.ZERO);
-                dto.setUnrealizedPnl(BigDecimal.ZERO);
-                dto.setUtilizationPct(BigDecimal.ZERO);
-                dto.setStalePriceFlag(false);
-                summaries.add(dto);
-            });
+        // Fetch all trading accounts for these traders in one query to avoid N+1 problem
+        List<Long> traderProfileIds = traderPage.getContent().stream().map(TraderProfile::getId).collect(Collectors.toList());
+
+        // Create a map of traderId -> first TradingAccount for efficient lookup
+        Map<Long, TradingAccount> tradingAccountMap = new HashMap<>();
+        if (!traderProfileIds.isEmpty()) {
+            List<TradingAccount> allTradingAccounts = tradingAccountRepository.findByBrokerIdAndTraderIdIn(
+                scopedBrokerId,
+                traderProfileIds
+            );
+            // Group by trader ID, taking the first account for each trader
+            for (TradingAccount account : allTradingAccounts) {
+                Long traderId = account.getTrader().getId();
+                tradingAccountMap.putIfAbsent(traderId, account);
+            }
+        }
+
+        List<Map<String, Object>> summaries = new ArrayList<>();
+        for (TraderProfile traderProfile : traderPage.getContent()) {
+            Map<String, Object> summary = new HashMap<>();
+
+            // Get trading account from map (O(1) lookup)
+            TradingAccount tradingAccount = tradingAccountMap.get(traderProfile.getId());
+
+            // Set trader ID (use trading account ID as traderId for frontend compatibility)
+            Long tradingAccountId = tradingAccount != null ? tradingAccount.getId() : null;
+            summary.put("traderId", tradingAccountId != null ? String.valueOf(tradingAccountId) : null);
+
+            // Set display name
+            summary.put("name", traderProfile.getDisplayName());
+
+            // Set login from user
+            String login = traderProfile.getUser() != null ? traderProfile.getUser().getLogin() : null;
+            summary.put("login", login);
+
+            // Set status (convert AccountStatus to 'active' | 'disabled')
+            String status = traderProfile.getStatus() != null && traderProfile.getStatus().name().equals("ACTIVE") ? "active" : "disabled";
+            summary.put("status", status);
+
+            // Set cash balance from trading account
+            BigDecimal cash = tradingAccount != null ? tradingAccount.getBalance() : BigDecimal.ZERO;
+            summary.put("cash", cash);
+
+            // Set current P&L (placeholder - would need position calculation)
+            summary.put("currentPnl", BigDecimal.ZERO);
+
+            summaries.add(summary);
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("content", summaries);

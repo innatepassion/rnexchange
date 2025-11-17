@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Alert, Spinner, Table, Input, Button, Card, CardBody, CardHeader, Row, Col, Badge } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faRefresh, faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -48,7 +48,7 @@ const BrokerJournalEntries: React.FC = () => {
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 20;
 
-  const fetchEntries = async () => {
+  const fetchEntries = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -78,11 +78,11 @@ const BrokerJournalEntries: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, typeFilter, searchTerm, pageSize]);
 
   useEffect(() => {
     fetchEntries();
-  }, [page, typeFilter]);
+  }, [fetchEntries]);
 
   const handleSearch = () => {
     setPage(0);
