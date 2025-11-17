@@ -8,10 +8,11 @@ public class BrokerSettlementSummary implements Serializable {
 
     private LocalDate refDate;
     private Long brokerId;
-    private String brokerCode;
-    private Integer accountsProcessed;
-    private Integer positionsProcessed;
-    private BigDecimal totalNetPnl;
+    private String brokerName;
+    private Integer totalClientCount;
+    private BigDecimal totalOpeningBalance;
+    private BigDecimal totalClosingBalance;
+    private BigDecimal totalEodMtmPnl;
     private String summaryUrl;
 
     public LocalDate getRefDate() {
@@ -30,36 +31,44 @@ public class BrokerSettlementSummary implements Serializable {
         this.brokerId = brokerId;
     }
 
-    public String getBrokerCode() {
-        return brokerCode;
+    public String getBrokerName() {
+        return brokerName;
     }
 
-    public void setBrokerCode(String brokerCode) {
-        this.brokerCode = brokerCode;
+    public void setBrokerName(String brokerName) {
+        this.brokerName = brokerName;
     }
 
-    public Integer getAccountsProcessed() {
-        return accountsProcessed;
+    public Integer getTotalClientCount() {
+        return totalClientCount;
     }
 
-    public void setAccountsProcessed(Integer accountsProcessed) {
-        this.accountsProcessed = accountsProcessed;
+    public void setTotalClientCount(Integer totalClientCount) {
+        this.totalClientCount = totalClientCount;
     }
 
-    public Integer getPositionsProcessed() {
-        return positionsProcessed;
+    public BigDecimal getTotalOpeningBalance() {
+        return totalOpeningBalance;
     }
 
-    public void setPositionsProcessed(Integer positionsProcessed) {
-        this.positionsProcessed = positionsProcessed;
+    public void setTotalOpeningBalance(BigDecimal totalOpeningBalance) {
+        this.totalOpeningBalance = totalOpeningBalance;
     }
 
-    public BigDecimal getTotalNetPnl() {
-        return totalNetPnl;
+    public BigDecimal getTotalClosingBalance() {
+        return totalClosingBalance;
     }
 
-    public void setTotalNetPnl(BigDecimal totalNetPnl) {
-        this.totalNetPnl = totalNetPnl;
+    public void setTotalClosingBalance(BigDecimal totalClosingBalance) {
+        this.totalClosingBalance = totalClosingBalance;
+    }
+
+    public BigDecimal getTotalEodMtmPnl() {
+        return totalEodMtmPnl;
+    }
+
+    public void setTotalEodMtmPnl(BigDecimal totalEodMtmPnl) {
+        this.totalEodMtmPnl = totalEodMtmPnl;
     }
 
     public String getSummaryUrl() {

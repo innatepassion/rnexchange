@@ -129,21 +129,21 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 3 (write first)
 
-- [ ] T042 [P] [US3] Contract test for GET `/api/broker/settlements` in `src/test/java/com/rnexchange/contract/settlement/BrokerSettlementsContractTest.java`
-- [ ] T043 [US3] Integration test verifying broker-level totals and scoping (only own broker data) in `src/test/java/com/rnexchange/integration/settlement/BrokerSettlementsIT.java`
+- [x] T042 [P] [US3] Contract test for GET `/api/broker/settlements` in `src/test/java/com/rnexchange/contract/settlement/BrokerSettlementsContractTest.java`
+- [x] T043 [US3] Integration test verifying broker-level totals and scoping (only own broker data) in `src/test/java/com/rnexchange/integration/settlement/BrokerSettlementsIT.java`
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Implement `BrokerSettlementService` to aggregate client balances and EOD MTM per broker and generate `BrokerSettlementSummary` in `src/main/java/com/rnexchange/service/settlement/BrokerSettlementService.java`
-- [ ] T045 [P] [US3] Implement REST endpoint GET `/api/broker/settlements` returning broker-level summaries for the authenticated broker in `src/main/java/com/rnexchange/web/rest/broker/BrokerSettlementResource.java` with `@PreAuthorize("hasRole('BROKER_ADMIN')")`
-- [ ] T046 [US3] Ensure summaries reconcile with underlying `StatementService` / ledger data for the same dates and broker
-- [ ] T047 [US3] Add simulated-environment disclaimer and basic totals table to broker summary HTML/CSV template in `src/main/resources/templates/settlement/broker-summary.html`
+- [x] T044 [US3] Implement `BrokerSettlementService` to aggregate client balances and EOD MTM per broker and generate `BrokerSettlementSummary` in `src/main/java/com/rnexchange/service/settlement/BrokerSettlementService.java`
+- [x] T045 [P] [US3] Implement REST endpoint GET `/api/broker/settlements` returning broker-level summaries for the authenticated broker in `src/main/java/com/rnexchange/web/rest/broker/BrokerSettlementResource.java` with `@PreAuthorize("hasRole('BROKER_ADMIN')")`
+- [x] T046 [US3] Ensure summaries reconcile with underlying `StatementService` / ledger data for the same dates and broker
+- [x] T047 [US3] Add simulated-environment disclaimer and basic totals table to broker summary HTML/CSV template in `src/main/resources/templates/settlement/broker-summary.html`
 
 ### UI for User Story 3 — Broker “Settlements/Reports” tab
 
-- [ ] T048 [P] [US3] Implement Broker “Settlements/Reports” page listing per-day summaries in `src/main/webapp/app/modules/broker/settlements/index.tsx`
-- [ ] T049 [P] [US3] Implement frontend service for broker settlement APIs in `src/main/webapp/app/modules/broker/settlements/services/broker-settlements.service.ts`
-- [ ] T050 [US3] Wire drill-down from summary rows to underlying client statements (reuse Trader statements view where appropriate) in `src/main/webapp/app/modules/broker/settlements/index.tsx`
+- [x] T048 [P] [US3] Implement Broker “Settlements/Reports” page listing per-day summaries in `src/main/webapp/app/modules/broker/settlements/index.tsx`
+- [x] T049 [P] [US3] Implement frontend service for broker settlement APIs in `src/main/webapp/app/modules/broker/settlements/services/broker-settlements.service.ts`
+- [x] T050 [US3] Wire drill-down from summary rows to underlying client statements (reuse Trader statements view where appropriate) in `src/main/webapp/app/modules/broker/settlements/index.tsx`
 - [ ] T051 [P] [US3] Jest tests for Broker settlements page and drill-down behavior in `src/test/javascript/spec/settlement/BrokerSettlements.spec.tsx`
 - [ ] T052 [P] [US3] Cypress E2E for Broker Admin viewing summaries and drilling into client statements in `src/test/javascript/cypress/e2e/broker_settlements.cy.ts`
 

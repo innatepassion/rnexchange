@@ -1,5 +1,6 @@
 package com.rnexchange.service.settlement;
 
+import com.rnexchange.domain.TradingAccount;
 import com.rnexchange.service.dto.StatementSummary;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,4 +25,14 @@ public interface StatementService {
      * @return HTML content
      */
     String getStatementHtml(Long statementId);
+
+    /**
+     * Build a statement summary for a specific account and date.
+     * Used by BrokerSettlementService to aggregate broker-level summaries.
+     *
+     * @param account the trading account
+     * @param refDate the reference date
+     * @return statement summary, or null if no data exists for that date
+     */
+    StatementSummary buildStatementSummary(TradingAccount account, LocalDate refDate);
 }

@@ -127,6 +127,7 @@ public class StatementServiceImpl implements StatementService {
      * Build a statement summary for a specific account and date.
      */
     @Transactional(readOnly = true)
+    @Override
     public StatementSummary buildStatementSummary(TradingAccount account, LocalDate refDate) {
         // Get all ledger entries for this account on this date
         List<LedgerEntry> dayEntries = ledgerEntryRepository
