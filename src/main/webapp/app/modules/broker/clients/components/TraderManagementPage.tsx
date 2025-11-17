@@ -233,7 +233,7 @@ const TraderManagementPage: React.FC = () => {
   const handleSave = () => {
     const entity: ITraderProfile = {
       ...formData,
-      user: users.find(it => it.id.toString() === formData.user?.toString()) || null,
+      user: formData.user?.id ? users.find(it => it.id === formData.user?.id) || null : null,
     } as ITraderProfile;
 
     if (formData.id) {
