@@ -1,9 +1,9 @@
-# Feature Specification: M6 QA Hardening & Demo-Ready Polish
+# Feature Specification: M6 QA Hardening, Branding & Demo-Ready Polish
 
 **Feature Branch**: `006-qa-hardening-demo`  
 **Created**: 2025-11-17  
 **Status**: Draft  
-**Input**: User description: "M6 – QA, Hardening & Demo-Ready Polish (stabilization, automated critical flows, demo-ready)."
+**Input**: User description: "M6 – QA, Hardening & Demo-Ready Polish (stabilization, automated critical flows, demo-ready). Refine to include RNExchange-branded landing page, per-role help guides, and removal of irrelevant JHipster UI elements so each role sees only relevant, production-ready navigation."
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -52,18 +52,35 @@ An exchange operator can log in, run end-of-day processing for the current tradi
 
 ---
 
-### User Story 4 - Demo-ready UX and role-based navigation (Priority: P2)
+### User Story 4 - Demo-ready UX, branding, and role-based navigation (Priority: P2)
 
-A team member using fixed demo users can quickly navigate and demonstrate a full “day in the life” across Trader, Broker, and Exchange Operator roles without confusion, raw data edits, or manual configuration.
+A team member using fixed demo users can quickly navigate and demonstrate a full “day in the life” across Trader, Broker, and Exchange Operator roles without confusion, raw data edits, or manual configuration, starting from an RNExchange-branded landing experience rather than the generic JHipster welcome page.
 
-**Why this priority**: The milestone is explicitly about being demo-ready; anyone on the team should be able to run a polished demo confidently.
+**Why this priority**: The milestone is explicitly about being demo-ready; anyone on the team should be able to run a polished RNExchange demo confidently that looks production-ready, clearly branded, and tailored to each role.
 
-**Independent Test**: Can be tested by starting from a fresh environment, logging in as `trader_demo`, `broker_demo`, and `exchange_demo`, and completing the scripted demo steps using only the UI, while observing clear banners, predictable landing pages, and sensible error/loading/empty states.
+**Independent Test**: Can be tested by starting from a fresh environment, opening the application entry URL, confirming that the primary welcome/landing page shows RNExchange branding (logo and name) instead of a generic JHipster page, then logging in as `trader_demo`, `broker_demo`, and `exchange_demo`, and completing the scripted demo steps using only the UI, while observing clear banners, predictable landing pages, relevant navigation, and sensible error/loading/empty states.
 
 **Acceptance Scenarios**:
 
-1. **Given** the predefined demo users are present, **When** a team member starts the app and logs in as each role, **Then** the Trader lands on Market Watch, the Broker lands on their Dashboard, and the Exchange Operator lands on an Exchange Overview screen, all with a visible “SIMULATED / NOT REAL MONEY” indicator for Trader and Broker.
-2. **Given** a team member is following the demo script, **When** they place a trade, adjust funds, run EOD, and open statements using the demo users, **Then** they can complete the entire flow without editing configuration files, seeding data manually, or encountering confusing error messages or missing loading/empty states.
+1. **Given** a user opens the root URL of the application, **When** the welcome/landing page loads, **Then** it shows RNExchange branding (logo with "RNX", application name "RNExchange"), a short description of the simulator, and clear calls-to-action to log in with available roles (without any generic JHipster welcome content).
+2. **Given** the predefined demo users are present, **When** a team member starts the app and logs in as each role, **Then** the Trader lands on Market Watch, the Broker lands on their Dashboard, and the Exchange Operator lands on an Exchange Overview screen, all with a visible “SIMULATED / NOT REAL MONEY” indicator for Trader and Broker, and without irrelevant JHipster menu items such as generic "Entities" or "Performance" that do not apply to that role.
+3. **Given** a team member is following the demo script, **When** they place a trade, adjust funds, run EOD, and open statements using the demo users, **Then** they can complete the entire flow without editing configuration files, seeding data manually, or encountering confusing error messages, missing loading/empty states, or dead-end navigation.
+
+---
+
+### User Story 5 - Per-role “How to use RNExchange” help guides (Priority: P3)
+
+Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How to use RNExchange” help section from their main dashboard or a clearly labeled help entry, acting as a lightweight user manual that explains key concepts and step-by-step flows for that role.
+
+**Why this priority**: Having integrated, role-specific help makes the platform easier to adopt, reduces demo friction, and allows new users to self-serve basic questions without needing separate documentation.
+
+**Independent Test**: Can be tested by logging in as each role and confirming that a consistent help pattern exists (e.g., “How to use RNExchange” or “Help” panel) that describes role responsibilities, key screens, and primary flows in plain language, without requiring navigation to external tools or raw documentation.
+
+**Acceptance Scenarios**:
+
+1. **Given** a trader is logged in and on their primary dashboard/landing page, **When** they open the “How to use RNExchange (Trader)” help section, **Then** they see a concise guide covering concepts such as watchlists, placing orders, viewing positions, and reviewing ledger/statement information, with links or cues to the relevant screens.
+2. **Given** a broker admin is logged in, **When** they access the “How to use RNExchange (Broker Admin)” help section, **Then** they see guidance on managing traders, posting funds journal entries, reviewing risk and statements, and understanding what they can and cannot do compared to other roles.
+3. **Given** an exchange operator is logged in, **When** they access the “How to use RNExchange (Exchange Operator)” help section, **Then** they see guidance on monitoring exchange health, running EOD, generating statements, and any other operational responsibilities, written in clear, non-technical language.
 
 ---
 
@@ -86,11 +103,16 @@ A team member using fixed demo users can quickly navigate and demonstrate a full
 - **FR-005**: The system MUST allow an exchange operator to run an end-of-day process for a specific date that consolidates trades, positions, and journal entries into generated daily statements for traders and brokers.
 - **FR-006**: The system MUST provide traders and brokers with access to their generated daily statements via the UI and MUST display balances, P&L, and key cash movements that reconcile with positions and ledger history.
 - **FR-007**: The system MUST display a clear, always-visible "SIMULATED / NOT REAL MONEY" banner or equivalent warning on primary Trader and Broker views.
-- **FR-008**: The system MUST define predictable default landing pages by role: Trader → Market Watch, Broker Admin → Broker Dashboard, Exchange Operator → Exchange Overview.
-- **FR-009**: The system MUST address at least five high-friction UX "paper-cut" issues (e.g., unclear error messages, missing loading states, missing empty-state messages, or ambiguous button labels) such that core demo flows can be completed without confusion.
-- **FR-010**: The system MUST provide automated end-to-end tests that cover at minimum: (a) the trader trade/ledger flow, (b) the broker funds journal and ledger flow, and (c) the exchange operator EOD and statement viewing flow.
-- **FR-011**: The system MUST support basic performance testing of concurrent order placement and quote streaming that demonstrates acceptable responsiveness for a demo-scale environment (approximately 1,000 simulated concurrent traders, hundreds of quotes per second, and 5–10 orders per second).
-- **FR-012**: The system MUST provide fixed demo users (e.g., `trader_demo`, `broker_demo`, `exchange_demo`) with stable starting balances and positions so that demo flows are repeatable across environments without manual data manipulation.
+- **FR-008**: The system MUST define predictable default landing pages by role: Trader → Market Watch, Broker Admin → Broker Dashboard, Exchange Operator → Exchange Overview, all reachable immediately after login without exposing generic JHipster home content.
+- **FR-009**: The system MUST provide a primary welcome/landing page for the application that is NOT the generic JHipster welcome page, and instead prominently displays RNExchange branding (logo showing "RNX", application name "RNExchange") and a brief description of the simulator.
+- **FR-010**: The RNExchange logo asset used in the application MUST support at least a 3:1 horizontal aspect ratio and be provided in a minimum resolution of 600×200 pixels (preferably vector or high-resolution PNG) so it renders crisply on common desktop and mobile displays.
+- **FR-011**: The system MUST provide per-role, easily discoverable “How to use RNExchange” help sections accessible from each role’s main dashboard or header, written in plain language as a lightweight user manual for that role.
+- **FR-012**: The system MUST ensure that menu items and UI elements are filtered by role, such that irrelevant generic JHipster sections (e.g., "Entities", "Administration", "Performance") are not visible to Trader and Broker Admin users and only truly relevant administrative items are shown to Exchange Operator users.
+- **FR-013**: The system MUST ensure that each user role (Trader, Broker Admin, Exchange Operator) has all relevant functionality and navigation accessible from their main dashboard or primary navigation (e.g., Traders can access watchlists, order entry, positions, and ledger; Broker Admins can access trader management, funds journals, and statements; Exchange Operators can access EOD tools, statements, and system overview).
+- **FR-014**: The system MUST address at least five high-friction UX "paper-cut" issues (e.g., unclear error messages, missing loading states, missing empty-state messages, or ambiguous button labels) such that core demo flows can be completed without confusion.
+- **FR-015**: The system MUST provide automated end-to-end tests that cover at minimum: (a) the trader trade/ledger flow, (b) the broker funds journal and ledger flow, and (c) the exchange operator EOD and statement viewing flow.
+- **FR-016**: The system MUST support basic performance testing of concurrent order placement and quote streaming that demonstrates acceptable responsiveness for a demo-scale environment (approximately 1,000 simulated concurrent traders, hundreds of quotes per second, and 5–10 orders per second).
+- **FR-017**: The system MUST provide fixed demo users (e.g., `trader_demo`, `broker_demo`, `exchange_demo`) with stable starting balances and positions so that demo flows are repeatable across environments without manual data manipulation.
 
 ### Key Entities _(include if feature involves data)_
 
