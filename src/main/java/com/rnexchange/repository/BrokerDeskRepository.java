@@ -47,5 +47,8 @@ public interface BrokerDeskRepository extends JpaRepository<BrokerDesk, Long>, J
      * T024: Find broker desk by user login.
      * Used to resolve the broker for a BROKER_ADMIN user from their username/login.
      */
-    Optional<BrokerDesk> findByUserLogin(String login);
+    @Query(
+        "select brokerDesk from BrokerDesk brokerDesk left join fetch brokerDesk.user left join fetch brokerDesk.broker where brokerDesk.user.login = :login"
+    )
+    Optional<BrokerDesk> findByUserLogin(@Param("login") String login);
 }

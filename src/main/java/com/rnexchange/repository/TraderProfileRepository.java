@@ -47,7 +47,7 @@ public interface TraderProfileRepository extends JpaRepository<TraderProfile, Lo
      */
     @Query(
         value = "select distinct tp from TraderProfile tp " +
-        "left join tp.user u " +
+        "left join fetch tp.user u " +
         "left join TradingAccount ta on ta.trader = tp " +
         "where ta.broker.id = :brokerId",
         countQuery = "select count(distinct tp) from TraderProfile tp " +

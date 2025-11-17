@@ -49,7 +49,9 @@ public class BrokerTradersService {
         Long scopedBrokerId = brokerScopeService.requireBrokerId(brokerId);
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
 
+        LOG.debug("Fetching traders for brokerId: {}, page: {}, size: {}", scopedBrokerId, page, size);
         Page<TraderProfile> traderPage = traderProfileRepository.findByBrokerId(scopedBrokerId, pageable);
+        LOG.debug("Found {} trader profiles", traderPage.getTotalElements());
 
         // Fetch all trading accounts for these traders in one query to avoid N+1 problem
         List<Long> traderProfileIds = traderPage.getContent().stream().map(TraderProfile::getId).collect(Collectors.toList());
@@ -57,18 +59,25 @@ public class BrokerTradersService {
         // Create a map of traderId -> first TradingAccount for efficient lookup
         Map<Long, TradingAccount> tradingAccountMap = new HashMap<>();
         if (!traderProfileIds.isEmpty()) {
-            List<TradingAccount> allTradingAccounts = tradingAccountRepository.findByBrokerIdAndTraderIdIn(
-                scopedBrokerId,
-                traderProfileIds
-            );
-            // Group by trader ID, taking the first account for each trader
-            for (TradingAccount account : allTradingAccounts) {
-                if (account.getTrader() != null) {
-                    Long traderId = account.getTrader().getId();
-                    if (traderId != null) {
-                        tradingAccountMap.putIfAbsent(traderId, account);
+            try {
+                LOG.debug("Fetching trading accounts for {} trader profiles", traderProfileIds.size());
+                List<TradingAccount> allTradingAccounts = tradingAccountRepository.findByBrokerIdAndTraderIdIn(
+                    scopedBrokerId,
+                    traderProfileIds
+                );
+                LOG.debug("Found {} trading accounts", allTradingAccounts.size());
+                // Group by trader ID, taking the first account for each trader
+                for (TradingAccount account : allTradingAccounts) {
+                    if (account.getTrader() != null) {
+                        Long traderId = account.getTrader().getId();
+                        if (traderId != null) {
+                            tradingAccountMap.putIfAbsent(traderId, account);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                LOG.error("Error fetching trading accounts for broker {}: {}", scopedBrokerId, e.getMessage(), e);
+                // Continue with empty map - traders will show with zero balance
             }
         }
 
