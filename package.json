@@ -54,7 +54,7 @@
     "java:war": "./mvnw -ntp verify -DskipTests --batch-mode -Pwar",
     "java:war:dev": "npm run java:war -- -Pdev,webapp",
     "java:war:prod": "npm run java:war -- -Pprod",
-    "jest": "jest --coverage --logHeapUsage --maxWorkers=2 --config jest.conf.js",
+    "jest": "jest --coverage --logHeapUsage --maxWorkers=2 --config jest.conf.js --coverageThreshold='{\"global\":{\"branches\":80,\"functions\":80,\"lines\":80,\"statements\":80}}'",
     "jest:update": "npm run jest -- --updateSnapshot",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",

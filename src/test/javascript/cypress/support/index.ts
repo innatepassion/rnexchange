@@ -18,3 +18,5 @@ import './commands';
 import './navbar';
 import './entity';
 import './management';
+// M6 Phase 8 (T059): Import test utilities to reduce flakiness
+import './test-utils';

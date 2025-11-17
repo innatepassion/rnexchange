@@ -63,24 +63,84 @@ class SettlementSimulation extends Simulation {
         .check(status.in(200, 403)) // May be 403 if user is not a broker admin
     )
 
-  // Smoke test setup: low load to verify basic functionality
-  // p95 latency should be < 2 seconds for read operations
-  // p95 latency should be < 30 seconds for EOD operation
-  // Error rate should be < 1%
+  // M6 Phase 8 (T058): Extended performance simulation for EOD and statement flows.
+  // Performance targets:
+  // - p95 order placement latency < 250 ms (trader trade flow)
+  // - EOD settlement for ~10,000 positions completes within 5 minutes
+  // - WebSocket tick throughput ~10,000 updates/sec (tested separately or via integration)
+
+  // Trader authentication for order placement
+  private val authenticateTrader = exec(
+    http("Authenticate Trader")
+      .post("/api/authenticate")
+      .body(StringBody("""{"username":"trader_demo","password":"trader_demo"}"""))
+      .check(status.is(200))
+      .check(jsonPath("$.id_token").saveAs("trader_token"))
+  )
+
+  // M6: Trader trade flow - order placement
+  private val placeOrder = scenario("Trader Place Order")
+    .exec(authenticateTrader)
+    .exec(
+      http("POST /api/orders/trading - Place Market Order")
+        .post("/api/orders/trading")
+        .header("Authorization", "Bearer ${trader_token}")
+        .body(StringBody("""{
+          "side": "BUY",
+          "type": "MARKET",
+          "qty": 10,
+          "tif": "DAY",
+          "instrument": {
+            "id": 1,
+            "symbol": "RELIANCE"
+          }
+        }"""))
+        .check(status.in(201, 200))
+        .check(jsonPath("$.id").exists)
+        .check(jsonPath("$.status").exists)
+    )
+
+  // M6: EOD performance test - single EOD run with large dataset
+  // Note: This should be run separately as it's a long-running operation
+  private val runEodLarge = scenario("Run EOD - Large Dataset")
+    .exec(authenticate)
+    .exec(
+      http("POST /api/settlements/eod - Large Dataset")
+        .post("/api/settlements/eod?date=2025-01-15")
+        .header("Authorization", "Bearer ${access_token}")
+        .check(status.in(202, 200))
+        .check(jsonPath("$.id").exists)
+    )
+
+  // M6 Performance setup:
+  // - Trader order placement: ~1,000 concurrent traders, 5-10 orders/sec
+  // - EOD: Single run for large dataset (10,000 positions)
+  // - Statement reads: Moderate load
   setUp(
-    listSettlements.inject(constantUsersPerSec(1) during (10.seconds)),
-    listStatements.inject(constantUsersPerSec(1) during (10.seconds)),
-    listBrokerSettlements.inject(constantUsersPerSec(1) during (10.seconds))
-    // Note: EOD is excluded from constant load as it's a long-running operation
-    // Run EOD separately with: runEod.inject(atOnceUsers(1))
+    // Trader order placement at demo-scale load
+    placeOrder.inject(
+      rampUsers(1000) during (60.seconds), // Ramp up to 1000 concurrent traders
+      constantUsersPerSec(8) during (120.seconds) // Maintain 8 orders/sec (5-10 range)
+    ),
+    // Read operations at moderate load
+    listSettlements.inject(constantUsersPerSec(5) during (60.seconds)),
+    listStatements.inject(constantUsersPerSec(10) during (60.seconds)),
+    listBrokerSettlements.inject(constantUsersPerSec(5) during (60.seconds))
+    // Note: EOD large dataset test should be run separately:
+    // runEodLarge.inject(atOnceUsers(1))
   ).protocols(httpProtocol)
     .assertions(
-      // Assert p95 latency for read operations
-      global.responseTime.percentile3.lt(2000), // p95 < 2 seconds
-      // Assert error rate
+      // M6: p95 order placement latency < 250 ms (NFR-001, SC-003)
+      details("POST /api/orders/trading - Place Market Order").responseTime.percentile3.lt(250), // p95 < 250ms
+      // Read operations should be fast
+      global.responseTime.percentile3.lt(1000), // p95 < 1 second for reads
+      // Error rate should be very low
       global.failedRequests.percent.lt(1.0), // < 1% error rate
-      // Assert all requests complete
       global.successfulRequests.percent.gt(99.0) // > 99% success rate
     )
+
+  // M6: Separate setup for EOD large dataset test
+  // This should be run with: -Dgatling.simulationClass=com.rnexchange.gatling.simulations.SettlementSimulationEodLarge
+  // Or create a separate simulation file for EOD-only testing
 }
 
