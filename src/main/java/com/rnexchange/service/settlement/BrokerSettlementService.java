@@ -25,4 +25,12 @@ public interface BrokerSettlementService {
      * @return HTML content
      */
     String getBrokerSummaryHtml(Long brokerId, LocalDate refDate);
+
+    /**
+     * Get client statements for a specific broker and date.
+     *
+     * @param refDate the reference date
+     * @return list of client statement summaries
+     */
+    List<com.rnexchange.service.dto.StatementSummary> getClientStatements(LocalDate refDate);
 }

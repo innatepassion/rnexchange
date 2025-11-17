@@ -227,4 +227,45 @@ public class BrokerSettlementServiceImpl implements BrokerSettlementService {
 
         return html.toString();
     }
+
+    /**
+     * Get client statements for the authenticated broker on a specific date.
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public List<com.rnexchange.service.dto.StatementSummary> getClientStatements(LocalDate refDate) {
+        String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
+
+        BrokerDesk brokerDesk = brokerDeskRepository
+            .findByUserLogin(login)
+            .orElseThrow(() -> new AccessDeniedException("Broker desk not found for user: " + login));
+
+        if (brokerDesk.getBroker() == null) {
+            throw new AccessDeniedException("Broker desk is not associated with a broker");
+        }
+
+        Broker broker = brokerDesk.getBroker();
+        Long brokerId = broker.getId();
+
+        // Get all trading accounts for this broker
+        List<TradingAccount> accounts = tradingAccountRepository
+            .findAll()
+            .stream()
+            .filter(ta -> ta.getBroker() != null && ta.getBroker().getId().equals(brokerId))
+            .collect(Collectors.toList());
+
+        // Build statements for each account on the specified date
+        List<com.rnexchange.service.dto.StatementSummary> statements = new ArrayList<>();
+        for (TradingAccount account : accounts) {
+            com.rnexchange.service.dto.StatementSummary statement = statementService.buildStatementSummary(account, refDate);
+            if (statement != null) {
+                statements.add(statement);
+            }
+        }
+
+        // Sort by account ID
+        statements.sort(Comparator.comparing(com.rnexchange.service.dto.StatementSummary::getTradingAccountId));
+
+        return statements;
+    }
 }

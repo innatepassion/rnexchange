@@ -1,6 +1,7 @@
 package com.rnexchange.web.rest.broker;
 
 import com.rnexchange.service.dto.BrokerSettlementSummary;
+import com.rnexchange.service.dto.StatementSummary;
 import com.rnexchange.service.settlement.BrokerSettlementService;
 import java.time.LocalDate;
 import java.util.List;
@@ -99,6 +100,32 @@ public class BrokerSettlementResource {
                 e.getMessage(),
                 e
             );
+            throw e;
+        } finally {
+            MDC.remove(CORRELATION_ID_KEY);
+        }
+    }
+
+    /**
+     * {@code GET  /broker/settlements/client-statements} : get client statements for the authenticated broker admin on a specific date.
+     *
+     * @param date the reference date
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of client statement summaries in body.
+     */
+    @GetMapping("/settlements/client-statements")
+    @PreAuthorize("hasRole('BROKER_ADMIN')")
+    public ResponseEntity<List<StatementSummary>> getClientStatements(
+        @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        String correlationId = UUID.randomUUID().toString();
+        MDC.put(CORRELATION_ID_KEY, correlationId);
+        try {
+            LOG.info("[correlationId={}] REST request to get client statements: date={}", correlationId, date);
+            List<StatementSummary> statements = brokerSettlementService.getClientStatements(date);
+            LOG.debug("[correlationId={}] Found {} client statements", correlationId, statements.size());
+            return ResponseEntity.ok().body(statements);
+        } catch (Exception e) {
+            LOG.error("[correlationId={}] Failed to get client statements: {}", correlationId, e.getMessage(), e);
             throw e;
         } finally {
             MDC.remove(CORRELATION_ID_KEY);
