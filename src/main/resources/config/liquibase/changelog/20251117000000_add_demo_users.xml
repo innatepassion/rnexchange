@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        M6 Phase 2: Demo Users for QA Hardening & Demo-Ready Polish
+        Creates fixed demo users (trader_demo, broker_demo, exchange_demo) with starting balances/positions
+        Context: baseline (enabled for baseline context in application-dev.yml)
+    -->
+
+    <changeSet id="20251117000000-1-demo-users" author="m6-phase2" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM jhi_user WHERE login IN ('trader_demo', 'broker_demo', 'exchange_demo')</sqlCheck>
+        </preConditions>
+        
+        <!-- trader_demo user -->
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="trader_demo"/>
+            <!-- BCrypt hash for password: trader_demo -->
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Demo"/>
+            <column name="last_name" value="Trader"/>
+            <column name="email" value="trader.demo@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+            <column name="created_date" valueComputed="${now}"/>
+        </insert>
+        
+        <!-- broker_demo user -->
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="broker_demo"/>
+            <!-- BCrypt hash for password: broker_demo -->
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Demo"/>
+            <column name="last_name" value="Broker"/>
+            <column name="email" value="broker.demo@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+            <column name="created_date" valueComputed="${now}"/>
+        </insert>
+        
+        <!-- exchange_demo user -->
+        <insert tableName="jhi_user">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="login" value="exchange_demo"/>
+            <!-- BCrypt hash for password: exchange_demo -->
+            <column name="password_hash" value="$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC"/>
+            <column name="first_name" value="Demo"/>
+            <column name="last_name" value="Exchange"/>
+            <column name="email" value="exchange.demo@rnexchange.test"/>
+            <column name="activated" valueBoolean="true"/>
+            <column name="lang_key" value="en"/>
+            <column name="created_by" value="system"/>
+            <column name="created_date" valueComputed="${now}"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20251117000000-2-demo-user-authorities" author="m6-phase2" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM jhi_user_authority WHERE user_id IN (SELECT id FROM jhi_user WHERE login IN ('trader_demo', 'broker_demo', 'exchange_demo'))</sqlCheck>
+        </preConditions>
+        
+        <!-- trader_demo authority -->
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'trader_demo')"/>
+            <column name="authority_name" value="ROLE_TRADER"/>
+        </insert>
+        
+        <!-- broker_demo authority -->
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'broker_demo')"/>
+            <column name="authority_name" value="ROLE_BROKER_ADMIN"/>
+        </insert>
+        
+        <!-- exchange_demo authority -->
+        <insert tableName="jhi_user_authority">
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'exchange_demo')"/>
+            <column name="authority_name" value="ROLE_EXCHANGE_OPERATOR"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20251117000000-3-demo-trader-profile" author="m6-phase2" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM trader_profile WHERE email = 'trader.demo@rnexchange.test'</sqlCheck>
+        </preConditions>
+        
+        <insert tableName="trader_profile">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="display_name" value="Demo Trader"/>
+            <column name="email" value="trader.demo@rnexchange.test"/>
+            <column name="kyc_status" value="APPROVED"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'trader_demo')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20251117000000-4-demo-trading-account" author="m6-phase2" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM trading_account WHERE trader_id IN (SELECT id FROM trader_profile WHERE email = 'trader.demo@rnexchange.test')</sqlCheck>
+        </preConditions>
+        
+        <!-- Ensure RN_DEMO broker exists (from baseline seed) -->
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM broker WHERE code = 'RN_DEMO'</sqlCheck>
+        </preConditions>
+        
+        <insert tableName="trading_account">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="type" value="CASH"/>
+            <column name="base_ccy" value="INR"/>
+            <!-- Starting balance: 1,000,000 INR for demo trader -->
+            <column name="balance" valueNumeric="1000000.00"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="broker_id" valueComputed="(SELECT id FROM broker WHERE code = 'RN_DEMO')"/>
+            <column name="trader_id" valueComputed="(SELECT id FROM trader_profile WHERE email = 'trader.demo@rnexchange.test')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20251117000000-5-demo-broker-desk" author="m6-phase2" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM broker_desk WHERE user_id IN (SELECT id FROM jhi_user WHERE login = 'broker_demo')</sqlCheck>
+        </preConditions>
+        
+        <!-- Ensure RN_DEMO broker exists -->
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM broker WHERE code = 'RN_DEMO'</sqlCheck>
+        </preConditions>
+        
+        <insert tableName="broker_desk">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Demo Broker Desk"/>
+            <column name="broker_id" valueComputed="(SELECT id FROM broker WHERE code = 'RN_DEMO')"/>
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'broker_demo')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20251117000000-6-demo-exchange-operator" author="m6-phase2" context="baseline">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM exchange_operator WHERE user_id IN (SELECT id FROM jhi_user WHERE login = 'exchange_demo')</sqlCheck>
+        </preConditions>
+        
+        <!-- Ensure NSE exchange exists (from baseline seed) -->
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM exchange WHERE code = 'NSE'</sqlCheck>
+        </preConditions>
+        
+        <insert tableName="exchange_operator">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
+            <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'exchange_demo')"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
+

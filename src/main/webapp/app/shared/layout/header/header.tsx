@@ -8,9 +8,10 @@ import { NavLink as Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 
-import { useAppDispatch } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { setLocale } from 'app/shared/reducers/locale';
 import { AccountMenu, AdminMenu, EntitiesMenu, LocaleMenu, ExchangeConsoleMenu, TraderMenu, BrokerAdminMenu } from '../menus';
+import { resolveRoleMenuConfig } from '../menus';
 import { Brand, Home } from './header-components';
 
 export interface IHeaderProps {
@@ -29,6 +30,10 @@ const Header = (props: IHeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const dispatch = useAppDispatch();
+  // M6 Phase 2: Get account authorities for role-based menu configuration
+  const account = useAppSelector(state => state.authentication.account);
+  const authorities = account?.authorities || [];
+  const menuConfig = resolveRoleMenuConfig(authorities);
 
   const handleLocaleChange = event => {
     const langKey = event.target.value;
@@ -59,23 +64,26 @@ const Header = (props: IHeaderProps) => {
         <Collapse isOpen={menuOpen} navbar>
           <Nav id="header-tabs" className="ms-auto" navbar>
             <Home />
-            {props.isAuthenticated && <EntitiesMenu />}
-            {props.isAuthenticated && props.isAdmin && (
+            {/* M6 Phase 2: Use centralized menu configuration */}
+            {props.isAuthenticated && menuConfig.showEntities && <EntitiesMenu />}
+            {props.isAuthenticated && menuConfig.showAdmin && (
               <AdminMenu showOpenAPI={props.isOpenAPIEnabled} showDatabase={!props.isInProduction} />
             )}
-            {props.isAuthenticated && props.isExchangeOperator && <ExchangeConsoleMenu />}
-            {props.isAuthenticated && props.isTrader && (
+            {props.isAuthenticated && menuConfig.showExchangeConsole && <ExchangeConsoleMenu />}
+            {props.isAuthenticated && menuConfig.showTrader && (
               <>
-                <NavItem>
-                  <NavLink tag={Link} to="/market-watch" className="d-flex align-items-center">
-                    <FontAwesomeIcon icon={faChartLine} className="me-1" />
-                    <span>Market Watch</span>
-                  </NavLink>
-                </NavItem>
+                {menuConfig.showMarketWatch && (
+                  <NavItem>
+                    <NavLink tag={Link} to="/market-watch" className="d-flex align-items-center">
+                      <FontAwesomeIcon icon={faChartLine} className="me-1" />
+                      <span>Market Watch</span>
+                    </NavLink>
+                  </NavItem>
+                )}
                 <TraderMenu />
               </>
             )}
-            {props.isAuthenticated && props.isBrokerAdmin && <BrokerAdminMenu />}
+            {props.isAuthenticated && menuConfig.showBrokerAdmin && <BrokerAdminMenu />}
             <LocaleMenu currentLocale={props.currentLocale} onClick={handleLocaleChange} />
             <AccountMenu isAuthenticated={props.isAuthenticated} />
           </Nav>

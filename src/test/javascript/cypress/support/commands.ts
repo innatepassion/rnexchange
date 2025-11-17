@@ -112,11 +112,64 @@ Cypress.Commands.add('login', (username: string, password: string) => {
   );
 });
 
+/**
+ * M6 Phase 2: Login as a demo user with role-specific assertions.
+ *
+ * @param role - One of 'trader', 'broker', or 'exchange'
+ * @param password - Password for the demo user (defaults to 'admin' for all demo users)
+ */
+Cypress.Commands.add('loginAsDemoUser', (role: 'trader' | 'broker' | 'exchange', password: string = 'admin') => {
+  const username = role === 'trader' ? 'trader_demo' : role === 'broker' ? 'broker_demo' : 'exchange_demo';
+  cy.login(username, password);
+
+  // Verify role-specific access
+  cy.authenticatedRequest({ url: '/api/account' }).then(response => {
+    expect(response.status).to.eq(200);
+    const authorities = response.body.authorities || [];
+
+    if (role === 'trader') {
+      expect(authorities).to.include('ROLE_TRADER');
+    } else if (role === 'broker') {
+      expect(authorities).to.include('ROLE_BROKER_ADMIN');
+    } else if (role === 'exchange') {
+      expect(authorities).to.include('ROLE_EXCHANGE_OPERATOR');
+    }
+  });
+});
+
+/**
+ * M6 Phase 2: Reset demo accounts to known baseline state.
+ *
+ * This command calls the baseline seed API to reset demo users and their accounts
+ * to a known state. Requires EXCHANGE_OPERATOR role.
+ *
+ * @param force - Whether to force reset even if data exists (default: true)
+ */
+Cypress.Commands.add('resetDemoAccounts', (force: boolean = true) => {
+  // First login as exchange_demo to get the required role
+  cy.login('exchange_demo', 'admin');
+
+  cy.authenticatedRequest({
+    method: 'POST',
+    url: '/api/admin/baseline-seed/run',
+    body: {
+      force: force,
+      contexts: ['baseline'],
+    },
+  }).then(response => {
+    expect(response.status).to.be.oneOf([200, 202]);
+    // Wait a bit for the seed job to complete
+    cy.wait(2000);
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
       authenticatedRequest(data): Cypress.Chainable;
       login(username: string, password: string): Cypress.Chainable;
+      loginAsDemoUser(role: 'trader' | 'broker' | 'exchange', password?: string): Cypress.Chainable;
+      resetDemoAccounts(force?: boolean): Cypress.Chainable;
     }
   }
 }

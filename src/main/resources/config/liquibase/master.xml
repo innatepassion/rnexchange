@@ -69,4 +69,7 @@
     
     <!-- Seed data for baseline entities -->
     <include file="config/liquibase/data/0001-seed-domain-data.xml" relativeToChangelogFile="false" context="baseline"/>
+    
+    <!-- M6 Phase 2: Demo users for QA hardening and demo-ready polish -->
+    <include file="config/liquibase/changelog/20251117000000_add_demo_users.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

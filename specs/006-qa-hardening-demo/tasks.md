@@ -26,20 +26,20 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Foundational — Demo Seeds & Baseline Data
 
-- [ ] T005 Create or extend Liquibase changelog to define fixed demo users (`trader_demo`, `broker_demo`, `exchange_demo`) and starting balances/positions in `src/main/resources/config/liquibase/changelog/` and ensure it is enabled for the `baseline` context in `src/main/resources/config/application-dev.yml`
-- [ ] T006 [P] Add or update baseline seed script/utilities so Cypress and Gatling can reset demo accounts to a known state before tests (e.g., `src/main/java/com/rnexchange/config/DemoDataInitializer.java` and related `src/test/resources` SQL/JSON fixtures)
+- [x] T005 Create or extend Liquibase changelog to define fixed demo users (`trader_demo`, `broker_demo`, `exchange_demo`) and starting balances/positions in `src/main/resources/config/liquibase/changelog/` and ensure it is enabled for the `baseline` context in `src/main/resources/config/application-dev.yml`
+- [x] T006 [P] Add or update baseline seed script/utilities so Cypress and Gatling can reset demo accounts to a known state before tests (e.g., `src/main/java/com/rnexchange/config/DemoDataInitializer.java` and related `src/test/resources` SQL/JSON fixtures)
 
 ### Foundational — RBAC & Navigation Conventions
 
-- [ ] T007 Ensure authority constants for `TRADER`, `BROKER_ADMIN`, and `EXCHANGE_OPERATOR` are defined and documented in `src/main/java/com/rnexchange/security/AuthoritiesConstants.java` and used consistently by new controllers and services
-- [ ] T008 [P] Centralise per-role default landing route resolution in a dedicated helper (e.g., `src/main/webapp/app/shared/auth/role-landing-resolver.ts`) to map roles → routes (`/market-watch`, `/broker/dashboard`, `/exchange/overview`)
-- [ ] T009 [P] Define or update a single source of truth for role-aware menu entries in `src/main/webapp/app/shared/layout/menus.tsx` (or equivalent) so that M6 changes to navigation are driven from one configuration module
-- [ ] T009A Implement a shared `SimulatedBanner` React component in `src/main/webapp/app/shared/components/SimulatedBanner.tsx` that renders a persistent “SIMULATED / NOT REAL MONEY” banner suitable for Trader and Broker views.
+- [x] T007 Ensure authority constants for `TRADER`, `BROKER_ADMIN`, and `EXCHANGE_OPERATOR` are defined and documented in `src/main/java/com/rnexchange/security/AuthoritiesConstants.java` and used consistently by new controllers and services
+- [x] T008 [P] Centralise per-role default landing route resolution in a dedicated helper (e.g., `src/main/webapp/app/shared/auth/role-landing-resolver.ts`) to map roles → routes (`/market-watch`, `/broker/dashboard`, `/exchange/overview`)
+- [x] T009 [P] Define or update a single source of truth for role-aware menu entries in `src/main/webapp/app/shared/layout/menus.tsx` (or equivalent) so that M6 changes to navigation are driven from one configuration module
+- [x] T009A Implement a shared `SimulatedBanner` React component in `src/main/webapp/app/shared/components/SimulatedBanner.tsx` that renders a persistent "SIMULATED / NOT REAL MONEY" banner suitable for Trader and Broker views.
 
 ### Foundational — QA & Test Harness
 
-- [ ] T010 Add or update Cypress login helpers to support demo users and role-specific assertions in `src/test/javascript/cypress/support/commands.ts`
-- [ ] T011 [P] Ensure existing Gatling simulations and configuration file paths (e.g., `src/test/gatling/simulations/SettlementSimulation.scala` and Maven `pom.xml` profiles) are ready to be extended for M6 performance scenarios
+- [x] T010 Add or update Cypress login helpers to support demo users and role-specific assertions in `src/test/javascript/cypress/support/commands.ts`
+- [x] T011 [P] Ensure existing Gatling simulations and configuration file paths (e.g., `src/test/gatling/simulations/SettlementSimulation.scala` and Maven `pom.xml` profiles) are ready to be extended for M6 performance scenarios
 
 **Checkpoint**: Foundational seeds, RBAC conventions, and QA harness are ready — user story implementation can now begin in parallel.
 
