@@ -45,7 +45,7 @@ public class BrokerJournalService {
     }
 
     @Transactional
-    public JournalResultDTO applyJournal(UUID tradingAccountId, String idempotencyKey, JournalRequestDTO request, Long brokerId) {
+    public JournalResultDTO applyJournal(Long tradingAccountId, String idempotencyKey, JournalRequestDTO request, Long brokerId) {
         String correlationId = MDC.get(CORRELATION_ID_KEY);
         if (correlationId == null) {
             correlationId = UUID.randomUUID().toString();
@@ -74,25 +74,15 @@ public class BrokerJournalService {
                 return toResult(existing.get());
             }
 
-            // Resolve broker/account context (temporary: use first account under broker 1 if not provided)
-            long scopedBrokerId = brokerId != null ? brokerId : 1L;
+            // Find the trading account by ID
             TradingAccount account = tradingAccountRepository
-                .findAll()
-                .stream()
-                .findFirst()
-                .orElseGet(() -> {
-                    Broker broker = brokerRepository
-                        .findById(scopedBrokerId)
-                        .orElseGet(() -> brokerRepository.findAll().stream().findFirst().orElseThrow());
-                    TradingAccount ta = new TradingAccount();
-                    ta.setBroker(broker);
-                    // Defaults for minimal viable CASH account
-                    ta.setType(com.rnexchange.domain.enumeration.AccountType.CASH);
-                    ta.setBaseCcy(com.rnexchange.domain.enumeration.Currency.USD);
-                    ta.setBalance(new BigDecimal("0.00"));
-                    ta.setStatus(com.rnexchange.domain.enumeration.AccountStatus.ACTIVE);
-                    return tradingAccountRepository.saveAndFlush(ta);
-                });
+                .findById(tradingAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("Trading account not found: " + tradingAccountId));
+
+            // Verify broker scope if brokerId is provided
+            if (brokerId != null && account.getBroker() != null && !brokerId.equals(account.getBroker().getId())) {
+                throw new IllegalArgumentException("Trading account " + tradingAccountId + " does not belong to broker " + brokerId);
+            }
 
             BigDecimal amount = request.getAmount();
             boolean isCredit = "credit".equalsIgnoreCase(request.getDirection());

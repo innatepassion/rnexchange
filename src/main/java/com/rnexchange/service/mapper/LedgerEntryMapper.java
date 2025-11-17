@@ -9,13 +9,8 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link LedgerEntry} and its DTO {@link LedgerEntryDTO}.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { TradingAccountMapper.class })
 public interface LedgerEntryMapper extends EntityMapper<LedgerEntryDTO, LedgerEntry> {
-    @Mapping(target = "tradingAccount", source = "tradingAccount", qualifiedByName = "tradingAccountId")
+    @Mapping(target = "tradingAccount", source = "tradingAccount")
     LedgerEntryDTO toDto(LedgerEntry s);
-
-    @Named("tradingAccountId")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    TradingAccountDTO toDtoTradingAccountId(TradingAccount tradingAccount);
 }

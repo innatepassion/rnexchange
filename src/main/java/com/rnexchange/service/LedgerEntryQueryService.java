@@ -47,6 +47,7 @@ public class LedgerEntryQueryService extends QueryService<LedgerEntry> {
     public Page<LedgerEntryDTO> findByCriteria(LedgerEntryCriteria criteria, Pageable page) {
         LOG.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<LedgerEntry> specification = createSpecification(criteria);
+        // Use EntityGraph to eagerly fetch tradingAccount and trader relationships
         return ledgerEntryRepository.findAll(specification, page).map(ledgerEntryMapper::toDto);
     }
 

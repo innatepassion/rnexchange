@@ -19,9 +19,12 @@ public interface LedgerEntryRepository extends JpaRepository<LedgerEntry, Long>,
      * T024: Find all ledger entries for a specific broker by joining through trading accounts.
      * Used for Broker Admin portfolio views (Phase 5, US3).
      */
+    @EntityGraph(attributePaths = { "tradingAccount", "tradingAccount.trader", "tradingAccount.trader.user" })
     @Query(
         value = "select le from LedgerEntry le " +
-        "left join le.tradingAccount ta " +
+        "left join fetch le.tradingAccount ta " +
+        "left join fetch ta.trader t " +
+        "left join fetch t.user " +
         "where ta.broker = :broker " +
         "order by le.createdAt desc",
         countQuery = "select count(le) from LedgerEntry le " + "left join le.tradingAccount ta " + "where ta.broker = :broker"

@@ -43,7 +43,23 @@ public class ApiDelegateImpl implements ApiApiDelegate {
         req.setDirection(journalRequest.getDirection().getValue());
         req.setAmount(java.math.BigDecimal.valueOf(journalRequest.getAmount()));
         req.setReason(journalRequest.getReason());
-        JournalResultDTO result = brokerJournalService.applyJournal(tradingAccountId, idempotencyKey, req, null);
+        // Convert UUID to Long: The OpenAPI contract uses UUID but the DB uses Long.
+        // If the UUID string is actually a numeric string (like "1650"), parse it directly.
+        // Otherwise, use a hash of the UUID to get a Long value.
+        Long accountId;
+        String uuidStr = tradingAccountId.toString();
+        try {
+            // Try parsing as Long directly (in case it's actually a numeric string like "1650")
+            accountId = Long.parseLong(uuidStr);
+        } catch (NumberFormatException e) {
+            // If it's a real UUID, use a hash to convert to Long
+            // Use the most significant bits, but ensure it's positive
+            long msb = tradingAccountId.getMostSignificantBits();
+            accountId = (msb < 0) ? -(msb + 1) : msb;
+            // Ensure it's within reasonable range for a Long ID
+            accountId = Math.abs(accountId) % Long.MAX_VALUE;
+        }
+        JournalResultDTO result = brokerJournalService.applyJournal(accountId, idempotencyKey, req, null);
 
         LedgerEntry le = new LedgerEntry()
             .type(LedgerEntry.TypeEnum.fromValue(result.getLedgerEntry().getType()))

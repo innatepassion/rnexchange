@@ -13,7 +13,7 @@ import './BrokerJournalEntries.scss';
 interface JournalEntry {
   id: number;
   createdAt: string;
-  type: 'JOURNAL_CREDIT' | 'JOURNAL_DEBIT' | 'TRADE_DEBIT' | 'TRADE_CREDIT' | 'FEE' | 'OTHER';
+  type: 'CREDIT' | 'DEBIT' | 'EOD_MTM_CREDIT' | 'EOD_MTM_DEBIT';
   amount: number;
   fee?: number;
   balanceAfter?: number;
@@ -22,9 +22,11 @@ interface JournalEntry {
   reference?: string;
   tradingAccount?: {
     id: number;
-    traderProfile?: {
-      login: string;
-      name?: string;
+    trader?: {
+      displayName?: string;
+      user?: {
+        login: string;
+      };
     };
   };
 }
@@ -59,8 +61,10 @@ const BrokerJournalEntries: React.FC = () => {
       };
 
       // Filter by type if not ALL
+      // Map frontend filter values to backend enum values
       if (typeFilter !== 'ALL') {
-        params['type.equals'] = typeFilter;
+        const backendType = typeFilter === 'JOURNAL_CREDIT' ? 'CREDIT' : typeFilter === 'JOURNAL_DEBIT' ? 'DEBIT' : typeFilter;
+        params['type.equals'] = backendType;
       }
 
       // Search by description, remarks, or reference
@@ -68,10 +72,17 @@ const BrokerJournalEntries: React.FC = () => {
         params['description.contains'] = searchTerm;
       }
 
-      const response = await axios.get<JournalEntriesPage>('/api/ledger-entries', { params });
-      setEntries(response.data.content || []);
-      setTotalPages(response.data.totalPages || 0);
-      setTotalElements(response.data.totalElements || 0);
+      const response = await axios.get<JournalEntry[]>('/api/ledger-entries', { params });
+      const responseEntries = response.data || [];
+      setEntries(responseEntries);
+
+      // Extract pagination info from headers (JHipster uses 'x-total-count')
+      // Headers are accessed as lowercase in axios responses
+      const totalElementsHeader = response.headers['x-total-count'];
+      const responseTotalElements = totalElementsHeader ? parseInt(totalElementsHeader, 10) : 0;
+      const calculatedTotalPages = responseTotalElements > 0 ? Math.ceil(responseTotalElements / pageSize) : 0;
+      setTotalElements(responseTotalElements);
+      setTotalPages(calculatedTotalPages);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Failed to load journal entries');
       console.error('Error fetching journal entries:', err);
@@ -97,18 +108,16 @@ const BrokerJournalEntries: React.FC = () => {
   };
 
   const getTypeBadge = (type: string) => {
-    const isCredit = type.includes('CREDIT');
-    const isDebit = type.includes('DEBIT');
-    const isJournal = type.includes('JOURNAL');
-
-    if (isJournal && isCredit) {
+    // Backend returns CREDIT, DEBIT, EOD_MTM_CREDIT, EOD_MTM_DEBIT
+    // Map to display labels
+    if (type === 'CREDIT') {
       return <Badge color="success">JOURNAL CREDIT</Badge>;
-    } else if (isJournal && isDebit) {
+    } else if (type === 'DEBIT') {
       return <Badge color="danger">JOURNAL DEBIT</Badge>;
-    } else if (isCredit) {
-      return <Badge color="info">CREDIT</Badge>;
-    } else if (isDebit) {
-      return <Badge color="warning">DEBIT</Badge>;
+    } else if (type === 'EOD_MTM_CREDIT') {
+      return <Badge color="info">EOD MTM CREDIT</Badge>;
+    } else if (type === 'EOD_MTM_DEBIT') {
+      return <Badge color="warning">EOD MTM DEBIT</Badge>;
     } else {
       return <Badge color="secondary">{type}</Badge>;
     }
@@ -243,10 +252,10 @@ const BrokerJournalEntries: React.FC = () => {
                       <td>#{entry.id}</td>
                       <td>{new Date(entry.createdAt).toLocaleString()}</td>
                       <td>{getTypeBadge(entry.type)}</td>
-                      <td>{entry.tradingAccount?.traderProfile?.login || entry.tradingAccount?.traderProfile?.name || 'N/A'}</td>
+                      <td>{entry.tradingAccount?.trader?.user?.login || entry.tradingAccount?.trader?.displayName || 'N/A'}</td>
                       <td>
-                        <strong className={entry.type.includes('DEBIT') ? 'text-danger' : 'text-success'}>
-                          {entry.type.includes('DEBIT') ? '-' : '+'} {formatCurrency(entry.amount)}
+                        <strong className={entry.type === 'DEBIT' || entry.type === 'EOD_MTM_DEBIT' ? 'text-danger' : 'text-success'}>
+                          {entry.type === 'DEBIT' || entry.type === 'EOD_MTM_DEBIT' ? '-' : '+'} {formatCurrency(entry.amount)}
                         </strong>
                       </td>
                       <td>{entry.fee ? formatCurrency(entry.fee) : '-'}</td>

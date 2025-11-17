@@ -3,7 +3,8 @@ package com.rnexchange.web.rest.broker;
 import com.rnexchange.service.broker.BrokerJournalService;
 import com.rnexchange.service.dto.broker.JournalRequestDTO;
 import com.rnexchange.service.dto.broker.JournalResultDTO;
-import java.util.UUID;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/broker/traders")
 @PreAuthorize("hasRole('BROKER_ADMIN')")
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class BrokerJournalResource {
 
     private final BrokerJournalService brokerJournalService;
@@ -32,11 +34,12 @@ public class BrokerJournalResource {
 
     @PostMapping("/{tradingAccountId}/journal")
     public ResponseEntity<JournalResultDTO> createJournalEntry(
-        @PathVariable("tradingAccountId") UUID tradingAccountId,
-        @RequestHeader("Idempotency-Key") String idempotencyKey,
+        @PathVariable("tradingAccountId") Long tradingAccountId,
+        @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
         @RequestBody JournalRequestDTO request
     ) {
-        JournalResultDTO result = brokerJournalService.applyJournal(tradingAccountId, idempotencyKey, request, null);
+        String idempotency = idempotencyKey != null ? idempotencyKey : "ui-" + System.currentTimeMillis();
+        JournalResultDTO result = brokerJournalService.applyJournal(tradingAccountId, idempotency, request, null);
         return ResponseEntity.ok(result);
     }
 }
