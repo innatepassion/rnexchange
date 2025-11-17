@@ -7,6 +7,17 @@ It builds on the existing RNExchange domain model; new or emphasised aspects for
 
 ## Core Actors & Accounts
 
+### Terminology Alignment with Constitution (DDD)
+
+To align with the RNExchange constitution’s DDD entity definitions:
+
+- “Trader” in this feature maps to the `TraderProfile` and `TradingAccount` aggregates.
+- “Broker Admin / Broker” maps to the `Broker` entity plus associated trader accounts.
+- “Ledger Entry / Funds Journal Entry” maps to the `LedgerEntry` entity.
+- “Daily Statement” maps to the `SettlementBatch` aggregate plus rendered statement views.
+
+Future specs, plans, and tasks for this area SHOULD prefer the constitution’s ubiquitous language (`TraderProfile`, `TradingAccount`, `Broker`, `SettlementBatch`, `LedgerEntry`) where appropriate.
+
 ### Trader
 
 - **Description**: End user placing simulated trades.

@@ -63,7 +63,7 @@ An exchange operator can log in, run end-of-day processing for the current tradi
 
 A team member using fixed demo users can quickly navigate and demonstrate a full “day in the life” across Trader, Broker, and Exchange Operator roles without confusion, raw data edits, or manual configuration, starting from an RNExchange-branded landing experience rather than the generic JHipster welcome page.
 
-**Why this priority**: The milestone is explicitly about being demo-ready; anyone on the team should be able to run a polished RNExchange demo confidently that looks production-ready, clearly branded, and tailored to each role.
+**Why this priority**: The milestone is explicitly about being demo-ready; anyone on the team should be able to run an RNExchange demo that satisfies the measurable success criteria (SC-001–SC-004) for time-to-complete, automated coverage, performance, and usability, with clearly branded, role-appropriate navigation.
 
 **Independent Test**: Can be tested by starting from a fresh environment, opening the application entry URL, confirming that the primary welcome/landing page shows RNExchange branding (logo and name) instead of a generic JHipster page, then logging in as `trader_demo`, `broker_demo`, and `exchange_demo`, and completing the scripted demo steps using only the UI, while observing clear banners, predictable landing pages, relevant navigation, and sensible error/loading/empty states.
 
@@ -98,6 +98,7 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 - If a broker attempts a funds journal entry that would result in a negative balance or violate internal limits, the system MUST still allow the entry but MUST clearly flag the trader account as negative or at-risk in both UI and statements, without silently masking the condition.
 - How does the system behave when order placement is attempted during heavy simulated load (orders should still be accepted, processed, and reflected without user-facing failures)?
 - What happens when a demo user attempts an action outside their role (e.g., trader trying to access broker-only screens; access should be blocked with a clear message)?
+- For all generated trader and broker statements, the simulation disclaimer (e.g., "This is a simulated environment — not real trading or money") MUST remain visible even when printed or exported, and MUST NOT be removable via simple theme or CSS changes.
 
 ## Requirements _(mandatory)_
 
@@ -116,10 +117,17 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 - **FR-011**: The system MUST provide per-role, easily discoverable “How to use RNExchange” help sections accessible from each role’s main dashboard or header, written in plain language as a lightweight user manual for that role.
 - **FR-012**: The system MUST ensure that menu items and UI elements are filtered by role, such that irrelevant generic JHipster sections (e.g., "Entities", "Administration", "Performance") are not visible to Trader and Broker Admin users and only truly relevant administrative items are shown to Exchange Operator users.
 - **FR-013**: The system MUST ensure that each user role (Trader, Broker Admin, Exchange Operator) has all relevant functionality and navigation accessible from their main dashboard or primary navigation (e.g., Traders can access watchlists, order entry, positions, and ledger; Broker Admins can access trader management, funds journals, and statements; Exchange Operators can access EOD tools, statements, and system overview).
-- **FR-014**: The system MUST address at least five high-friction UX "paper-cut" issues (e.g., unclear error messages, missing loading states, missing empty-state messages, or ambiguous button labels) such that core demo flows can be completed without confusion.
-- **FR-015**: The system MUST provide automated end-to-end tests that cover at minimum: (a) the trader trade/ledger flow, (b) the broker funds journal and ledger flow, and (c) the exchange operator EOD and statement viewing flow.
-- **FR-016**: The system MUST support basic performance testing of concurrent order placement and quote streaming that demonstrates acceptable responsiveness for a demo-scale environment (approximately 1,000 simulated concurrent traders, hundreds of quotes per second, and 5–10 orders per second).
+- **FR-014**: The system MUST address at least five high-friction UX "paper-cut" issues (e.g., unclear error messages, missing loading states, missing empty-state messages, or ambiguous button labels), tracked as `PC-001`–`PC-00N` in `specs/006-qa-hardening-demo/research.md`, such that core demo flows can be completed without confusion.
+- **FR-015**: The system MUST provide automated end-to-end, contract, and integration tests for the three critical demo flows, as specified in **NFR-002 (Reliability & Testability)** and **SC-002**, and these tests MUST run as part of CI.
+- **FR-016**: The system MUST include performance tests sufficient to validate **NFR-001 (Performance)** and **SC-003**, including order placement latency, EOD duration, and WebSocket market data throughput targets defined in the RNExchange constitution.
 - **FR-017**: The system MUST provide fixed demo users (e.g., `trader_demo`, `broker_demo`, `exchange_demo`) with stable starting balances and positions so that demo flows are repeatable across environments without manual data manipulation.
+- **FR-018**: All trader and broker statements and reports (including HTML or printable exports) MUST prominently display a clear simulation disclaimer such as "This is a simulated environment — not real trading or money" in line with the RNExchange constitution’s Educational Transparency rules.
+
+### Non-Functional Requirements
+
+- **NFR-001 (Performance)**: Under demo-scale load (approximately 1,000 concurrent traders with hundreds of quotes per second and 5–10 orders per second), order placement latency MUST be <250 ms p95, EOD settlement for roughly 10,000 positions MUST complete within 5 minutes, and WebSocket tick broadcast MUST sustain at least 10,000 updates per second without demo-breaking errors or timeouts, consistent with the RNExchange constitution.
+- **NFR-002 (Reliability & Testability)**: The three critical end-to-end flows (trader trade/ledger, broker funds journal/ledger, exchange operator EOD/statements) MUST be covered by automated contract, integration, and end-to-end tests that run reliably in CI, with flakiness low enough that repeated pipeline runs pass without intermittent failures (target: ≥95% pass rate over any rolling window of 20 CI runs for critical suites).
+- **NFR-003 (UX & Clarity)**: Error, loading, and empty states for core demo screens MUST avoid dead ends and confusing messaging so that a team member can complete the “day in the life” demo in under 15 minutes without manual data edits (see SC-001 and SC-004).
 
 ### Key Entities _(include if feature involves data)_
 
@@ -138,9 +146,9 @@ Each login type (Trader, Broker Admin, Exchange Operator) sees a simple “How t
 ### Measurable Outcomes
 
 - **SC-001**: A team member can start from a standard development environment, launch the application, log in as `trader_demo`, `broker_demo`, and `exchange_demo`, and complete a full "day in the life" demo (place trade, adjust funds, run EOD, open statements) in under 15 minutes without editing configuration files or raw data.
-- **SC-002**: The three critical end-to-end flows (trader trade/ledger, broker funds journal/ledger, exchange operator EOD/statements) are covered by automated tests that pass reliably in the continuous integration pipeline (e.g., no intermittent failures across multiple runs).
-- **SC-003**: Under a realistic simulated load approximating 1,000 concurrent traders with hundreds of quotes per second and 5–10 orders per second, users experience order placement and core UI interactions completing within a few hundred milliseconds in typical cases, and without demo-breaking errors or timeouts.
-- **SC-004**: During internal dry-run demos, participants report no blocking usability issues in the core flows, and the presence of "SIMULATED / NOT REAL MONEY" warnings and improved error/loading/empty states is sufficient for the product to be presented as a credible technology preview without further architecture changes.
+- **SC-002**: The three critical end-to-end flows (trader trade/ledger, broker funds journal/ledger, exchange operator EOD/statements) are covered by automated tests that pass reliably in the continuous integration pipeline (e.g., no intermittent failures across multiple runs), satisfying NFR-002.
+- **SC-003**: Under a realistic simulated load approximating 1,000 concurrent traders with hundreds of quotes per second and 5–10 orders per second, users experience order placement and core UI interactions completing within a few hundred milliseconds in typical cases (target <250 ms p95), and without demo-breaking errors or timeouts, satisfying NFR-001.
+- **SC-004**: During internal dry-run demos, participants report no blocking usability issues in the core flows, and the presence of "SIMULATED / NOT REAL MONEY" warnings and improved error/loading/empty states is sufficient for the product to be presented as a credible technology preview without further architecture changes, satisfying NFR-003.
 
 ### Assumptions & Dependencies
 

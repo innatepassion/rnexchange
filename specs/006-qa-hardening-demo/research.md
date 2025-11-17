@@ -139,3 +139,16 @@ Documenting demo flows in `quickstart.md` closes the loop between code, tests, a
 - **Continue using default JHipster users (`admin`/`user`) for demos**: conflicts with FR-017 and makes role semantics less clear in an educational context; rejected.
 - **Allow ad hoc manual data setup before each demo**: time-consuming and error-prone, undermining SC-001; rejected.
 - **Introduce complex data snapshot/restore infrastructure**: unnecessary overhead for M6; simpler baseline seeds are sufficient.
+
+---
+
+## UX Paper-Cuts Inventory (PC-001–PC-00N)
+
+This section provides the canonical list of UX “paper-cut” issues referenced by FR-014 and tasks T048/T059.  
+Each identified issue SHOULD be recorded with a stable ID (`PC-00X`), short title, and link to the screen or flow it affects.
+
+- `PC-001`: _[to be filled based on dry-run demos]_
+- `PC-002`: _[to be filled based on dry-run demos]_
+- `PC-003`: _[to be filled based on dry-run demos]_
+- `PC-004`: _[to be filled based on dry-run demos]_
+- `PC-005`: _[to be filled based on dry-run demos]_

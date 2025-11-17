@@ -12,20 +12,14 @@ Implementation will follow the RNExchange constitution: API-first (OpenAPI-drive
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
 **Language/Version**: Java 17 (Spring Boot 3.4.5, JHipster 8.11.0) backend; TypeScript/React 18.3 (React-JHipster) frontend  
 **Primary Dependencies**: Spring Boot, JHipster 8, Spring Security/JWT, Spring Data JPA, Liquibase, MapStruct, React 18, React Router, Redux Toolkit + React-Redux, Reactstrap, WebSocket (STOMP), Jest + React Testing Library, Cypress, Cucumber, Gatling  
 **Storage**: H2 file DB for `dev` profile; PostgreSQL (`jdbc:postgresql://localhost:5432/rnexchange`) for `prod`, both via Spring Data JPA with Liquibase-managed schema  
 **Testing**: JUnit 5 + Spring Boot Test, Cucumber integration tests, Gatling performance tests, Cypress E2E tests, Jest + React Testing Library component/unit tests  
-**Target Platform**: Linux-hosted Spring Boot monolith (Java 17) with React SPA served from `src/main/webapp`, targeting modern desktop browsers (Chrome/Edge)  
+**Target Platform**: Linux-hosted Spring Boot monolith (Java 17) with React SPA served from `src/main/webapp`, targeting modern desktop browsers (Chrome/Edge); although the constitution frames Trader as a mobile-first experience long term, M6 work is explicitly validated via this desktop SPA.  
 **Project Type**: JHipster monolith web application (single repository with Spring Boot backend and React frontend)  
 **Performance Goals**: Support ~1,000 simulated concurrent traders, hundreds of quotes/sec, and 5–10 orders/sec with order placement latency <250 ms p95 and EOD settlement for ~10,000 positions completing within 5 minutes (per constitution and M6 success criteria)  
-**Constraints**: Strict TDD (tests first), API-first workflow (OpenAPI-driven), adherence to JHipster conventions (JDL entities, Liquibase migrations, MapStruct DTOs), strict RBAC (TRADER/BROKER_ADMIN/EXCHANGE_OPERATOR), educational transparency (simulator disclaimers), and minimal flakiness in CI (stable automated critical-path tests)  
+**Constraints**: Strict TDD (tests first), API-first workflow (OpenAPI-driven), adherence to JHipster conventions (JDL entities, Liquibase migrations, MapStruct DTOs), strict RBAC (TRADER/BROKER_ADMIN/EXCHANGE_OPERATOR), educational transparency (simulator disclaimers), and minimal flakiness in CI, meaning critical-path M6 suites for the three demo flows meet the NFR-002 reliability target (≥95% pass rate over any rolling window of 20 runs)  
 **Scale/Scope**: Single JHipster monolith instance for demo environments, three primary roles (Trader, Broker Admin, Exchange Operator), a small set of critical end-to-end flows, and performance validated for demo-scale rather than full production-scale deployment
 
 ## Constitution Check
@@ -48,61 +42,27 @@ _Post–Phase 1 design check_: The M6 research, data model, contracts, and quick
 
 ```text
 specs/006-qa-hardening-demo/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+└── tasks.md
 ```
 
 ### Source Code (repository root)
 
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+├── main/
+│   ├── java/com/rnexchange/...        # Spring Boot + JHipster backend (entities, services, resources)
+│   ├── resources/                     # Liquibase changelogs, application-*.yml, OpenAPI (`swagger/api.yml`), templates
+│   └── webapp/                        # React SPA (React-JHipster) served by Spring Boot
+└── test/
+    ├── java/com/rnexchange/...        # Contract, integration, and unit tests
+    ├── gatling/                       # Gatling performance simulations
+    └── javascript/                    # Jest + Cypress tests for frontend and E2E flows
 ```
-
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
 
 ## Complexity Tracking
 
