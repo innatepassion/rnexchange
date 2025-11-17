@@ -1,0 +1,281 @@
+openapi: 3.0.3
+info:
+  title: RNExchange – M6 QA Hardening & Demo-Ready Polish
+  version: 0.1.0
+  description: >
+    Feature-level API contracts for key M6 flows:
+    - Trader statements access
+    - Broker funds journal entries
+    - Exchange operator EOD settlement control
+servers:
+  - url: https://api.rnexchange.local
+    description: Local development/staging
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StatementSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        refDate:
+          type: string
+          format: date
+          description: Trading date this statement covers.
+        tradingAccountId:
+          type: integer
+          format: int64
+        openingBalance:
+          type: number
+          format: double
+        eodMtmPnl:
+          type: number
+          format: double
+        closingBalance:
+          type: number
+          format: double
+        htmlUrl:
+          type: string
+          format: uri
+          description: Relative URL for HTML statement (`/api/statements/{id}/html`).
+      required:
+        - id
+        - refDate
+        - tradingAccountId
+        - openingBalance
+        - eodMtmPnl
+        - closingBalance
+        - htmlUrl
+
+    SettlementBatch:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        refDate:
+          type: string
+          format: date
+        kind:
+          type: string
+          example: EOD
+        accountsProcessed:
+          type: integer
+          format: int32
+          nullable: true
+        positionsProcessed:
+          type: integer
+          format: int32
+          nullable: true
+        netPnl:
+          type: number
+          format: double
+          nullable: true
+      required:
+        - id
+        - refDate
+        - kind
+
+    LedgerEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        tradingAccountId:
+          type: integer
+          format: int64
+        refDate:
+          type: string
+          format: date
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          example: INR
+        type:
+          type: string
+          description: >
+            Ledger entry type (e.g., TRADE_DEBIT, TRADE_CREDIT, FEE, DEPOSIT, WITHDRAWAL, EOD_MTM_CREDIT, EOD_MTM_DEBIT).
+        description:
+          type: string
+        reference:
+          type: string
+          nullable: true
+      required:
+        - tradingAccountId
+        - refDate
+        - amount
+        - currency
+        - type
+        - description
+
+paths:
+  /api/statements:
+    get:
+      summary: List trader statements
+      description: >
+        Returns daily statements for the authenticated trader over an optional date range.
+        Used by the Trader Statements UI and Cypress E2E tests.
+      tags:
+        - Statements
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional start date (inclusive).
+        - in: query
+          name: to
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional end date (inclusive).
+      responses:
+        '200':
+          description: List of statement summaries for the trader.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatementSummary'
+        '401':
+          description: Unauthorized (missing or invalid JWT).
+
+  /api/statements/{statementId}/html:
+    get:
+      summary: Get HTML statement
+      description: >
+        Returns an HTML-rendered statement document for display in a new browser tab/window.
+      tags:
+        - Statements
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: statementId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: HTML statement for the given identifier.
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          description: Statement not found.
+
+  /api/ledger-entries:
+    post:
+      summary: Create a funds journal entry
+      description: >
+        Creates a new ledger entry (e.g., broker funds credit/debit) for a trader account.
+        Validation rules allow negative balances but downstream UI and statements must flag at-risk accounts.
+      tags:
+        - Ledger
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LedgerEntry'
+      responses:
+        '201':
+          description: Ledger entry created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerEntry'
+        '400':
+          description: Validation error (e.g., missing required fields).
+        '401':
+          description: Unauthorized.
+
+  /api/settlements/eod:
+    post:
+      summary: Run EOD settlement for a trade date
+      description: >
+        Triggers an end-of-day (EOD) settlement run for the specified trade date.
+        The operation is idempotent per date: re-running for the same date recomputes and overwrites prior EOD adjustments and statements.
+      tags:
+        - Settlements
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Trade date to settle (YYYY-MM-DD).
+      responses:
+        '202':
+          description: EOD settlement accepted and completed for the requested date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettlementBatch'
+        '400':
+          description: Invalid date or settlement request.
+        '401':
+          description: Unauthorized.
+
+  /api/settlements:
+    get:
+      summary: List EOD settlement batches
+      description: >
+        Returns EOD settlement batches in the specified date range for exchange operators.
+      tags:
+        - Settlements
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of settlement batches in the given range.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SettlementBatch'
+        '401':
+          description: Unauthorized.
+
+
