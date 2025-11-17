@@ -312,37 +312,20 @@ public class StatementServiceImpl implements StatementService {
             .collect(Collectors.toList());
 
         StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE html>\n");
-        html.append("<html>\n");
-        html.append("<head>\n");
-        html.append("<title>Daily Statement - ").append(refDate).append("</title>\n");
-        html.append("<style>\n");
-        html.append("body { font-family: Arial, sans-serif; margin: 20px; }\n");
-        html.append("h1 { color: #333; }\n");
-        html.append("table { width: 100%; border-collapse: collapse; margin: 20px 0; }\n");
-        html.append("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }\n");
-        html.append("th { background-color: #f2f2f2; }\n");
-        html.append(".disclaimer { background-color: #fff3cd; padding: 10px; margin: 20px 0; border-left: 4px solid #ffc107; }\n");
-        html.append("</style>\n");
-        html.append("</head>\n");
-        html.append("<body>\n");
+        html.append(HtmlReportUtils.htmlHeader("Daily Statement - " + refDate));
 
         html.append("<h1>Daily Statement</h1>\n");
         html.append("<p><strong>Account:</strong> ").append(summary.getTradingAccountLabel()).append("</p>\n");
         html.append("<p><strong>Date:</strong> ").append(refDate).append("</p>\n");
 
-        html.append("<div class=\"disclaimer\">\n");
-        html.append("<strong>Simulated Environment Notice:</strong><br/>\n");
-        html.append("This statement is generated from simulated EOD settlement data. ");
-        html.append("Prices and P&L are from internal mock feeds and are for training purposes only.\n");
-        html.append("</div>\n");
+        html.append(HtmlReportUtils.SIMULATED_ENVIRONMENT_DISCLAIMER);
 
         html.append("<h2>Summary</h2>\n");
         html.append("<table>\n");
-        html.append("<tr><th>Opening Balance</th><td>").append(summary.getOpeningBalance()).append("</td></tr>\n");
-        html.append("<tr><th>Net Cash Flows</th><td>").append(summary.getNetCashFlows()).append("</td></tr>\n");
-        html.append("<tr><th>EOD MTM P&L</th><td>").append(summary.getEodMtmPnl()).append("</td></tr>\n");
-        html.append("<tr><th>Closing Balance</th><td><strong>").append(summary.getClosingBalance()).append("</strong></td></tr>\n");
+        html.append(HtmlReportUtils.tableRow("Opening Balance", summary.getOpeningBalance()));
+        html.append(HtmlReportUtils.tableRow("Net Cash Flows", summary.getNetCashFlows()));
+        html.append(HtmlReportUtils.tableRow("EOD MTM P&L", summary.getEodMtmPnl()));
+        html.append(HtmlReportUtils.tableRow("Closing Balance", summary.getClosingBalance(), true));
         html.append("</table>\n");
 
         html.append("<h2>Ledger Entries</h2>\n");
@@ -360,8 +343,7 @@ public class StatementServiceImpl implements StatementService {
         }
 
         html.append("</table>\n");
-        html.append("</body>\n");
-        html.append("</html>\n");
+        html.append(HtmlReportUtils.htmlFooter());
 
         return html.toString();
     }

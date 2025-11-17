@@ -94,3 +94,99 @@ docker compose -f src/main/docker/app.yml up -d
 npm run test
 npm run cypress:open
 ```
+
+## EOD Usage Notes
+
+### Running EOD Settlement
+
+1. **Prerequisites**:
+
+   - Ensure `DailySettlementPrice` records exist for all instruments with open positions on the target trade date
+   - Verify that positions and trading accounts are properly configured
+   - Ensure you are logged in as an `EXCHANGE_OPERATOR` user
+
+2. **Running EOD**:
+
+   ```bash
+   # Via API
+   curl -X POST "http://localhost:8080/api/settlements/eod?date=2025-01-15" \
+     -H "Authorization: Bearer <token>"
+
+   # Via UI
+   # Navigate to Exchange > Settlement tab
+   # Click "Run EOD for Today" or select a specific date
+   ```
+
+3. **Monitoring EOD Execution**:
+
+   - Check batch status via GET `/api/settlements?from=YYYY-MM-DD&to=YYYY-MM-DD`
+   - Review logs for correlation IDs (format: `[correlationId=...]`) to track request flow
+   - Monitor `SettlementBatch.status` field: `CREATED` → `PROCESSED` or `FAILED`
+
+4. **Re-running EOD**:
+
+   - EOD can be re-run for the same date
+   - Previous EOD MTM entries are automatically superseded (marked with "SUPERSEDED-" prefix)
+   - Account balances are adjusted to reflect the new settlement results
+   - Report links are regenerated for the latest batch
+
+5. **Error Handling**:
+   - If settlement price is missing for any instrument, the entire batch fails with status `FAILED`
+   - No partial updates are applied on failure (atomic transaction)
+   - Check batch `remarks` field for error details in JSON format
+   - Review logs with correlation ID for detailed error trace
+
+### Statement Access
+
+- **Traders**: Access statements via `/api/statements` (filtered to own accounts only)
+- **Broker Admins**: Access broker summaries via `/api/broker/settlements` (filtered to own broker only)
+- Statements include simulated environment disclaimers in HTML output
+
+### Performance Considerations
+
+- EOD settlement processes all open positions in a single transaction
+- For large datasets (10,000+ positions), expect processing time of up to 5 minutes
+- Settlement runs synchronously; consider implementing async processing for production scale
+- Use correlation IDs in logs to trace performance bottlenecks
+
+## Documentation References
+
+- **Specification**: `specs/005-settlement/spec.md` - Complete feature specification
+- **Data Model**: `specs/005-settlement/data-model.md` - Entity relationships and validation rules
+- **API Contracts**: `specs/005-settlement/contracts/settlement.openapi.yaml` - OpenAPI definitions
+- **Implementation Plan**: `specs/005-settlement/plan.md` - Technical architecture and decisions
+- **Tasks**: `specs/005-settlement/tasks.md` - Implementation task breakdown
+- **Research**: `specs/005-settlement/research.md` - Technical research and constraints
+
+## Related Features
+
+- **Mock Market Data** (`specs/002-mock-market-data/`): Provides `DailySettlementPrice` data
+- **Trading Portfolio** (`specs/003-simple-trading-portfolio/`): Provides `Position` and `LedgerEntry` entities
+- **Broker Backoffice** (`specs/004-broker-backoffice/`): Provides broker and trader account management
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"No settlement price found" error**:
+
+   - Ensure `DailySettlementPrice` records exist for the trade date
+   - Check that instrument symbols match between positions and settlement prices
+   - Verify instrument status is `active`
+
+2. **RBAC access denied**:
+
+   - Verify user has correct role (`EXCHANGE_OPERATOR`, `TRADER`, or `BROKER_ADMIN`)
+   - Check that `BrokerDesk` is properly linked for broker admin users
+   - Ensure `TraderProfile` is linked for trader users
+
+3. **Statements not appearing**:
+
+   - Verify EOD has been run for the target date
+   - Check that `ReportLink` records exist for the account and date
+   - Ensure user owns the trading account (for traders) or broker (for broker admins)
+
+4. **Balance reconciliation issues**:
+   - Review ledger entries for the date to verify EOD MTM entries
+   - Check that opening balance + cash flows + EOD MTM = closing balance
+   - Verify no duplicate EOD entries (check for "SUPERSEDED-" prefix)

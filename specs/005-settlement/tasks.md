@@ -155,13 +155,13 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 **Purpose**: Improvements that affect multiple stories and overall robustness.
 
-- [ ] T053 Ensure RBAC and negative-path integration tests cover unauthorized/forbidden access for all new endpoints in `src/test/java/com/rnexchange/integration/settlement/` and `.../broker/`
-- [ ] T054 Add additional logging and correlation IDs for settlement-related requests in `src/main/java/com/rnexchange/web/rest/settlement/` and `src/main/java/com/rnexchange/service/settlement/`
-- [ ] T055 [P] Add documentation references and EOD usage notes to `specs/005-settlement/quickstart.md`
-- [ ] T056 [P] Add a lightweight Gatling smoke test for EOD and settlements APIs in `src/test/gatling/simulations/SettlementSimulation.scala` (e.g., p95 latency and error rate checks)
-- [ ] T057 Review and refactor settlement code paths for clarity and duplication across `SettlementService`, `StatementService`, and `BrokerSettlementService`
-- [ ] T061 [P] Add short educational tooltips or helper text explaining simulated EOD and training context on the Exchange “Settlement” tab in `src/main/webapp/app/modules/exchange/settlement/index.tsx`
-- [ ] T062 [P] Add educational tooltips/disclaimers on Broker “Settlements/Reports” and Trader “Statements” screens to reinforce simulated environment context in `src/main/webapp/app/modules/broker/settlements/index.tsx` and `src/main/webapp/app/modules/trader/statements/index.tsx`
+- [x] T053 Ensure RBAC and negative-path integration tests cover unauthorized/forbidden access for all new endpoints in `src/test/java/com/rnexchange/integration/settlement/` and `.../broker/`
+- [x] T054 Add additional logging and correlation IDs for settlement-related requests in `src/main/java/com/rnexchange/web/rest/settlement/` and `src/main/java/com/rnexchange/service/settlement/`
+- [x] T055 [P] Add documentation references and EOD usage notes to `specs/005-settlement/quickstart.md`
+- [x] T056 [P] Add a lightweight Gatling smoke test for EOD and settlements APIs in `src/test/gatling/simulations/SettlementSimulation.scala` (e.g., p95 latency and error rate checks)
+- [x] T057 Review and refactor settlement code paths for clarity and duplication across `SettlementService`, `StatementService`, and `BrokerSettlementService`
+- [x] T061 [P] Add short educational tooltips or helper text explaining simulated EOD and training context on the Exchange “Settlement” tab in `src/main/webapp/app/modules/exchange/settlement/index.tsx`
+- [x] T062 [P] Add educational tooltips/disclaimers on Broker “Settlements/Reports” and Trader “Statements” screens to reinforce simulated environment context in `src/main/webapp/app/modules/broker/settlements/index.tsx` and `src/main/webapp/app/modules/trader/statements/index.tsx`
 
 ---
 

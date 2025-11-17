@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Alert, Spinner } from 'reactstrap';
+import { Table, Button, Alert, Spinner, UncontrolledTooltip } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { getBrokerSettlements, type BrokerSettlementSummary } from './services/broker-settlements.service';
 
 const BrokerSettlementsModule: React.FC = () => {
@@ -51,7 +53,26 @@ const BrokerSettlementsModule: React.FC = () => {
 
   return (
     <div className="broker-settlements">
-      <h2>Settlement Reports</h2>
+      <h2>
+        Settlement Reports{' '}
+        <FontAwesomeIcon icon={faInfoCircle} id="broker-settlement-info-tooltip" className="text-info ms-2" style={{ cursor: 'help' }} />
+        <UncontrolledTooltip placement="right" target="broker-settlement-info-tooltip">
+          <div style={{ textAlign: 'left', maxWidth: '300px' }}>
+            <strong>Broker Settlement Summaries</strong>
+            <br />
+            <br />
+            These summaries aggregate settlement data for all clients under your broker. They show:
+            <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+              <li>Total client accounts processed</li>
+              <li>Aggregate opening and closing balances</li>
+              <li>Total EOD MTM P&L across all clients</li>
+            </ul>
+            <br />
+            <strong>Training Context:</strong> All data is from simulated EOD settlement using internal mock prices for training purposes
+            only.
+          </div>
+        </UncontrolledTooltip>
+      </h2>
       <Alert color="info" className="mt-3">
         <strong>Simulated Environment:</strong> These settlement summaries are generated from simulated EOD data. Prices and P&L are from
         internal mock feeds for training purposes only.

@@ -4,8 +4,10 @@ import com.rnexchange.service.dto.BrokerSettlementSummary;
 import com.rnexchange.service.settlement.BrokerSettlementService;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BrokerSettlementResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(BrokerSettlementResource.class);
+    private static final String CORRELATION_ID_KEY = "correlationId";
 
     private final BrokerSettlementService brokerSettlementService;
 
@@ -45,9 +48,19 @@ public class BrokerSettlementResource {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     ) {
-        LOG.debug("REST request to get broker settlements: from={}, to={}", from, to);
-        List<BrokerSettlementSummary> summaries = brokerSettlementService.getBrokerSettlements(from, to);
-        return ResponseEntity.ok().body(summaries);
+        String correlationId = UUID.randomUUID().toString();
+        MDC.put(CORRELATION_ID_KEY, correlationId);
+        try {
+            LOG.info("[correlationId={}] REST request to get broker settlements: from={}, to={}", correlationId, from, to);
+            List<BrokerSettlementSummary> summaries = brokerSettlementService.getBrokerSettlements(from, to);
+            LOG.debug("[correlationId={}] Found {} broker settlement summaries", correlationId, summaries.size());
+            return ResponseEntity.ok().body(summaries);
+        } catch (Exception e) {
+            LOG.error("[correlationId={}] Failed to get broker settlements: {}", correlationId, e.getMessage(), e);
+            throw e;
+        } finally {
+            MDC.remove(CORRELATION_ID_KEY);
+        }
     }
 
     /**
@@ -63,10 +76,32 @@ public class BrokerSettlementResource {
         @PathVariable("brokerId") Long brokerId,
         @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        LOG.debug("REST request to get broker summary HTML: brokerId={}, date={}", brokerId, date);
-        String html = brokerSettlementService.getBrokerSummaryHtml(brokerId, date);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_HTML);
-        return ResponseEntity.ok().headers(headers).body(html);
+        String correlationId = UUID.randomUUID().toString();
+        MDC.put(CORRELATION_ID_KEY, correlationId);
+        try {
+            LOG.info("[correlationId={}] REST request to get broker summary HTML: brokerId={}, date={}", correlationId, brokerId, date);
+            String html = brokerSettlementService.getBrokerSummaryHtml(brokerId, date);
+            LOG.debug(
+                "[correlationId={}] Successfully generated broker summary HTML for brokerId: {}, date: {}",
+                correlationId,
+                brokerId,
+                date
+            );
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_HTML);
+            return ResponseEntity.ok().headers(headers).body(html);
+        } catch (Exception e) {
+            LOG.error(
+                "[correlationId={}] Failed to get broker summary HTML for brokerId {} and date {}: {}",
+                correlationId,
+                brokerId,
+                date,
+                e.getMessage(),
+                e
+            );
+            throw e;
+        } finally {
+            MDC.remove(CORRELATION_ID_KEY);
+        }
     }
 }

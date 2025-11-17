@@ -12,9 +12,11 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +62,12 @@ public class SettlementServiceImpl implements SettlementService {
 
     @Override
     public void runEod(LocalDate tradeDate) {
-        LOG.info("Starting EOD settlement for trade date: {}", tradeDate);
+        String correlationId = MDC.get("correlationId");
+        if (correlationId == null) {
+            correlationId = UUID.randomUUID().toString();
+            MDC.put("correlationId", correlationId);
+        }
+        LOG.info("[correlationId={}] Starting EOD settlement for trade date: {}", correlationId, tradeDate);
 
         // Get or create default exchange (assuming single exchange for MVP)
         Exchange exchange = exchangeRepository
@@ -77,10 +84,10 @@ public class SettlementServiceImpl implements SettlementService {
         try {
             // Get all open positions
             List<Position> openPositions = positionRepository.findOpenPositions(ZERO);
-            LOG.debug("Found {} open positions for EOD", openPositions.size());
+            LOG.debug("[correlationId={}] Found {} open positions for EOD", correlationId, openPositions.size());
 
             if (openPositions.isEmpty()) {
-                LOG.info("No open positions found for EOD settlement on {}", tradeDate);
+                LOG.info("[correlationId={}] No open positions found for EOD settlement on {}", correlationId, tradeDate);
                 batch.setStatus(SettlementStatus.PROCESSED);
                 batch.setRemarks("{\"accountsProcessed\":0,\"positionsProcessed\":0,\"netPnl\":0}");
                 settlementBatchRepository.save(batch);
@@ -124,9 +131,15 @@ public class SettlementServiceImpl implements SettlementService {
                     accountsProcessed++;
                     totalNetPnl = totalNetPnl.add(accountNetPnl);
 
-                    LOG.debug("Processed account {}: {} positions, net P&L: {}", account.getId(), accountPositions.size(), accountNetPnl);
+                    LOG.debug(
+                        "[correlationId={}] Processed account {}: {} positions, net P&L: {}",
+                        correlationId,
+                        account.getId(),
+                        accountPositions.size(),
+                        accountNetPnl
+                    );
                 } catch (Exception e) {
-                    LOG.error("Error processing account {}: {}", account.getId(), e.getMessage(), e);
+                    LOG.error("[correlationId={}] Error processing account {}: {}", correlationId, account.getId(), e.getMessage(), e);
                     throw new RuntimeException("Failed to process account " + account.getId() + ": " + e.getMessage(), e);
                 }
             }
@@ -146,7 +159,8 @@ public class SettlementServiceImpl implements SettlementService {
             createReportLinks(batch, tradeDate, positionsByAccount.keySet());
 
             LOG.info(
-                "EOD settlement completed for {}: {} accounts, {} positions, net P&L: {}",
+                "[correlationId={}] EOD settlement completed for {}: {} accounts, {} positions, net P&L: {}",
+                correlationId,
                 tradeDate,
                 accountsProcessed,
                 positionsProcessed,
@@ -157,7 +171,8 @@ public class SettlementServiceImpl implements SettlementService {
                 new SettlementCompletedEvent(batch.getId(), tradeDate, accountsProcessed, positionsProcessed, totalNetPnl)
             );
         } catch (Exception e) {
-            LOG.error("EOD settlement failed for {}: {}", tradeDate, e.getMessage(), e);
+            String correlationId = MDC.get("correlationId");
+            LOG.error("[correlationId={}] EOD settlement failed for {}: {}", correlationId, tradeDate, e.getMessage(), e);
             batch.setStatus(SettlementStatus.FAILED);
             batch.setRemarks("{\"error\":\"" + e.getMessage().replace("\"", "\\\"") + "\"}");
             settlementBatchRepository.save(batch);
