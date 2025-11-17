@@ -301,6 +301,185 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
+  /api/settlements/eod:
+    post:
+      summary: Run end-of-day settlement batch for a given trade date
+      description: >
+        Triggers a single-pass EOD settlement batch for the specified trade date.
+        Computes settlement prices from internal data, updates positions and ledgers,
+        and generates statement/report links. Idempotent per date.
+      operationId: runEodSettlement
+      tags:
+        - Settlement
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          required: true
+          description: Trade date to settle (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        '202':
+          description: EOD batch accepted and started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettlementBatchDTO'
+        '400':
+          description: Invalid date or batch already running for this date
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Forbidden - requires EXCHANGE_OPERATOR role
+  /api/settlements:
+    get:
+      summary: List settlement batches over a date range
+      description: >
+        Returns settlement batches (primarily EOD) for the specified date window,
+        including status and simple metrics.
+      operationId: listSettlementBatches
+      tags:
+        - Settlement
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Start date (inclusive)
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+          description: End date (inclusive)
+      responses:
+        '200':
+          description: Settlement batches for the given range
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SettlementBatchDTO'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Forbidden - requires EXCHANGE_OPERATOR role
+  /api/statements:
+    get:
+      summary: List daily statements for the current trader
+      description: >
+        Returns a list of daily statements for the authenticated trader across
+        their trading accounts, including dates and links to view HTML statements.
+      operationId: listMyStatements
+      tags:
+        - Statements
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional start date (inclusive)
+        - in: query
+          name: to
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional end date (inclusive)
+      responses:
+        '200':
+          description: List of statements for the trader
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatementSummary'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Forbidden - requires TRADER role
+  /api/statements/{statementId}/html:
+    get:
+      summary: View a specific daily statement as HTML
+      description: >
+        Returns a rendered HTML statement for the given statement identifier.
+        The server ensures the statement belongs to the authenticated trader.
+      operationId: getStatementHtml
+      tags:
+        - Statements
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: statementId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: HTML document for the daily statement
+          content:
+            text/html:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Forbidden - statement does not belong to trader
+        '404':
+          description: Statement not found
+  /api/broker/settlements:
+    get:
+      summary: List settlement days and summaries for the current broker
+      description: >
+        Returns per-day settlement summaries for the authenticated broker, with
+        aggregate P&L and balances and links to broker-level reports and client statements.
+      operationId: listBrokerSettlements
+      tags:
+        - Broker Reports
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: false
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Broker settlement summaries for the date range
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BrokerSettlementSummary'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Forbidden - requires BROKER_ADMIN role
   /api/admin/baseline-seed/status/{jobId}:
     get:
       summary: Fetch status of a baseline seed job
@@ -351,6 +530,84 @@ components:
     Money:
       type: number
       format: double
+    SettlementBatchDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        refDate:
+          type: string
+          format: date
+        kind:
+          type: string
+          enum:
+            - EOD
+            - VARIATION
+            - EXPIRY
+        status:
+          type: string
+          enum:
+            - CREATED
+            - PROCESSED
+            - REVERSED
+            - FAILED
+        remarks:
+          type: string
+          description: Free-text or JSON summary of batch outcome
+        accountsProcessed:
+          type: integer
+          description: Number of trading accounts processed in the batch
+        positionsProcessed:
+          type: integer
+          description: Number of positions processed in the batch
+        netPnl:
+          $ref: '#/components/schemas/Money'
+    StatementSummary:
+      type: object
+      properties:
+        statementId:
+          type: string
+          format: uuid
+        refDate:
+          type: string
+          format: date
+        tradingAccountId:
+          type: string
+          format: uuid
+        tradingAccountName:
+          type: string
+        openingBalance:
+          $ref: '#/components/schemas/Money'
+        closingBalance:
+          $ref: '#/components/schemas/Money'
+        eodMtmPnl:
+          $ref: '#/components/schemas/Money'
+        htmlUrl:
+          type: string
+          description: Relative URL to open the HTML statement
+    BrokerSettlementSummary:
+      type: object
+      properties:
+        refDate:
+          type: string
+          format: date
+        brokerId:
+          type: string
+          format: uuid
+        brokerName:
+          type: string
+        totalClientCount:
+          type: integer
+        totalOpeningBalance:
+          $ref: '#/components/schemas/Money'
+        totalClosingBalance:
+          $ref: '#/components/schemas/Money'
+        totalEodMtmPnl:
+          $ref: '#/components/schemas/Money'
+        summaryUrl:
+          type: string
+          description: Relative URL to open broker-level summary (CSV/HTML)
     BrokerOverview:
       type: object
       properties:

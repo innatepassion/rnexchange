@@ -4,6 +4,7 @@ import com.rnexchange.domain.enumeration.SettlementKind;
 import com.rnexchange.domain.enumeration.SettlementStatus;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -27,6 +28,12 @@ public class SettlementBatchDTO implements Serializable {
     private String remarks;
 
     private ExchangeDTO exchange;
+
+    private Integer accountsProcessed;
+
+    private Integer positionsProcessed;
+
+    private BigDecimal netPnl;
 
     public Long getId() {
         return id;
@@ -74,6 +81,30 @@ public class SettlementBatchDTO implements Serializable {
 
     public void setExchange(ExchangeDTO exchange) {
         this.exchange = exchange;
+    }
+
+    public Integer getAccountsProcessed() {
+        return accountsProcessed;
+    }
+
+    public void setAccountsProcessed(Integer accountsProcessed) {
+        this.accountsProcessed = accountsProcessed;
+    }
+
+    public Integer getPositionsProcessed() {
+        return positionsProcessed;
+    }
+
+    public void setPositionsProcessed(Integer positionsProcessed) {
+        this.positionsProcessed = positionsProcessed;
+    }
+
+    public BigDecimal getNetPnl() {
+        return netPnl;
+    }
+
+    public void setNetPnl(BigDecimal netPnl) {
+        this.netPnl = netPnl;
     }
 
     @Override

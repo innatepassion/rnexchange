@@ -4,6 +4,7 @@ import com.rnexchange.domain.Broker;
 import com.rnexchange.domain.Instrument;
 import com.rnexchange.domain.Position;
 import com.rnexchange.domain.TradingAccount;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -78,4 +79,16 @@ public interface PositionRepository extends JpaRepository<Position, Long>, JpaSp
         "order by position.id desc"
     )
     List<Position> findByBrokerNonPaginated(@Param("broker") Broker broker);
+
+    /**
+     * T009: Find all open positions (qty != 0).
+     */
+    @Query("select p from Position p where p.qty <> :zero")
+    List<Position> findOpenPositions(@Param("zero") BigDecimal zero);
+
+    /**
+     * T009: Find open positions for a specific instrument (qty != 0).
+     */
+    @Query("select p from Position p where p.instrument.id = :instrumentId and p.qty <> :zero")
+    List<Position> findOpenPositionsByInstrument(@Param("instrumentId") Long instrumentId, @Param("zero") BigDecimal zero);
 }

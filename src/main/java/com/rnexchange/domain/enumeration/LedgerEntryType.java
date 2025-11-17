@@ -6,4 +6,6 @@ package com.rnexchange.domain.enumeration;
 public enum LedgerEntryType {
     DEBIT,
     CREDIT,
+    EOD_MTM_CREDIT,
+    EOD_MTM_DEBIT,
 }

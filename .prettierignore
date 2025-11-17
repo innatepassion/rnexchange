@@ -1,3 +1,14 @@
+node_modules/
+target/
+dist/
+build/
+coverage/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+webpack/
+src/main/resources/static/
+
 node_modules
 package-lock.json
 .git

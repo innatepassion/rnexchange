@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity ReportLink.
+    -->
+    <changeSet id="20251116120000-1" author="speckit">
+        <createTable tableName="report_link">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ref_date" type="date">
+                <constraints nullable="false" />
+            </column>
+            <column name="report_type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="relative_url" type="varchar(1024)">
+                <constraints nullable="false" />
+            </column>
+            <column name="settlement_batch_id" type="bigint"/>
+            <column name="trading_account_id" type="bigint"/>
+            <column name="broker_id" type="bigint"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="report_link"
+                                 baseColumnNames="settlement_batch_id"
+                                 constraintName="fk_report_link_batch"
+                                 referencedTableName="settlement_batch"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="report_link"
+                                 baseColumnNames="trading_account_id"
+                                 constraintName="fk_report_link_account"
+                                 referencedTableName="trading_account"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="report_link"
+                                 baseColumnNames="broker_id"
+                                 constraintName="fk_report_link_broker"
+                                 referencedTableName="broker"
+                                 referencedColumnNames="id"/>
+        <createIndex tableName="report_link" indexName="idx_report_link_refdate_type">
+            <column name="ref_date"/>
+            <column name="report_type"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
+
+

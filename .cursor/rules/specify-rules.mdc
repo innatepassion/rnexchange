@@ -13,6 +13,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-13
 - PostgreSQL via JPA entities and Liquibase migrations (reusing existing DB setup) (003-simple-trading-portfolio)
 - Java 21 (Spring Boot via JHipster 8), TypeScript/React 18 + Spring Boot, Spring Security, MapStruct, Liquibase, JPA/Hibernate, Redux Toolkit, Cypress/Jest, Gatling (004-broker-backoffice)
 - PostgreSQL via Liquibase-managed schema; reuse existing M2 entities (TraderProfile, TradingAccount, Position, LedgerEntry) (004-broker-backoffice)
+- Java (Spring Boot via JHipster 8) for backend; TypeScript/React 18 for frontend + Spring Boot, Spring Security, Spring Web/WebSocket, JPA/Hibernate, Liquibase, MapStruct, JHipster React stack (Redux Toolkit, React Router), Jest/RTL, Cypress, Gatling (005-settlement)
+- PostgreSQL via Liquibase-managed schema; reuse `DailySettlementPrice`, `Position`, `LedgerEntry`, `SettlementBatch`, `TradingAccount`, and introduce a simple report-link mapping if needed for statements/summaries (005-settlement)
 
 - Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18) + JHipster 8.11.0 stack (Spring Boot, Spring Security, Liquibase, MapStruct), Liquibase XML changelogs, JPA/Hibernate (001-seed-domain-data)
 
@@ -32,9 +34,9 @@ npm test && npm run lint
 Java 17 (Spring Boot 3.4.5), TypeScript 5.x (React 18): Follow standard conventions
 
 ## Recent Changes
+- 005-settlement: Added Java (Spring Boot via JHipster 8) for backend; TypeScript/React 18 for frontend + Spring Boot, Spring Security, Spring Web/WebSocket, JPA/Hibernate, Liquibase, MapStruct, JHipster React stack (Redux Toolkit, React Router), Jest/RTL, Cypress, Gatling
 - 004-broker-backoffice: Added Java 21 (Spring Boot via JHipster 8), TypeScript/React 18 + Spring Boot, Spring Security, MapStruct, Liquibase, JPA/Hibernate, Redux Toolkit, Cypress/Jest, Gatling
 - 003-simple-trading-portfolio: Added Java 17 (Spring Boot JHipster backend), TypeScript/React frontend + JHipster 8.x stack (Spring Boot, Spring Data JPA, Spring WebSocket/STOMP, React + Redux Toolkit)
-- 002-mock-market-data: Added Java 21 (backend), TypeScript 5.x (frontend) + Spring Boot 3.x, Spring WebSocket/STOMP, React 18, Redux Toolkit, MapStruct, Liquibase
 
 
 <!-- MANUAL ADDITIONS START -->
