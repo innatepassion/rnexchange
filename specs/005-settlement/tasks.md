@@ -54,8 +54,8 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 - [x] T013 [P] [US1] Contract test for POST `/api/settlements/eod` in `src/test/java/com/rnexchange/contract/settlement/RunEodSettlementContractTest.java`
 - [x] T014 [P] [US1] Contract test for GET `/api/settlements` in `src/test/java/com/rnexchange/contract/settlement/ListSettlementBatchesContractTest.java`
 - [x] T015 [P] [US1] Unit tests for MTM calculations and aggregation in `src/test/java/com/rnexchange/service/settlement/SettlementServiceTest.java`
-- [ ] T016 [US1] Integration test for successful EOD run (positions, ledgers, batch status) in `src/test/java/com/rnexchange/integration/settlement/SettlementEodSuccessIT.java`
-- [ ] T017 [US1] Integration test for missing price / failure path (batch marked FAILED, no partial updates) in `src/test/java/com/rnexchange/integration/settlement/SettlementEodFailureIT.java`
+- [x] T016 [US1] Integration test for successful EOD run (positions, ledgers, batch status) in `src/test/java/com/rnexchange/integration/settlement/SettlementEodSuccessIT.java`
+- [x] T017 [US1] Integration test for missing price / failure path (batch marked FAILED, no partial updates) in `src/test/java/com/rnexchange/integration/settlement/SettlementEodFailureIT.java`
 
 ### Implementation for User Story 1
 
@@ -74,16 +74,16 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 - [x] T058 [P] [US1] Define `SettlementCompletedEvent` and `SettlementFailedEvent` domain events in `src/main/java/com/rnexchange/service/settlement/event/SettlementCompletedEvent.java` and `SettlementFailedEvent.java`
 - [x] T059 [US1] Publish `SettlementCompletedEvent` and `SettlementFailedEvent` from `runEod` in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` after successful completion or fatal failure
-- [ ] T060 [P] [US1] Extend `SettlementServiceTest` and EOD integration tests to assert that the appropriate domain events are emitted on success and failure in `src/test/java/com/rnexchange/service/settlement/SettlementServiceTest.java` and `src/test/java/com/rnexchange/integration/settlement/SettlementEodSuccessIT.java` / `SettlementEodFailureIT.java`
+- [x] T060 [P] [US1] Extend `SettlementServiceTest` and EOD integration tests to assert that the appropriate domain events are emitted on success and failure in `src/test/java/com/rnexchange/service/settlement/SettlementServiceTest.java` and `src/test/java/com/rnexchange/integration/settlement/SettlementEodSuccessIT.java` / `SettlementEodFailureIT.java`
 
 ### UI for User Story 1 — Exchange Operator “Settlement” tab
 
-- [ ] T023 [P] [US1] Implement Exchange “Settlement” module route and page shell in `src/main/webapp/app/modules/exchange/settlement/index.tsx`
-- [ ] T024 [P] [US1] Implement table component showing batches (date, status, accountsProcessed, positionsProcessed, netPnl) in `src/main/webapp/app/modules/exchange/settlement/components/SettlementBatchTable.tsx`
-- [ ] T025 [P] [US1] Implement frontend service for settlement APIs in `src/main/webapp/app/modules/exchange/settlement/services/settlement.service.ts`
-- [ ] T026 [US1] Wire “Run EOD for Today” and “Re-run for this date” buttons with status polling and basic progress feedback in `src/main/webapp/app/modules/exchange/settlement/index.tsx`
-- [ ] T027 [P] [US1] Jest tests for `SettlementBatchTable` and EOD button behaviors in `src/test/javascript/spec/settlement/SettlementBatchTable.spec.tsx`
-- [ ] T028 [P] [US1] Cypress E2E for Exchange Operator running EOD and viewing batch status in `src/test/javascript/cypress/e2e/settlement_eod.cy.ts`
+- [x] T023 [P] [US1] Implement Exchange "Settlement" module route and page shell in `src/main/webapp/app/modules/exchange/settlement/index.tsx`
+- [x] T024 [P] [US1] Implement table component showing batches (date, status, accountsProcessed, positionsProcessed, netPnl) in `src/main/webapp/app/modules/exchange/settlement/components/SettlementBatchTable.tsx`
+- [x] T025 [P] [US1] Implement frontend service for settlement APIs in `src/main/webapp/app/modules/exchange/settlement/services/settlement.service.ts`
+- [x] T026 [US1] Wire "Run EOD for Today" and "Re-run for this date" buttons with status polling and basic progress feedback in `src/main/webapp/app/modules/exchange/settlement/index.tsx`
+- [x] T027 [P] [US1] Jest tests for `SettlementBatchTable` and EOD button behaviors in `src/test/javascript/spec/settlement/SettlementBatchTable.spec.tsx`
+- [x] T028 [P] [US1] Cypress E2E for Exchange Operator running EOD and viewing batch status in `src/test/javascript/cypress/e2e/settlement_eod.cy.ts`
 
 **Checkpoint**: User Story 1 fully functional and independently testable (Exchange Operator can run and inspect EOD).
 
@@ -114,8 +114,8 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 - [x] T037 [P] [US2] Implement Trader “Statements” page listing `StatementSummary` rows in `src/main/webapp/app/modules/trader/statements/index.tsx`
 - [x] T038 [P] [US2] Implement frontend service for statements APIs in `src/main/webapp/app/modules/trader/statements/services/statements.service.ts`
 - [x] T039 [US2] Wire “View” link to open the `htmlUrl` in a new tab and ensure TRADER-only route guard in `src/main/webapp/app/modules/trader/statements/index.tsx`
-- [ ] T040 [P] [US2] Jest tests for Trader statements list and “View” behavior in `src/test/javascript/spec/settlement/TraderStatements.spec.tsx`
-- [ ] T041 [P] [US2] Cypress E2E for a trader viewing statements after EOD in `src/test/javascript/cypress/e2e/trader_statements.cy.ts`
+- [x] T040 [P] [US2] Jest tests for Trader statements list and "View" behavior in `src/test/javascript/spec/settlement/TraderStatements.spec.tsx`
+- [x] T041 [P] [US2] Cypress E2E for a trader viewing statements after EOD in `src/test/javascript/cypress/e2e/trader_statements.cy.ts`
 
 **Checkpoint**: User Stories 1 and 2 both work independently (EOD + trader statements).
 
@@ -144,8 +144,8 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 - [x] T048 [P] [US3] Implement Broker “Settlements/Reports” page listing per-day summaries in `src/main/webapp/app/modules/broker/settlements/index.tsx`
 - [x] T049 [P] [US3] Implement frontend service for broker settlement APIs in `src/main/webapp/app/modules/broker/settlements/services/broker-settlements.service.ts`
 - [x] T050 [US3] Wire drill-down from summary rows to underlying client statements (reuse Trader statements view where appropriate) in `src/main/webapp/app/modules/broker/settlements/index.tsx`
-- [ ] T051 [P] [US3] Jest tests for Broker settlements page and drill-down behavior in `src/test/javascript/spec/settlement/BrokerSettlements.spec.tsx`
-- [ ] T052 [P] [US3] Cypress E2E for Broker Admin viewing summaries and drilling into client statements in `src/test/javascript/cypress/e2e/broker_settlements.cy.ts`
+- [x] T051 [P] [US3] Jest tests for Broker settlements page and drill-down behavior in `src/test/javascript/spec/settlement/BrokerSettlements.spec.tsx`
+- [x] T052 [P] [US3] Cypress E2E for Broker Admin viewing summaries and drilling into client statements in `src/test/javascript/cypress/e2e/broker_settlements.cy.ts`
 
 **Checkpoint**: All three user stories (EOD run, trader statements, broker summaries) are independently functional and testable.
 

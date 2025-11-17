@@ -108,5 +108,125 @@ class SettlementServiceTest {
         SettlementCompletedEvent event = eventCaptor.getValue();
         assertThat(event.getAccountsProcessed()).isEqualTo(0);
         assertThat(event.getPositionsProcessed()).isEqualTo(0);
+        assertThat(event.getTradeDate()).isEqualTo(tradeDate);
+        assertThat(event.getNetPnl()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void shouldPublishSettlementCompletedEventOnSuccess() {
+        // Given
+        LocalDate tradeDate = LocalDate.now();
+        Exchange exchange = new Exchange();
+        exchange.setId(1L);
+
+        TradingAccount account = new TradingAccount();
+        account.setId(1L);
+        account.setBalance(BigDecimal.valueOf(10000.00));
+
+        Instrument instrument = new Instrument();
+        instrument.setId(1L);
+        instrument.setSymbol("TEST");
+
+        Position position = new Position();
+        position.setTradingAccount(account);
+        position.setInstrument(instrument);
+        position.setQty(BigDecimal.valueOf(100));
+        position.setAvgCost(BigDecimal.valueOf(50.00));
+
+        DailySettlementPrice price = new DailySettlementPrice();
+        price.setRefDate(tradeDate);
+        price.setInstrument(instrument);
+        price.setSettlePrice(BigDecimal.valueOf(55.00));
+
+        SettlementBatch batch = new SettlementBatch();
+        batch.setId(1L);
+        batch.setRefDate(tradeDate);
+        batch.setKind(SettlementKind.EOD);
+        batch.setStatus(SettlementStatus.CREATED);
+        batch.setExchange(exchange);
+
+        when(exchangeRepository.findAll()).thenReturn(List.of(exchange));
+        when(positionRepository.findOpenPositions(any())).thenReturn(List.of(position));
+        when(settlementBatchRepository.findAll()).thenReturn(Collections.emptyList());
+        when(settlementBatchRepository.save(any())).thenAnswer(invocation -> {
+            SettlementBatch b = invocation.getArgument(0);
+            b.setId(1L);
+            return b;
+        });
+        when(dailySettlementPriceRepository.findByRefDateAndInstrument_Id(tradeDate, instrument.getId())).thenReturn(Optional.of(price));
+        when(tradingAccountRepository.save(any())).thenReturn(account);
+        when(positionRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(ledgerEntryRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(ledgerEntryRepository.findAll()).thenReturn(Collections.emptyList());
+        when(reportLinkRepository.findByRefDateAndReportType(any(), any())).thenReturn(Collections.emptyList());
+        when(reportLinkRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        settlementService.runEod(tradeDate);
+
+        // Then: Verify SettlementCompletedEvent was published
+        ArgumentCaptor<SettlementCompletedEvent> eventCaptor = ArgumentCaptor.forClass(SettlementCompletedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        SettlementCompletedEvent event = eventCaptor.getValue();
+        assertThat(event.getBatchId()).isEqualTo(1L);
+        assertThat(event.getTradeDate()).isEqualTo(tradeDate);
+        assertThat(event.getAccountsProcessed()).isEqualTo(1);
+        assertThat(event.getPositionsProcessed()).isEqualTo(1);
+        assertThat(event.getNetPnl()).isEqualByComparingTo(new BigDecimal("500.00")); // (55-50)*100
+    }
+
+    @Test
+    void shouldPublishSettlementFailedEventOnFailure() {
+        // Given
+        LocalDate tradeDate = LocalDate.now();
+        Exchange exchange = new Exchange();
+        exchange.setId(1L);
+
+        TradingAccount account = new TradingAccount();
+        account.setId(1L);
+
+        Instrument instrument = new Instrument();
+        instrument.setId(1L);
+        instrument.setSymbol("TEST");
+
+        Position position = new Position();
+        position.setTradingAccount(account);
+        position.setInstrument(instrument);
+        position.setQty(BigDecimal.valueOf(100));
+        position.setAvgCost(BigDecimal.valueOf(50.00));
+
+        SettlementBatch batch = new SettlementBatch();
+        batch.setId(1L);
+        batch.setRefDate(tradeDate);
+        batch.setKind(SettlementKind.EOD);
+        batch.setStatus(SettlementStatus.CREATED);
+        batch.setExchange(exchange);
+
+        when(exchangeRepository.findAll()).thenReturn(List.of(exchange));
+        when(positionRepository.findOpenPositions(any())).thenReturn(List.of(position));
+        when(settlementBatchRepository.findAll()).thenReturn(Collections.emptyList());
+        when(settlementBatchRepository.save(any())).thenAnswer(invocation -> {
+            SettlementBatch b = invocation.getArgument(0);
+            b.setId(1L);
+            return b;
+        });
+        // No settlement price available - will cause failure
+        when(dailySettlementPriceRepository.findByRefDateAndInstrument_Id(tradeDate, instrument.getId())).thenReturn(Optional.empty());
+        when(dailySettlementPriceRepository.findFirstByInstrument_IdOrderByRefDateDesc(instrument.getId())).thenReturn(Optional.empty());
+
+        // When/Then: Should throw exception and publish failed event
+        try {
+            settlementService.runEod(tradeDate);
+        } catch (RuntimeException e) {
+            // Expected
+        }
+
+        // Then: Verify SettlementFailedEvent was published
+        ArgumentCaptor<SettlementFailedEvent> eventCaptor = ArgumentCaptor.forClass(SettlementFailedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        SettlementFailedEvent event = eventCaptor.getValue();
+        assertThat(event.getBatchId()).isEqualTo(1L);
+        assertThat(event.getTradeDate()).isEqualTo(tradeDate);
+        assertThat(event.getErrorMessage()).contains("No settlement price found");
     }
 }
