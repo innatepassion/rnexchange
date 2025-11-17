@@ -51,29 +51,29 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 1 (write first)
 
-- [ ] T013 [P] [US1] Contract test for POST `/api/settlements/eod` in `src/test/java/com/rnexchange/contract/settlement/RunEodSettlementContractTest.java`
-- [ ] T014 [P] [US1] Contract test for GET `/api/settlements` in `src/test/java/com/rnexchange/contract/settlement/ListSettlementBatchesContractTest.java`
-- [ ] T015 [P] [US1] Unit tests for MTM calculations and aggregation in `src/test/java/com/rnexchange/service/settlement/SettlementServiceTest.java`
+- [x] T013 [P] [US1] Contract test for POST `/api/settlements/eod` in `src/test/java/com/rnexchange/contract/settlement/RunEodSettlementContractTest.java`
+- [x] T014 [P] [US1] Contract test for GET `/api/settlements` in `src/test/java/com/rnexchange/contract/settlement/ListSettlementBatchesContractTest.java`
+- [x] T015 [P] [US1] Unit tests for MTM calculations and aggregation in `src/test/java/com/rnexchange/service/settlement/SettlementServiceTest.java`
 - [ ] T016 [US1] Integration test for successful EOD run (positions, ledgers, batch status) in `src/test/java/com/rnexchange/integration/settlement/SettlementEodSuccessIT.java`
 - [ ] T017 [US1] Integration test for missing price / failure path (batch marked FAILED, no partial updates) in `src/test/java/com/rnexchange/integration/settlement/SettlementEodFailureIT.java`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Implement `runEod(LocalDate tradeDate)` in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` to:
+- [x] T018 [US1] Implement `runEod(LocalDate tradeDate)` in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` to:
   - resolve settlement prices from `DailySettlementPrice` or 1-minute bar close
   - compute per-position MTM and per-account net P&L
   - update `Position.lastPx`, `unrealizedPnl`, `realizedPnl`
   - post single `EOD_MTM_CREDIT/DEBIT` ledger entry per account
   - create/update `SettlementBatch` and associated `ReportLink` records
-- [ ] T019 [P] [US1] Implement REST endpoint POST `/api/settlements/eod` in `src/main/java/com/rnexchange/web/rest/settlement/SettlementResource.java` with `@PreAuthorize("hasRole('EXCHANGE_OPERATOR')")`
-- [ ] T020 [P] [US1] Implement REST endpoint GET `/api/settlements` in `src/main/java/com/rnexchange/web/rest/settlement/SettlementResource.java` returning `SettlementBatchDTO` list with basic metrics
-- [ ] T021 [US1] Implement re-run semantics in `SettlementService` (supersede prior EOD MTM entries and report links for the same `refDate` while keeping an audit trail)
-- [ ] T022 [US1] Add structured logging for each EOD batch (refDate, accountsProcessed, positionsProcessed, netPnl, status) in `src/main/java/com/rnexchange/service/settlement/SettlementService.java`
+- [x] T019 [P] [US1] Implement REST endpoint POST `/api/settlements/eod` in `src/main/java/com/rnexchange/web/rest/settlement/SettlementResource.java` with `@PreAuthorize("hasRole('EXCHANGE_OPERATOR')")`
+- [x] T020 [P] [US1] Implement REST endpoint GET `/api/settlements` in `src/main/java/com/rnexchange/web/rest/settlement/SettlementResource.java` returning `SettlementBatchDTO` list with basic metrics
+- [x] T021 [US1] Implement re-run semantics in `SettlementService` (supersede prior EOD MTM entries and report links for the same `refDate` while keeping an audit trail)
+- [x] T022 [US1] Add structured logging for each EOD batch (refDate, accountsProcessed, positionsProcessed, netPnl, status) in `src/main/java/com/rnexchange/service/settlement/SettlementService.java`
 
 ### Domain Events for User Story 1
 
-- [ ] T058 [P] [US1] Define `SettlementCompletedEvent` and `SettlementFailedEvent` domain events in `src/main/java/com/rnexchange/domain/event/SettlementEvents.java`
-- [ ] T059 [US1] Publish `SettlementCompletedEvent` and `SettlementFailedEvent` from `runEod` in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` after successful completion or fatal failure
+- [x] T058 [P] [US1] Define `SettlementCompletedEvent` and `SettlementFailedEvent` domain events in `src/main/java/com/rnexchange/service/settlement/event/SettlementCompletedEvent.java` and `SettlementFailedEvent.java`
+- [x] T059 [US1] Publish `SettlementCompletedEvent` and `SettlementFailedEvent` from `runEod` in `src/main/java/com/rnexchange/service/settlement/SettlementService.java` after successful completion or fatal failure
 - [ ] T060 [P] [US1] Extend `SettlementServiceTest` and EOD integration tests to assert that the appropriate domain events are emitted on success and failure in `src/test/java/com/rnexchange/service/settlement/SettlementServiceTest.java` and `src/test/java/com/rnexchange/integration/settlement/SettlementEodSuccessIT.java` / `SettlementEodFailureIT.java`
 
 ### UI for User Story 1 — Exchange Operator “Settlement” tab
@@ -97,23 +97,23 @@ Tasks are grouped by user story so each story can be implemented and tested inde
 
 ### Tests for User Story 2 (write first)
 
-- [ ] T029 [P] [US2] Contract test for GET `/api/statements` in `src/test/java/com/rnexchange/contract/settlement/ListStatementsContractTest.java`
-- [ ] T030 [P] [US2] Contract test for GET `/api/statements/{statementId}/html` in `src/test/java/com/rnexchange/contract/settlement/GetStatementHtmlContractTest.java`
-- [ ] T031 [US2] Integration test verifying statement reconciliation (opening + cash flows + trades + fees + EOD MTM = closing) in `src/test/java/com/rnexchange/integration/settlement/TraderStatementsIT.java`
+- [x] T029 [P] [US2] Contract test for GET `/api/statements` in `src/test/java/com/rnexchange/contract/settlement/ListStatementsContractTest.java`
+- [x] T030 [P] [US2] Contract test for GET `/api/statements/{statementId}/html` in `src/test/java/com/rnexchange/contract/settlement/GetStatementHtmlContractTest.java`
+- [x] T031 [US2] Integration test verifying statement reconciliation (opening + cash flows + trades + fees + EOD MTM = closing) in `src/test/java/com/rnexchange/integration/settlement/TraderStatementsIT.java`
 
 ### Implementation for User Story 2
 
-- [ ] T032 [US2] Implement `StatementService` to assemble per-account daily statements from ledger entries, positions, and EOD MTM in `src/main/java/com/rnexchange/service/settlement/StatementService.java`
-- [ ] T033 [P] [US2] Implement REST endpoint GET `/api/statements` returning `StatementSummary` list for the authenticated trader in `src/main/java/com/rnexchange/web/rest/settlement/StatementResource.java` with `@PreAuthorize("hasRole('TRADER')")`
-- [ ] T034 [P] [US2] Implement REST endpoint GET `/api/statements/{statementId}/html` rendering an HTML statement in `src/main/java/com/rnexchange/web/rest/settlement/StatementResource.java`
-- [ ] T035 [US2] Enforce ownership checks in `StatementService` / `StatementResource` so traders can only access their own statements
-- [ ] T036 [US2] Add EOD simulated-environment disclaimer text to the HTML statement template in `src/main/resources/templates/settlement/statement.html`
+- [x] T032 [US2] Implement `StatementService` to assemble per-account daily statements from ledger entries, positions, and EOD MTM in `src/main/java/com/rnexchange/service/settlement/StatementService.java`
+- [x] T033 [P] [US2] Implement REST endpoint GET `/api/statements` returning `StatementSummary` list for the authenticated trader in `src/main/java/com/rnexchange/web/rest/settlement/StatementResource.java` with `@PreAuthorize("hasRole('TRADER')")`
+- [x] T034 [P] [US2] Implement REST endpoint GET `/api/statements/{statementId}/html` rendering an HTML statement in `src/main/java/com/rnexchange/web/rest/settlement/StatementResource.java`
+- [x] T035 [US2] Enforce ownership checks in `StatementService` / `StatementResource` so traders can only access their own statements
+- [x] T036 [US2] Add EOD simulated-environment disclaimer text to the HTML statement template in `src/main/resources/templates/settlement/statement.html`
 
 ### UI for User Story 2 — Trader “Statements” screen
 
-- [ ] T037 [P] [US2] Implement Trader “Statements” page listing `StatementSummary` rows in `src/main/webapp/app/modules/trader/statements/index.tsx`
-- [ ] T038 [P] [US2] Implement frontend service for statements APIs in `src/main/webapp/app/modules/trader/statements/services/statements.service.ts`
-- [ ] T039 [US2] Wire “View” link to open the `htmlUrl` in a new tab and ensure TRADER-only route guard in `src/main/webapp/app/modules/trader/statements/index.tsx`
+- [x] T037 [P] [US2] Implement Trader “Statements” page listing `StatementSummary` rows in `src/main/webapp/app/modules/trader/statements/index.tsx`
+- [x] T038 [P] [US2] Implement frontend service for statements APIs in `src/main/webapp/app/modules/trader/statements/services/statements.service.ts`
+- [x] T039 [US2] Wire “View” link to open the `htmlUrl` in a new tab and ensure TRADER-only route guard in `src/main/webapp/app/modules/trader/statements/index.tsx`
 - [ ] T040 [P] [US2] Jest tests for Trader statements list and “View” behavior in `src/test/javascript/spec/settlement/TraderStatements.spec.tsx`
 - [ ] T041 [P] [US2] Cypress E2E for a trader viewing statements after EOD in `src/test/javascript/cypress/e2e/trader_statements.cy.ts`
 

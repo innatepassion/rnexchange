@@ -7,4 +7,5 @@ public enum SettlementStatus {
     CREATED,
     PROCESSED,
     REVERSED,
+    FAILED,
 }
