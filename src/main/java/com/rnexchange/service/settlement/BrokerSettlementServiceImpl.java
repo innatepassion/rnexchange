@@ -57,12 +57,16 @@ public class BrokerSettlementServiceImpl implements BrokerSettlementService {
     public List<BrokerSettlementSummary> getBrokerSettlements(LocalDate fromDate, LocalDate toDate) {
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
 
-        BrokerDesk brokerDesk = brokerDeskRepository
-            .findByUserLogin(login)
-            .orElseThrow(() -> new AccessDeniedException("Broker desk not found for user: " + login));
+        Optional<BrokerDesk> brokerDeskOpt = brokerDeskRepository.findByUserLogin(login);
+        if (brokerDeskOpt.isEmpty()) {
+            LOG.warn("Broker desk not found for user '{}'; returning empty broker settlement list", login);
+            return Collections.emptyList();
+        }
+        BrokerDesk brokerDesk = brokerDeskOpt.get();
 
         if (brokerDesk.getBroker() == null) {
-            throw new AccessDeniedException("Broker desk is not associated with a broker");
+            LOG.warn("Broker desk for user '{}' has no associated broker; returning empty broker settlement list", login);
+            return Collections.emptyList();
         }
 
         Broker broker = brokerDesk.getBroker();

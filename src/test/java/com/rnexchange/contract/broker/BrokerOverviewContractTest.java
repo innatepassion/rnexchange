@@ -9,10 +9,14 @@ import com.rnexchange.IntegrationTest;
 import com.rnexchange.service.dto.BrokerOverviewDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest
+@AutoConfigureMockMvc
+@WithMockUser(username = "brokeradmin", roles = { "BROKER_ADMIN" })
 class BrokerOverviewContractTest {
 
     @Autowired

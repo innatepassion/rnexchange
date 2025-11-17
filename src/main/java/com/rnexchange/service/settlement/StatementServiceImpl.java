@@ -52,9 +52,12 @@ public class StatementServiceImpl implements StatementService {
     public List<StatementSummary> getStatementsForTrader(LocalDate fromDate, LocalDate toDate) {
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("User not authenticated"));
 
-        TraderProfile trader = traderProfileRepository
-            .findOneByUserLogin(login)
-            .orElseThrow(() -> new AccessDeniedException("Trader profile not found for user: " + login));
+        Optional<TraderProfile> traderOpt = traderProfileRepository.findOneByUserLogin(login);
+        if (traderOpt.isEmpty()) {
+            LOG.warn("Trader profile not found for user '{}'; returning empty statement list", login);
+            return Collections.emptyList();
+        }
+        TraderProfile trader = traderOpt.get();
 
         // Get all trading accounts for this trader
         List<TradingAccount> accounts = tradingAccountRepository

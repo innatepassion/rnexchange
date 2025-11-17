@@ -46,6 +46,7 @@ class RunEodSettlementContractTest {
     }
 
     @Test
+    @WithMockUser(username = "some-user", roles = { "TRADER" })
     void shouldRejectRequestWithoutExchangeOperatorRole() throws Exception {
         LocalDate tradeDate = LocalDate.now();
         String dateParam = tradeDate.toString();

@@ -50,6 +50,7 @@ class ListStatementsContractTest {
     }
 
     @Test
+    @WithMockUser(username = "some-user", roles = { "EXCHANGE_OPERATOR" })
     void shouldRejectRequestWithoutTraderRole() throws Exception {
         mockMvc.perform(get("/api/statements").accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }

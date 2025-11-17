@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnexchange.IntegrationTest;
+import com.rnexchange.domain.TradingAccount;
+import com.rnexchange.repository.TradingAccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,8 +31,21 @@ class CreateLedgerEntryContractTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TradingAccountRepository tradingAccountRepository;
+
+    private Long anyTradingAccountId() {
+        return tradingAccountRepository
+            .findAll()
+            .stream()
+            .map(TradingAccount::getId)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No TradingAccount found for contract test"));
+    }
+
     @Test
     void shouldAcceptValidLedgerEntryAndReturn201() throws Exception {
+        Long accountId = anyTradingAccountId();
         String body =
             """
             {
@@ -40,10 +55,10 @@ class CreateLedgerEntryContractTest {
               "ccy": "USD",
               "description": "Test credit entry",
               "tradingAccount": {
-                "id": 1
+                "id": %d
               }
             }
-            """;
+            """.formatted(accountId);
 
         var mvcResult = mockMvc
             .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(body))
@@ -77,20 +92,27 @@ class CreateLedgerEntryContractTest {
 
     @Test
     void shouldAllowNegativeBalanceAfter() throws Exception {
+        TradingAccount account = tradingAccountRepository
+            .findAll()
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No TradingAccount found for contract test"));
+        Long accountId = account.getId();
+        java.math.BigDecimal debitAmount = account.getBalance().add(new java.math.BigDecimal("50.00"));
         String body =
             """
             {
               "createdAt": "2024-01-15T10:00:00Z",
               "type": "DEBIT",
-              "amount": 150.00,
+              "amount": %s,
               "ccy": "USD",
               "description": "Test debit that results in negative balance",
               "balanceAfter": -50.00,
               "tradingAccount": {
-                "id": 1
+                "id": %d
               }
             }
-            """;
+            """.formatted(debitAmount, accountId);
 
         var mvcResult = mockMvc
             .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(body))

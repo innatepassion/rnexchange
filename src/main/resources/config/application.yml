@@ -175,6 +175,13 @@ server:
 springdoc:
   show-actuator: true
 
+# Base path for generated OpenAPI (api-first) controllers.
+# We keep these under a separate prefix so that legacy `/api/**` JHipster
+# resources remain the primary handlers for application traffic and tests.
+openapi:
+  rnexchange:
+    base-path: /openapi
+
 # Properties to be exposed on the /info management endpoint
 info:
   # Comma separated list of profiles that will trigger the ribbon to show

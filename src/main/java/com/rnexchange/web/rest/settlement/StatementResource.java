@@ -81,6 +81,9 @@ public class StatementResource {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_HTML);
             return ResponseEntity.ok().headers(headers).body(html);
+        } catch (IllegalArgumentException e) {
+            LOG.warn("[correlationId={}] Failed to get HTML statement for statementId {}: {}", correlationId, statementId, e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             LOG.error(
                 "[correlationId={}] Failed to get HTML statement for statementId {}: {}",

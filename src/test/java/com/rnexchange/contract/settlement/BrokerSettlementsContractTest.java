@@ -60,6 +60,7 @@ class BrokerSettlementsContractTest {
     }
 
     @Test
+    @WithMockUser(username = "some-user", roles = { "TRADER" })
     void shouldRejectRequestWithoutBrokerAdminRole() throws Exception {
         mockMvc.perform(get("/api/broker/settlements").accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }

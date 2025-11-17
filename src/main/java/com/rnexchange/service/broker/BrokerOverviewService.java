@@ -52,9 +52,16 @@ public class BrokerOverviewService {
     }
 
     public BrokerOverviewDTO computeOverview(Long brokerId) {
-        Broker broker = brokerRepository
-            .findById(brokerId)
-            .orElseThrow(() -> new IllegalArgumentException("Broker not found: " + brokerId));
+        java.util.Optional<Broker> brokerOpt = brokerRepository.findById(brokerId);
+        if (brokerOpt.isEmpty()) {
+            BrokerOverviewDTO dto = new BrokerOverviewDTO();
+            dto.setActiveTraderCount(0L);
+            dto.setTotalCash(BigDecimal.ZERO);
+            dto.setTotalEquityExposure(BigDecimal.ZERO);
+            dto.setGeneratedAt(Instant.now());
+            return dto;
+        }
+        Broker broker = brokerOpt.get();
 
         // Count distinct traders under the broker (via TradingAccount join)
         Page<?> tradersPage = traderProfileRepository.findByBrokerId(brokerId, PageRequest.of(0, 1));

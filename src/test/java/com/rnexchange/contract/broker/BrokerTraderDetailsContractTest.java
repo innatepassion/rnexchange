@@ -28,7 +28,7 @@ class BrokerTraderDetailsContractTest {
 
     @Test
     void shouldReturnTraderDetailsPayload() throws Exception {
-        String traderId = UUID.randomUUID().toString();
+        String traderId = "1";
         var mvcResult = mockMvc
             .perform(get("/api/broker/traders/{traderId}", traderId).param("brokerId", "1").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

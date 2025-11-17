@@ -54,6 +54,7 @@ class ListSettlementBatchesContractTest {
     }
 
     @Test
+    @WithMockUser(username = "some-user", roles = { "TRADER" })
     void shouldRejectRequestWithoutExchangeOperatorRole() throws Exception {
         LocalDate from = LocalDate.now().minusDays(7);
         LocalDate to = LocalDate.now();
