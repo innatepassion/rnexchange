@@ -2,6 +2,7 @@ package com.rnexchange.web.rest;
 
 import com.rnexchange.repository.LedgerEntryRepository;
 import com.rnexchange.security.AuthoritiesConstants;
+import com.rnexchange.security.SecurityUtils;
 import com.rnexchange.service.LedgerEntryQueryService;
 import com.rnexchange.service.LedgerEntryService;
 import com.rnexchange.service.criteria.LedgerEntryCriteria;
@@ -14,8 +15,10 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +40,7 @@ import tech.jhipster.web.util.ResponseUtil;
 public class LedgerEntryResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(LedgerEntryResource.class);
+    private static final String CORRELATION_ID_KEY = "correlationId";
 
     private static final String ENTITY_NAME = "ledgerEntry";
 
@@ -71,14 +75,60 @@ public class LedgerEntryResource {
     @PostMapping("")
     @PreAuthorize("hasRole('" + AuthoritiesConstants.BROKER_ADMIN + "')")
     public ResponseEntity<LedgerEntryDTO> createLedgerEntry(@Valid @RequestBody LedgerEntryDTO ledgerEntryDTO) throws URISyntaxException {
-        LOG.debug("REST request to save LedgerEntry : {}", ledgerEntryDTO);
-        if (ledgerEntryDTO.getId() != null) {
-            throw new BadRequestAlertException("A new ledgerEntry cannot already have an ID", ENTITY_NAME, "idexists");
+        String correlationId = UUID.randomUUID().toString();
+        MDC.put(CORRELATION_ID_KEY, correlationId);
+        String userId = null;
+        String role = null;
+        try {
+            userId = SecurityUtils.getCurrentUserLogin().orElse("unknown");
+            role = "BROKER_ADMIN";
+            LOG.info(
+                "[correlationId={}] [userId={}] [role={}] [flow=broker_funds_journal] REST request to create ledger entry: type={}, amount={}, tradingAccountId={}",
+                correlationId,
+                userId,
+                role,
+                ledgerEntryDTO.getType(),
+                ledgerEntryDTO.getAmount(),
+                ledgerEntryDTO.getTradingAccount() != null ? ledgerEntryDTO.getTradingAccount().getId() : "null"
+            );
+            if (ledgerEntryDTO.getId() != null) {
+                throw new BadRequestAlertException("A new ledgerEntry cannot already have an ID", ENTITY_NAME, "idexists");
+            }
+            ledgerEntryDTO = ledgerEntryService.save(ledgerEntryDTO);
+            LOG.info(
+                "[correlationId={}] [userId={}] [role={}] [flow=broker_funds_journal] [outcome=success] Ledger entry created successfully: ledgerEntryId={}, type={}, amount={}",
+                correlationId,
+                userId,
+                role,
+                ledgerEntryDTO.getId(),
+                ledgerEntryDTO.getType(),
+                ledgerEntryDTO.getAmount()
+            );
+            return ResponseEntity.created(new URI("/api/ledger-entries/" + ledgerEntryDTO.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, ledgerEntryDTO.getId().toString()))
+                .body(ledgerEntryDTO);
+        } catch (BadRequestAlertException e) {
+            LOG.warn(
+                "[correlationId={}] [userId={}] [role={}] [flow=broker_funds_journal] [outcome=rejected] Ledger entry creation rejected: {}",
+                correlationId,
+                userId,
+                role,
+                e.getMessage()
+            );
+            throw e;
+        } catch (Exception e) {
+            LOG.error(
+                "[correlationId={}] [userId={}] [role={}] [flow=broker_funds_journal] [outcome=error] Error creating ledger entry: {}",
+                correlationId,
+                userId,
+                role,
+                e.getMessage(),
+                e
+            );
+            throw e;
+        } finally {
+            MDC.remove(CORRELATION_ID_KEY);
         }
-        ledgerEntryDTO = ledgerEntryService.save(ledgerEntryDTO);
-        return ResponseEntity.created(new URI("/api/ledger-entries/" + ledgerEntryDTO.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, ledgerEntryDTO.getId().toString()))
-            .body(ledgerEntryDTO);
     }
 
     /**

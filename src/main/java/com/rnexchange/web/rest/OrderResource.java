@@ -25,9 +25,11 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +50,7 @@ import tech.jhipster.web.util.ResponseUtil;
 public class OrderResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderResource.class);
+    private static final String CORRELATION_ID_KEY = "correlationId";
 
     private static final String ENTITY_NAME = "order";
 
@@ -290,27 +293,42 @@ public class OrderResource {
     @PostMapping("/trading")
     @Transactional
     public ResponseEntity<OrderDTO> placeTradingOrder(@Valid @RequestBody OrderDTO orderDTO) throws URISyntaxException {
-        LOG.debug("REST request to place trading order: {}", orderDTO);
-
-        if (orderDTO.getId() != null) {
-            throw new BadRequestAlertException("A new order cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-
-        // Validate required fields for trading order
-        if (orderDTO.getInstrument() == null) {
-            throw new BadRequestAlertException("Instrument is required for trading order", ENTITY_NAME, "missinginstrument");
-        }
-        if (orderDTO.getQty() == null) {
-            throw new BadRequestAlertException("Quantity is required", ENTITY_NAME, "missingqty");
-        }
-        if (orderDTO.getSide() == null) {
-            throw new BadRequestAlertException("Side (BUY/SELL) is required", ENTITY_NAME, "missingside");
-        }
-        if (orderDTO.getType() == null) {
-            throw new BadRequestAlertException("Order type is required", ENTITY_NAME, "missingtype");
-        }
-
+        String correlationId = UUID.randomUUID().toString();
+        MDC.put(CORRELATION_ID_KEY, correlationId);
+        String userId = null;
+        String role = null;
         try {
+            userId = SecurityUtils.getCurrentUserLogin().orElse("unknown");
+            role = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.TRADER) ? "TRADER" : "UNKNOWN";
+            LOG.info(
+                "[correlationId={}] [userId={}] [role={}] [flow=trader_trade] REST request to place trading order: instrument={}, side={}, qty={}, type={}",
+                correlationId,
+                userId,
+                role,
+                orderDTO.getInstrument() != null ? orderDTO.getInstrument().getSymbol() : "null",
+                orderDTO.getSide(),
+                orderDTO.getQty(),
+                orderDTO.getType()
+            );
+
+            if (orderDTO.getId() != null) {
+                throw new BadRequestAlertException("A new order cannot already have an ID", ENTITY_NAME, "idexists");
+            }
+
+            // Validate required fields for trading order
+            if (orderDTO.getInstrument() == null) {
+                throw new BadRequestAlertException("Instrument is required for trading order", ENTITY_NAME, "missinginstrument");
+            }
+            if (orderDTO.getQty() == null) {
+                throw new BadRequestAlertException("Quantity is required", ENTITY_NAME, "missingqty");
+            }
+            if (orderDTO.getSide() == null) {
+                throw new BadRequestAlertException("Side (BUY/SELL) is required", ENTITY_NAME, "missingside");
+            }
+            if (orderDTO.getType() == null) {
+                throw new BadRequestAlertException("Order type is required", ENTITY_NAME, "missingtype");
+            }
+
             // Get current trader
             String traderLogin = SecurityUtils.getCurrentUserLogin()
                 .orElseThrow(() -> new BadRequestAlertException("Unable to determine current trader", ENTITY_NAME, "nologin"));
@@ -353,17 +371,58 @@ public class OrderResource {
 
             // Return processed order
             OrderDTO result = orderMapper.toDto(processedOrder);
+            LOG.info(
+                "[correlationId={}] [userId={}] [role={}] [flow=trader_trade] [outcome=success] Order placed successfully: orderId={}, status={}, instrument={}",
+                correlationId,
+                userId,
+                role,
+                result.getId(),
+                result.getStatus(),
+                instrument.getSymbol()
+            );
             HttpHeaders headers = HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString());
             return ResponseEntity.created(new URI("/api/orders/" + result.getId())).headers(headers).body(result);
         } catch (BadRequestAlertException e) {
+            LOG.warn(
+                "[correlationId={}] [userId={}] [role={}] [flow=trader_trade] [outcome=rejected] Order placement rejected: {}",
+                correlationId,
+                userId,
+                role,
+                e.getMessage()
+            );
             throw e;
         } catch (UnsupportedOperationException e) {
+            LOG.error(
+                "[correlationId={}] [userId={}] [role={}] [flow=trader_trade] [outcome=error] Unsupported operation: {}",
+                correlationId,
+                userId,
+                role,
+                e.getMessage(),
+                e
+            );
             throw new BadRequestAlertException(e.getMessage(), ENTITY_NAME, "notsupported");
         } catch (IllegalArgumentException e) {
+            LOG.error(
+                "[correlationId={}] [userId={}] [role={}] [flow=trader_trade] [outcome=error] Invalid argument: {}",
+                correlationId,
+                userId,
+                role,
+                e.getMessage(),
+                e
+            );
             throw new BadRequestAlertException(e.getMessage(), ENTITY_NAME, "invalidrequest");
         } catch (Exception e) {
-            LOG.error("Error placing trading order", e);
+            LOG.error(
+                "[correlationId={}] [userId={}] [role={}] [flow=trader_trade] [outcome=error] Error placing trading order: {}",
+                correlationId,
+                userId,
+                role,
+                e.getMessage(),
+                e
+            );
             throw new BadRequestAlertException("Error processing order: " + e.getMessage(), ENTITY_NAME, "processerror");
+        } finally {
+            MDC.remove(CORRELATION_ID_KEY);
         }
     }
 }
