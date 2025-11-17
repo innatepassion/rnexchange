@@ -102,12 +102,11 @@
 
     <changeSet id="20251117000000-4-demo-trading-account" author="m6-phase2" context="baseline">
         <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM trading_account WHERE trader_id IN (SELECT id FROM trader_profile WHERE email = 'trader.demo@rnexchange.test')</sqlCheck>
-        </preConditions>
-        
-        <!-- Ensure RN_DEMO broker exists (from baseline seed) -->
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM broker WHERE code = 'RN_DEMO'</sqlCheck>
+            <and>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM trading_account WHERE trader_id IN (SELECT id FROM trader_profile WHERE email = 'trader.demo@rnexchange.test')</sqlCheck>
+                <!-- Ensure RN_DEMO broker exists (from baseline seed) -->
+                <sqlCheck expectedResult="1">SELECT COUNT(*) FROM broker WHERE code = 'RN_DEMO'</sqlCheck>
+            </and>
         </preConditions>
         
         <insert tableName="trading_account">
@@ -124,12 +123,11 @@
 
     <changeSet id="20251117000000-5-demo-broker-desk" author="m6-phase2" context="baseline">
         <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM broker_desk WHERE user_id IN (SELECT id FROM jhi_user WHERE login = 'broker_demo')</sqlCheck>
-        </preConditions>
-        
-        <!-- Ensure RN_DEMO broker exists -->
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM broker WHERE code = 'RN_DEMO'</sqlCheck>
+            <and>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM broker_desk WHERE user_id IN (SELECT id FROM jhi_user WHERE login = 'broker_demo')</sqlCheck>
+                <!-- Ensure RN_DEMO broker exists -->
+                <sqlCheck expectedResult="1">SELECT COUNT(*) FROM broker WHERE code = 'RN_DEMO'</sqlCheck>
+            </and>
         </preConditions>
         
         <insert tableName="broker_desk">
@@ -142,16 +140,16 @@
 
     <changeSet id="20251117000000-6-demo-exchange-operator" author="m6-phase2" context="baseline">
         <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM exchange_operator WHERE user_id IN (SELECT id FROM jhi_user WHERE login = 'exchange_demo')</sqlCheck>
-        </preConditions>
-        
-        <!-- Ensure NSE exchange exists (from baseline seed) -->
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM exchange WHERE code = 'NSE'</sqlCheck>
+            <and>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM exchange_operator WHERE user_id IN (SELECT id FROM jhi_user WHERE login = 'exchange_demo')</sqlCheck>
+                <!-- Ensure NSE exchange exists (from baseline seed) -->
+                <sqlCheck expectedResult="1">SELECT COUNT(*) FROM exchange WHERE code = 'NSE'</sqlCheck>
+            </and>
         </preConditions>
         
         <insert tableName="exchange_operator">
             <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Demo Exchange Operator"/>
             <column name="exchange_id" valueComputed="(SELECT id FROM exchange WHERE code = 'NSE')"/>
             <column name="user_id" valueComputed="(SELECT id FROM jhi_user WHERE login = 'exchange_demo')"/>
         </insert>

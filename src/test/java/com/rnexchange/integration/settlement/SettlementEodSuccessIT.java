@@ -266,10 +266,10 @@ class SettlementEodSuccessIT {
         account2.setStatus(AccountStatus.ACTIVE);
         account2.setBroker(broker);
         account2.setTrader(trader);
-        account2 = tradingAccountRepository.save(account2);
+        TradingAccount savedAccount2 = tradingAccountRepository.save(account2);
 
         Position position2 = new Position();
-        position2.setTradingAccount(account2);
+        position2.setTradingAccount(savedAccount2);
         position2.setInstrument(instrument);
         position2.setQty(BigDecimal.valueOf(50));
         position2.setAvgCost(BigDecimal.valueOf(60.00));
@@ -297,13 +297,15 @@ class SettlementEodSuccessIT {
         assertThat(updatedPos2.getLastPx()).isEqualByComparingTo(settlementPrice.getSettlePrice());
 
         // Verify ledger entries for both accounts
+        Long accountId = account.getId();
+        Long account2Id = savedAccount2.getId();
         List<LedgerEntry> allEodEntries = ledgerEntryRepository
             .findAll()
             .stream()
             .filter(
                 le ->
                     le.getTradingAccount() != null &&
-                    (le.getTradingAccount().getId().equals(account.getId()) || le.getTradingAccount().getId().equals(account2.getId())) &&
+                    (le.getTradingAccount().getId().equals(accountId) || le.getTradingAccount().getId().equals(account2Id)) &&
                     (le.getType() == LedgerEntryType.EOD_MTM_CREDIT || le.getType() == LedgerEntryType.EOD_MTM_DEBIT) &&
                     le.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDate().equals(tradeDate) &&
                     (le.getReference() == null || !le.getReference().startsWith("SUPERSEDED-"))

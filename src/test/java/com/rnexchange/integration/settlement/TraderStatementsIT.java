@@ -67,11 +67,12 @@ class TraderStatementsIT {
     private TradingAccount testAccount;
     private TraderProfile testTrader;
     private LocalDate testDate;
+    private Exchange exchange;
 
     @BeforeEach
     void setUp() {
         // Create test data
-        Exchange exchange = exchangeRepository
+        exchange = exchangeRepository
             .findAll()
             .stream()
             .findFirst()
@@ -160,7 +161,7 @@ class TraderStatementsIT {
                 inst.setLotSize(10L);
                 inst.setCurrency(Currency.INR);
                 inst.setStatus("active");
-                inst.setExchange(exchangeRepository.findAll().stream().findFirst().orElse(exchange));
+                inst.setExchange(exchange);
                 return instrumentRepository.save(inst);
             });
 

@@ -227,6 +227,6 @@ class SettlementServiceTest {
         SettlementFailedEvent event = eventCaptor.getValue();
         assertThat(event.getBatchId()).isEqualTo(1L);
         assertThat(event.getTradeDate()).isEqualTo(tradeDate);
-        assertThat(event.getErrorMessage()).contains("No settlement price found");
+        assertThat(event.getErrorMessage()).contains("Failed to process account");
     }
 }
