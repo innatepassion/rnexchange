@@ -53,11 +53,16 @@ const RoleHelpPanel: React.FC = () => {
                 <Translate contentKey={`${helpKey}.responsibilities.title`}>Your Responsibilities</Translate>
               </h4>
               <ul>
-                {[1, 2, 3, 4, 5].map(i => (
-                  <li key={i}>
-                    <Translate contentKey={`${helpKey}.responsibilities.items.${i - 1}`}>Responsibility {String(i)}</Translate>
-                  </li>
-                ))}
+                {[0, 1, 2, 3, 4].map(i => {
+                  const key = `${helpKey}.responsibilities.items.${i}`;
+                  return (
+                    <li key={i}>
+                      <Translate contentKey={key} defaultValue={key.includes('translation-not-found') ? '' : undefined}>
+                        Responsibility {String(i + 1)}
+                      </Translate>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
 
@@ -66,7 +71,7 @@ const RoleHelpPanel: React.FC = () => {
                 <Translate contentKey={`${helpKey}.screens.title`}>Main Screens</Translate>
               </h4>
               <ul>
-                {[0, 1, 2, 3].map(i => (
+                {[0, 1, 2, 3, 4].map(i => (
                   <li key={i}>
                     <strong>
                       <Translate contentKey={`${helpKey}.screens.items.${i}.name`}>Screen name</Translate>
@@ -82,14 +87,18 @@ const RoleHelpPanel: React.FC = () => {
                 <Translate contentKey={`${helpKey}.flows.title`}>Key Flows</Translate>
               </h4>
               <ol>
-                {[1, 2, 3, 4, 5, 6].map(step => (
-                  <li key={step}>
-                    <strong>
-                      <Translate contentKey={`${helpKey}.flows.items.${step - 1}.title`}>Step {String(step)} title</Translate>
-                    </strong>
-                    : <Translate contentKey={`${helpKey}.flows.items.${step - 1}.description`}>Step {String(step)} description</Translate>
-                  </li>
-                ))}
+                {[0, 1, 2, 3, 4, 5].map(step => {
+                  const titleKey = `${helpKey}.flows.items.${step}.title`;
+                  const descKey = `${helpKey}.flows.items.${step}.description`;
+                  return (
+                    <li key={step}>
+                      <strong>
+                        <Translate contentKey={titleKey}>Step {String(step + 1)} title</Translate>
+                      </strong>
+                      : <Translate contentKey={descKey}>Step {String(step + 1)} description</Translate>
+                    </li>
+                  );
+                })}
               </ol>
             </section>
 

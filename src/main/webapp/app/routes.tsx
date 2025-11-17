@@ -35,6 +35,11 @@ const BrokerJournal = Loadable({
   loading: () => loading,
 });
 
+const BrokerJournalEntries = Loadable({
+  loader: () => import(/* webpackChunkName: "broker-journal-entries" */ 'app/modules/broker/journal-entries'),
+  loading: () => loading,
+});
+
 const TraderDashboard = Loadable({
   loader: () => import(/* webpackChunkName: "trader-dashboard" */ 'app/modules/trader'),
   loading: () => loading,
@@ -147,6 +152,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BROKER_ADMIN]}>
               <BrokerJournal />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="broker/journal-entries"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.BROKER_ADMIN]}>
+              <BrokerJournalEntries />
             </PrivateRoute>
           }
         />

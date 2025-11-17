@@ -28,6 +28,10 @@
         "description": "Create credit or debit journal entries to adjust trader account balances"
       },
       {
+        "name": "View Journal Entries",
+        "description": "Search, filter, and view all journal entries with pagination. Filter by type, search by description, and view detailed entry information"
+      },
+      {
         "name": "Settlements",
         "description": "View settlement batches and access trader statements after end-of-day processing"
       }
@@ -37,27 +41,26 @@
     "title": "Key Flows You Can Perform",
     "items": [
       {
-        "step": 1,
         "title": "View Trader List",
         "description": "Go to Clients to see all traders under your broker, their balances, and status"
       },
       {
-        "step": 2,
         "title": "Credit Funds to a Trader",
         "description": "Navigate to Funds Journal, select a trader, choose Credit, enter amount and reason, then submit"
       },
       {
-        "step": 3,
         "title": "Debit Funds from a Trader",
         "description": "In Funds Journal, select a trader, choose Debit, enter amount and reason. Note: Negative balances are allowed but will be flagged"
       },
       {
-        "step": 4,
+        "title": "View Journal Entries",
+        "description": "Navigate to View Journal Entries to search, filter, and view all journal entries with pagination"
+      },
+      {
         "title": "Monitor Account Status",
         "description": "Check the Clients list or individual trader details to see if accounts are negative or at-risk"
       },
       {
-        "step": 5,
         "title": "Review Trader Statements",
         "description": "After end-of-day processing, access trader statements to verify balances and P&L reconciliation"
       }

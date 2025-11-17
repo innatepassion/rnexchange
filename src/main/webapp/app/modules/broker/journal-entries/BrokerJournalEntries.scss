@@ -1,0 +1,22 @@
+.broker-journal-entries-page {
+  padding: 20px;
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  .table-responsive {
+    margin-top: 20px;
+  }
+
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .input-group {
+    .btn {
+      border-left: none;
+    }
+  }
+}
