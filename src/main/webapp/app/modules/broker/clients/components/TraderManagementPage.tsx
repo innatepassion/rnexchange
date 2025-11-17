@@ -7,6 +7,7 @@ import { getUsers } from 'app/modules/administration/user-management/user-manage
 import { createEntity, updateEntity, deleteEntity, getEntity, getEntities } from 'app/entities/trader-profile/trader-profile.reducer';
 import { getEntity as getTradingAccount } from 'app/entities/trading-account/trading-account.reducer';
 import { ITraderProfile } from 'app/shared/model/trader-profile.model';
+import { ITradingAccount } from 'app/shared/model/trading-account.model';
 import { AccountStatus } from 'app/shared/model/enumerations/account-status.model';
 import { KycStatus } from 'app/shared/model/enumerations/kyc-status.model';
 import JournalForm from './JournalForm';
@@ -52,7 +53,7 @@ const TraderManagementPage: React.FC = () => {
     async (tradingAccountId: string): Promise<number | null> => {
       try {
         const result = await dispatch(getTradingAccount(tradingAccountId));
-        const tradingAccount = result.payload?.data || tradingAccountEntity;
+        const tradingAccount = (result.payload as { data: ITradingAccount } | undefined)?.data || tradingAccountEntity;
         return tradingAccount?.trader?.id || null;
       } catch (err) {
         console.error('Failed to get trading account:', err);
@@ -186,7 +187,7 @@ const TraderManagementPage: React.FC = () => {
       const profileId = await getTraderProfileIdFromTradingAccount(traderId);
       if (profileId) {
         const result = await dispatch(getEntity(profileId));
-        const entity = result.payload?.data || traderProfileEntity;
+        const entity = (result.payload as { data: ITraderProfile } | undefined)?.data || traderProfileEntity;
         if (entity && entity.id) {
           const updatedEntity: ITraderProfile = {
             ...entity,
@@ -207,7 +208,7 @@ const TraderManagementPage: React.FC = () => {
       const profileId = await getTraderProfileIdFromTradingAccount(traderId);
       if (profileId) {
         const result = await dispatch(getEntity(profileId));
-        const entity = result.payload?.data || traderProfileEntity;
+        const entity = (result.payload as { data: ITraderProfile } | undefined)?.data || traderProfileEntity;
         if (entity && entity.id) {
           const updatedEntity: ITraderProfile = {
             ...entity,
