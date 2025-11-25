@@ -214,6 +214,13 @@ public class MockMarketDataService {
             .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> entry.getValue().orElseThrow()));
     }
 
+    /**
+     * Test hook to force immediate tick generation without relying on scheduler cadence.
+     */
+    void triggerTickGeneration() {
+        generateTicksSafe();
+    }
+
     private Map<String, InstrumentState> loadInstrumentStates() {
         List<Instrument> instruments = instrumentRepository.findAll();
         return instruments
@@ -357,7 +364,13 @@ public class MockMarketDataService {
 
     private ExchangeStatusDTO buildExchangeStatus(String exchangeCode, FeedState currentState) {
         ExchangeMetrics metrics = exchangeMetrics.getOrDefault(exchangeCode, new ExchangeMetrics());
-        FeedState exchangeState = lastClosedExchanges.contains(exchangeCode) ? FeedState.HOLIDAY : currentState;
+        LocalDate utcToday = LocalDate.now(clock);
+        LocalDate localToday = LocalDate.now();
+        boolean closedToday =
+            lastClosedExchanges.contains(exchangeCode) ||
+            isExchangeClosed(exchangeCode, utcToday) ||
+            (!localToday.equals(utcToday) && isExchangeClosed(exchangeCode, localToday));
+        FeedState exchangeState = closedToday ? FeedState.HOLIDAY : currentState;
         int ticksPerSecond = exchangeState == FeedState.HOLIDAY ? 0 : metrics.getTicksPerSecond();
         return new ExchangeStatusDTO(
             exchangeCode,
@@ -369,13 +382,16 @@ public class MockMarketDataService {
     }
 
     private Set<String> findClosedExchanges(Set<String> exchanges) {
-        LocalDate today = LocalDate.now(clock);
-        return exchanges.stream().filter(code -> isExchangeClosed(code, today)).collect(Collectors.toUnmodifiableSet());
+        LocalDate utcToday = LocalDate.now(clock);
+        LocalDate localToday = LocalDate.now();
+        return exchanges
+            .stream()
+            .filter(code -> isExchangeClosed(code, utcToday) || (!localToday.equals(utcToday) && isExchangeClosed(code, localToday)))
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     private boolean isExchangeClosed(String exchangeCode, LocalDate date) {
-        List<MarketHoliday> holidays = marketHolidayRepository.findAllByExchange_CodeAndTradeDateAndIsHolidayTrue(exchangeCode, date);
-        return !holidays.isEmpty();
+        return !marketHolidayRepository.findAllByExchange_CodeAndTradeDateAndIsHolidayTrue(exchangeCode, date).isEmpty();
     }
 
     private static class ExchangeMetrics {
