@@ -25,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @IntegrationTest
 @RecordApplicationEvents
@@ -47,6 +50,9 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @BeforeEach
     void assertServicePresent() {
@@ -139,10 +145,15 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
 
     @Test
     void holidayExchangeRemainsInactiveWhileOthersTick() {
-        seedInstrument("NSESTAR", "NSE");
-        seedInstrument("BSESTAR", "BSE");
-        insertHoliday("NSE", LocalDate.now());
-        entityManager.flush();
+        // Insert instruments and holiday in a separate committed transaction so MockMarketDataService can see them
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        transactionTemplate.executeWithoutResult(status -> {
+            seedInstrument("NSESTAR", "NSE");
+            seedInstrument("BSESTAR", "BSE");
+            insertHoliday("NSE", LocalDate.now());
+            entityManager.flush();
+        });
         entityManager.clear();
 
         mockMarketDataService.start();
@@ -179,8 +190,15 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
 
     @Test
     void restartAfterNewHolidayPreventsImpactedExchangeFromTicking() {
-        seedInstrument("NIFTY50", "NSE");
-        seedInstrument("BSE100", "BSE");
+        // Commit instruments in a separate transaction so MockMarketDataService can see them
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        transactionTemplate.executeWithoutResult(status -> {
+            seedInstrument("NIFTY50", "NSE");
+            seedInstrument("BSE100", "BSE");
+            entityManager.flush();
+        });
+        entityManager.clear();
 
         mockMarketDataService.start();
         Awaitility.await()
@@ -194,9 +212,13 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
             );
         mockMarketDataService.stop();
 
-        insertHoliday("NSE", LocalDate.now());
-        entityManager.flush();
+        // Insert holiday in a separate committed transaction so MockMarketDataService can see it
+        transactionTemplate.executeWithoutResult(status -> {
+            insertHoliday("NSE", LocalDate.now());
+            entityManager.flush();
+        });
         entityManager.clear();
+
         mockMarketDataService.start();
 
         Awaitility.await()

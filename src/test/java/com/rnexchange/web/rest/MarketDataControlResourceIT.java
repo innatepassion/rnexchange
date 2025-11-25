@@ -12,6 +12,8 @@ import com.rnexchange.domain.enumeration.ExchangeStatus;
 import com.rnexchange.repository.ExchangeRepository;
 import com.rnexchange.repository.InstrumentRepository;
 import com.rnexchange.service.dto.FeedState;
+import com.rnexchange.service.marketdata.MockMarketDataService;
+import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,8 +41,19 @@ class MarketDataControlResourceIT {
     @Autowired
     private ExchangeRepository exchangeRepository;
 
+    @Autowired(required = false)
+    private MockMarketDataService mockMarketDataService;
+
+    @Autowired
+    private EntityManager entityManager;
+
     @BeforeEach
     void setUp() {
+        // Stop the service to ensure clean state
+        if (mockMarketDataService != null) {
+            mockMarketDataService.stop();
+        }
+
         String exchangeCode = "TESTX";
         com.rnexchange.domain.Exchange exchange = exchangeRepository
             .findOneByCode(exchangeCode)
@@ -65,6 +78,8 @@ class MarketDataControlResourceIT {
             .status("ACTIVE")
             .exchange(exchange);
         instrumentRepository.save(instrument);
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @Test
