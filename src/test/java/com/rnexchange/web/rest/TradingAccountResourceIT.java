@@ -21,6 +21,7 @@ import com.rnexchange.repository.TradingAccountRepository;
 import com.rnexchange.service.TradingAccountService;
 import com.rnexchange.service.dto.TradingAccountDTO;
 import com.rnexchange.service.mapper.TradingAccountMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -90,6 +91,9 @@ class TradingAccountResourceIT {
     @Autowired
     private MockMvc restTradingAccountMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private TradingAccount tradingAccount;
 
     private TradingAccount insertedTradingAccount;
@@ -116,6 +120,7 @@ class TradingAccountResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         tradingAccount = createEntity();
     }
 

@@ -127,7 +127,7 @@ public class MockMarketDataService {
 
     @PostConstruct
     void onStartup() {
-        log.info("MockMarketDataService initialised; feed state={}", feedState.get());
+        log.debug("MockMarketDataService initialised; feed state={}", feedState.get());
     }
 
     @PreDestroy
@@ -162,7 +162,7 @@ public class MockMarketDataService {
         Set<String> exchanges = loadedStates.values().stream().map(InstrumentState::getExchangeCode).collect(Collectors.toSet());
         Set<String> closedExchanges = findClosedExchanges(exchanges);
         if (closedExchanges.size() == exchanges.size()) {
-            log.info("All exchanges are closed today; mock feed will remain stopped");
+            log.debug("All exchanges are closed today; mock feed will remain stopped");
             feedState.set(FeedState.STOPPED);
             lastClosedExchanges = closedExchanges;
             return;
@@ -178,7 +178,7 @@ public class MockMarketDataService {
 
         scheduleGenerator();
         eventPublisher.publishEvent(new FeedStartedEvent(new ArrayList<>(exchanges), "manual", startedAt));
-        log.info("Mock market data feed started with {} instruments across {} exchanges", instrumentStates.size(), exchanges.size());
+        log.debug("Mock market data feed started with {} instruments across {} exchanges", instrumentStates.size(), exchanges.size());
     }
 
     public synchronized void stop() {
@@ -200,7 +200,7 @@ public class MockMarketDataService {
         }
         feedState.set(FeedState.STOPPED);
         eventPublisher.publishEvent(new FeedStoppedEvent(List.copyOf(exchangeMetrics.keySet()), "manual", clock.instant(), "STOP_INVOKED"));
-        log.info("Mock market data feed stopped");
+        log.debug("Mock market data feed stopped");
     }
 
     public Map<String, GuardSnapshot> getVolatilitySnapshots() {

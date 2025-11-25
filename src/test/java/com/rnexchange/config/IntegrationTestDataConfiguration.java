@@ -10,6 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,6 +27,7 @@ public class IntegrationTestDataConfiguration {
     private static final String DEFAULT_LANG = "en";
 
     @Bean
+    @ConditionalOnProperty(name = "spring.liquibase.enabled", havingValue = "true", matchIfMissing = true)
     CommandLineRunner integrationTestBaselineSeeder(AuthorityRepository authorityRepository, UserRepository userRepository) {
         return args -> {
             LOG.info("Initializing deterministic authority/user dataset for integration tests");

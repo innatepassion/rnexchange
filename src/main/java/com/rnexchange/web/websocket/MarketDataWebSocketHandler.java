@@ -28,8 +28,8 @@ public class MarketDataWebSocketHandler {
 
     private void sendSafely(Runnable operation, String payloadType, String symbol) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Broadcasting {} update for {}", payloadType, symbol);
+            if (log.isTraceEnabled()) {
+                log.trace("Broadcasting {} update for {}", payloadType, symbol);
             }
             operation.run();
         } catch (RuntimeException ex) {

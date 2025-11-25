@@ -194,7 +194,6 @@ class MarketDataWebSocketIT {
 
                 @Override
                 public void handleFrame(StompHeaders headers, Object payload) {
-                    System.out.println("Received quote via WebSocket: " + payload);
                     quotes.add((QuoteDTO) payload);
                 }
             }
@@ -205,16 +204,12 @@ class MarketDataWebSocketIT {
 
         // Start the feed
         mockMarketDataService.start();
-        System.out.println("Feed started, instruments loaded: " + mockMarketDataService.getStatus().exchanges().size());
 
         // Wait for the first quote to arrive via WebSocket
         // The feed generates ticks every 750ms, so we should receive one within 5 seconds
         QuoteDTO quote = quotes.poll(5, TimeUnit.SECONDS);
 
         // Debug: Print what we got
-        System.out.println("Received quote: " + quote);
-        System.out.println("Feed status: " + mockMarketDataService.getStatus());
-
         assertThat(quote).as("Should receive at least one quote via WebSocket subscription").isNotNull();
         assertThat(quote.symbol()).isEqualTo("WS_SYMBOL");
         assertThat(quote.lastPrice()).isNotNull();

@@ -19,6 +19,7 @@ import com.rnexchange.repository.ContractRepository;
 import com.rnexchange.service.ContractService;
 import com.rnexchange.service.dto.ContractDTO;
 import com.rnexchange.service.mapper.ContractMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -97,6 +98,9 @@ class ContractResourceIT {
     @Autowired
     private MockMvc restContractMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private Contract contract;
 
     private Contract insertedContract;
@@ -135,6 +139,7 @@ class ContractResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         contract = createEntity();
     }
 

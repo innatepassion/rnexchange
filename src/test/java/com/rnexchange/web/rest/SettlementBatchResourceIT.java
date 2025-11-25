@@ -18,6 +18,7 @@ import com.rnexchange.repository.SettlementBatchRepository;
 import com.rnexchange.service.SettlementBatchService;
 import com.rnexchange.service.dto.SettlementBatchDTO;
 import com.rnexchange.service.mapper.SettlementBatchMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -88,6 +89,9 @@ class SettlementBatchResourceIT {
     @Autowired
     private MockMvc restSettlementBatchMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private SettlementBatch settlementBatch;
 
     private SettlementBatch insertedSettlementBatch;
@@ -114,6 +118,7 @@ class SettlementBatchResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         settlementBatch = createEntity();
     }
 

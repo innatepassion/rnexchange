@@ -18,6 +18,7 @@ import com.rnexchange.repository.PositionRepository;
 import com.rnexchange.service.PositionService;
 import com.rnexchange.service.dto.PositionDTO;
 import com.rnexchange.service.mapper.PositionMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -94,6 +95,9 @@ class PositionResourceIT {
     @Autowired
     private MockMvc restPositionMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private Position position;
 
     private Position insertedPosition;
@@ -130,6 +134,7 @@ class PositionResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         position = createEntity();
     }
 

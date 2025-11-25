@@ -66,8 +66,8 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
     }
 
     private void handleConnect(StompHeaderAccessor accessor) {
-        if (log.isDebugEnabled()) {
-            log.debug("Processing WebSocket CONNECT for session {}", accessor.getSessionId());
+        if (log.isTraceEnabled()) {
+            log.trace("Processing WebSocket CONNECT for session {}", accessor.getSessionId());
         }
         String authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(authorizationHeader)) {
@@ -81,8 +81,8 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
             // frame and breaking the feed, log and proceed with the existing
             // Principal (which may be anonymous). Symbol-level authorization
             // is still enforced via WatchlistAuthorizationService.
-            if (log.isDebugEnabled()) {
-                log.debug(
+            if (log.isTraceEnabled()) {
+                log.trace(
                     "WebSocket CONNECT without Authorization header for session {}. Native headers: {}",
                     accessor.getSessionId(),
                     accessor.toNativeHeaderMap()
@@ -124,8 +124,8 @@ public class MarketDataStompInterceptor implements ChannelInterceptor, Ordered {
         }
         if (destination.startsWith("/topic/quotes/") || destination.startsWith("/topic/bars/")) {
             String symbol = destination.substring(destination.lastIndexOf('/') + 1);
-            if (log.isDebugEnabled()) {
-                log.debug("Evaluating subscription for user {} to {}", authentication.getName(), symbol);
+            if (log.isTraceEnabled()) {
+                log.trace("Evaluating subscription for user {} to {}", authentication.getName(), symbol);
             }
             if (!authorizationService.isSymbolAuthorized(authentication.getName(), symbol)) {
                 log.warn("Rejecting subscription for user {} to unauthorized symbol {}", authentication.getName(), symbol);

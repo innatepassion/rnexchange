@@ -19,6 +19,7 @@ import com.rnexchange.repository.InstrumentRepository;
 import com.rnexchange.service.InstrumentService;
 import com.rnexchange.service.dto.InstrumentDTO;
 import com.rnexchange.service.mapper.InstrumentMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -101,6 +102,9 @@ class InstrumentResourceIT {
     @Autowired
     private MockMvc restInstrumentMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private Instrument instrument;
 
     private Instrument insertedInstrument;
@@ -143,6 +147,7 @@ class InstrumentResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         instrument = createEntity();
     }
 

@@ -19,6 +19,7 @@ import com.rnexchange.repository.UserRepository;
 import com.rnexchange.service.TraderProfileService;
 import com.rnexchange.service.dto.TraderProfileDTO;
 import com.rnexchange.service.mapper.TraderProfileMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Random;
@@ -92,6 +93,9 @@ class TraderProfileResourceIT {
     @Autowired
     private MockMvc restTraderProfileMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private TraderProfile traderProfile;
 
     private TraderProfile insertedTraderProfile;
@@ -128,6 +132,7 @@ class TraderProfileResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         traderProfile = createEntity();
     }
 

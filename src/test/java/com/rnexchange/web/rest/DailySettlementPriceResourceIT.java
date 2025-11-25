@@ -17,6 +17,7 @@ import com.rnexchange.repository.DailySettlementPriceRepository;
 import com.rnexchange.service.DailySettlementPriceService;
 import com.rnexchange.service.dto.DailySettlementPriceDTO;
 import com.rnexchange.service.mapper.DailySettlementPriceMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -86,6 +87,9 @@ class DailySettlementPriceResourceIT {
     @Autowired
     private MockMvc restDailySettlementPriceMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private DailySettlementPrice dailySettlementPrice;
 
     private DailySettlementPrice insertedDailySettlementPrice;
@@ -118,6 +122,7 @@ class DailySettlementPriceResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         dailySettlementPrice = createEntity();
     }
 

@@ -18,6 +18,7 @@ import com.rnexchange.repository.UserRepository;
 import com.rnexchange.service.BrokerDeskService;
 import com.rnexchange.service.dto.BrokerDeskDTO;
 import com.rnexchange.service.mapper.BrokerDeskMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Random;
@@ -79,6 +80,9 @@ class BrokerDeskResourceIT {
     @Autowired
     private MockMvc restBrokerDeskMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private BrokerDesk brokerDesk;
 
     private BrokerDesk insertedBrokerDesk;
@@ -105,6 +109,7 @@ class BrokerDeskResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         brokerDesk = createEntity();
     }
 

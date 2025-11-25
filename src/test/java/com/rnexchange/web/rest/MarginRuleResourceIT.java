@@ -17,6 +17,7 @@ import com.rnexchange.repository.MarginRuleRepository;
 import com.rnexchange.service.MarginRuleService;
 import com.rnexchange.service.dto.MarginRuleDTO;
 import com.rnexchange.service.mapper.MarginRuleMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -87,6 +88,9 @@ class MarginRuleResourceIT {
     @Autowired
     private MockMvc restMarginRuleMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private MarginRule marginRule;
 
     private MarginRule insertedMarginRule;
@@ -121,6 +125,7 @@ class MarginRuleResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         marginRule = createEntity();
     }
 

@@ -53,7 +53,7 @@ public class FeedLifecycleAuditListener {
         payload.put("actorRole", resolveActorRole(authentication));
 
         try {
-            AUDIT_LOG.info(objectMapper.writeValueAsString(payload));
+            AUDIT_LOG.debug(objectMapper.writeValueAsString(payload));
         } catch (JsonProcessingException e) {
             LOG.warn("Unable to serialize feed lifecycle audit payload", e);
         }

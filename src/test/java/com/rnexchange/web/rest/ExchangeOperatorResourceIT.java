@@ -18,6 +18,7 @@ import com.rnexchange.repository.UserRepository;
 import com.rnexchange.service.ExchangeOperatorService;
 import com.rnexchange.service.dto.ExchangeOperatorDTO;
 import com.rnexchange.service.mapper.ExchangeOperatorMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Random;
@@ -79,6 +80,9 @@ class ExchangeOperatorResourceIT {
     @Autowired
     private MockMvc restExchangeOperatorMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private ExchangeOperator exchangeOperator;
 
     private ExchangeOperator insertedExchangeOperator;
@@ -105,6 +109,7 @@ class ExchangeOperatorResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         exchangeOperator = createEntity();
     }
 

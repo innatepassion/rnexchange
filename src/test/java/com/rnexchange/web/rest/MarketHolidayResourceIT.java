@@ -16,6 +16,7 @@ import com.rnexchange.repository.MarketHolidayRepository;
 import com.rnexchange.service.MarketHolidayService;
 import com.rnexchange.service.dto.MarketHolidayDTO;
 import com.rnexchange.service.mapper.MarketHolidayMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -83,6 +84,9 @@ class MarketHolidayResourceIT {
     @Autowired
     private MockMvc restMarketHolidayMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private MarketHoliday marketHoliday;
 
     private MarketHoliday insertedMarketHoliday;
@@ -109,6 +113,7 @@ class MarketHolidayResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         marketHoliday = createEntity();
     }
 

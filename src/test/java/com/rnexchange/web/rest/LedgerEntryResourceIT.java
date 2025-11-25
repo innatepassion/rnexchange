@@ -17,6 +17,7 @@ import com.rnexchange.domain.enumeration.LedgerEntryType;
 import com.rnexchange.repository.LedgerEntryRepository;
 import com.rnexchange.service.dto.LedgerEntryDTO;
 import com.rnexchange.service.mapper.LedgerEntryMapper;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -92,6 +93,9 @@ class LedgerEntryResourceIT {
     @Autowired
     private MockMvc restLedgerEntryMockMvc;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private LedgerEntry ledgerEntry;
 
     private LedgerEntry insertedLedgerEntry;
@@ -136,6 +140,7 @@ class LedgerEntryResourceIT {
 
     @BeforeEach
     void initTest() {
+        baselineTruncateService.cleanup();
         ledgerEntry = createEntity();
     }
 
