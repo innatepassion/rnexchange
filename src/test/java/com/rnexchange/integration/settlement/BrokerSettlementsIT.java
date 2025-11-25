@@ -211,6 +211,7 @@ class BrokerSettlementsIT {
                 u.setLogin("brokeradmin");
                 u.setEmail("brokeradmin@example.com");
                 u.setActivated(true);
+                u.setPassword("$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC");
                 return userRepository.save(u);
             });
 
@@ -284,6 +285,7 @@ class BrokerSettlementsIT {
                 u.setLogin("brokeradmin");
                 u.setEmail("brokeradmin@example.com");
                 u.setActivated(true);
+                u.setPassword("$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC");
                 return userRepository.save(u);
             });
 

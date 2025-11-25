@@ -14,6 +14,7 @@ import com.rnexchange.service.dto.FeedState;
 import com.rnexchange.service.dto.FeedStatusDTO;
 import com.rnexchange.service.marketdata.events.FeedStartedEvent;
 import com.rnexchange.service.marketdata.events.FeedStoppedEvent;
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +44,9 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
 
     @Autowired
     private ApplicationEvents applicationEvents;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @BeforeEach
     void assertServicePresent() {
@@ -138,6 +142,8 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
         seedInstrument("NSESTAR", "NSE");
         seedInstrument("BSESTAR", "BSE");
         insertHoliday("NSE", LocalDate.now());
+        entityManager.flush();
+        entityManager.clear();
 
         mockMarketDataService.start();
 
@@ -189,6 +195,8 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
         mockMarketDataService.stop();
 
         insertHoliday("NSE", LocalDate.now());
+        entityManager.flush();
+        entityManager.clear();
         mockMarketDataService.start();
 
         Awaitility.await()

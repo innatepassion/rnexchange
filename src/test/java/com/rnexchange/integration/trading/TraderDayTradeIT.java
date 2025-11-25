@@ -166,6 +166,7 @@ class TraderDayTradeIT {
         order.setQty(orderQuantity);
         order.setStatus(OrderStatus.NEW);
         order.setTif(Tif.DAY);
+        order.setVenue("NSE");
         order.setCreatedAt(Instant.now());
         order.setUpdatedAt(Instant.now());
         order = orderRepository.save(order);
@@ -256,6 +257,7 @@ class TraderDayTradeIT {
         order1.setQty(firstOrderQty);
         order1.setStatus(OrderStatus.NEW);
         order1.setTif(Tif.DAY);
+        order1.setVenue("NSE");
         order1.setCreatedAt(Instant.now());
         order1.setUpdatedAt(Instant.now());
         order1 = orderRepository.save(order1);
@@ -274,6 +276,7 @@ class TraderDayTradeIT {
         order2.setQty(secondOrderQty);
         order2.setStatus(OrderStatus.NEW);
         order2.setTif(Tif.DAY);
+        order2.setVenue("NSE");
         order2.setCreatedAt(Instant.now());
         order2.setUpdatedAt(Instant.now());
         order2 = orderRepository.save(order2);

@@ -6,6 +6,7 @@ import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.*;
 import com.rnexchange.domain.enumeration.*;
 import com.rnexchange.repository.*;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import com.rnexchange.service.settlement.HtmlReportUtils;
 import com.rnexchange.service.settlement.SettlementService;
 import com.rnexchange.service.settlement.StatementService;
@@ -65,6 +66,9 @@ class EodIdempotencyIT {
     @Autowired
     private ReportLinkRepository reportLinkRepository;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private Exchange exchange;
     private Broker broker;
     private TraderProfile trader;
@@ -76,6 +80,7 @@ class EodIdempotencyIT {
 
     @BeforeEach
     void setUp() {
+        baselineTruncateService.cleanup();
         tradeDate = LocalDate.now();
 
         // Create exchange

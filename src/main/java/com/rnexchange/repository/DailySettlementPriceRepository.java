@@ -1,11 +1,13 @@
 package com.rnexchange.repository;
 
 import com.rnexchange.domain.DailySettlementPrice;
+import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -62,6 +64,15 @@ public interface DailySettlementPriceRepository
 
     /**
      * T009/T007: Find the daily settlement price for a given date and instrument id.
+     * If multiple prices exist for the same date and instrument, returns the first one.
      */
-    Optional<DailySettlementPrice> findByRefDateAndInstrument_Id(LocalDate refDate, Long instrumentId);
+    default Optional<DailySettlementPrice> findByRefDateAndInstrument_Id(LocalDate refDate, Long instrumentId) {
+        Specification<DailySettlementPrice> spec = (root, query, cb) -> {
+            Predicate dateMatch = cb.equal(root.get("refDate"), refDate);
+            Predicate instrumentMatch = cb.equal(root.get("instrument").get("id"), instrumentId);
+            return cb.and(dateMatch, instrumentMatch);
+        };
+        List<DailySettlementPrice> prices = findAll(spec);
+        return prices.stream().findFirst();
+    }
 }

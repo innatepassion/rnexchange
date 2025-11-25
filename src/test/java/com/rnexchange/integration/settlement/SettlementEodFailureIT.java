@@ -7,6 +7,7 @@ import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.*;
 import com.rnexchange.domain.enumeration.*;
 import com.rnexchange.repository.*;
+import com.rnexchange.service.seed.BaselineTruncateService;
 import com.rnexchange.service.settlement.SettlementService;
 import com.rnexchange.service.settlement.event.SettlementFailedEvent;
 import java.math.BigDecimal;
@@ -68,6 +69,9 @@ class SettlementEodFailureIT {
     @Autowired
     private ApplicationEvents applicationEvents;
 
+    @Autowired
+    private BaselineTruncateService baselineTruncateService;
+
     private Exchange exchange;
     private Broker broker;
     private TraderProfile trader;
@@ -78,6 +82,7 @@ class SettlementEodFailureIT {
 
     @BeforeEach
     void setUp() {
+        baselineTruncateService.cleanup();
         tradeDate = LocalDate.now();
 
         // Create exchange

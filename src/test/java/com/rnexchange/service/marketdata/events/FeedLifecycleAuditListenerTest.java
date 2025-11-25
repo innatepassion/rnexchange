@@ -2,6 +2,7 @@ package com.rnexchange.service.marketdata.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -27,6 +28,7 @@ class FeedLifecycleAuditListenerTest {
     void setUp() {
         listener = new FeedLifecycleAuditListener(objectMapper);
         Logger auditLogger = (Logger) LoggerFactory.getLogger("com.rnexchange.service.trading.TraderAuditLogger");
+        auditLogger.setLevel(Level.DEBUG);
         listAppender = new ListAppender<>();
         listAppender.start();
         auditLogger.addAppender(listAppender);

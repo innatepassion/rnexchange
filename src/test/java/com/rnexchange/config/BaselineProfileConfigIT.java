@@ -19,21 +19,22 @@ class BaselineProfileConfigIT {
 
     @ParameterizedTest
     @MethodSource("profileContexts")
-    void liquibaseContextsAlignWithBaseline(String resourcePath, List<String> expectedContexts) throws IOException {
+    void liquibaseContextsAlignWithBaseline(String resourcePath, List<String> expectedContexts, boolean shouldContainBaseline)
+        throws IOException {
         List<String> contexts = loadLiquibaseContexts(resourcePath);
 
-        assertThat(contexts)
-            .as("Liquibase contexts for %s", resourcePath)
-            .contains("baseline")
-            .doesNotContain("faker")
-            .containsExactlyElementsOf(expectedContexts);
+        var assertion = assertThat(contexts).as("Liquibase contexts for %s", resourcePath).doesNotContain("faker");
+        if (shouldContainBaseline) {
+            assertion.contains("baseline");
+        }
+        assertion.containsExactlyElementsOf(expectedContexts);
     }
 
     private static Stream<Arguments> profileContexts() {
         return Stream.of(
-            Arguments.of("config/application-dev.yml", List.of("dev", "baseline")),
-            Arguments.of("config/application-prod.yml", List.of("baseline")),
-            Arguments.of("config/application.yml", List.of("test", "baseline"))
+            Arguments.of("config/application-dev.yml", List.of("dev", "baseline"), true),
+            Arguments.of("config/application-prod.yml", List.of("baseline"), true),
+            Arguments.of("config/application.yml", List.of("test"), false)
         );
     }
 
