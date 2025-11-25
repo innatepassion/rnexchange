@@ -63,15 +63,18 @@ public class BrokerJournalService {
                 idempotencyKey
             );
             Optional<IdempotencyToken> existing = idempotencyTokenRepository.findByToken(idempotencyKey);
-            if (existing.isPresent() && existing.get().getLedgerEntry() != null) {
-                log.info(
-                    "[correlationId={}] [flow=broker_funds_journal] [outcome=idempotent_replay] Idempotent replay detected, returning original result: brokerId={}, tradingAccountId={}, idempotencyKey={}",
-                    correlationId,
-                    brokerId,
-                    tradingAccountId,
-                    idempotencyKey
-                );
-                return toResult(existing.get());
+            if (existing.isPresent()) {
+                IdempotencyToken existingToken = existing.orElseThrow();
+                if (existingToken.getLedgerEntry() != null) {
+                    log.info(
+                        "[correlationId={}] [flow=broker_funds_journal] [outcome=idempotent_replay] Idempotent replay detected, returning original result: brokerId={}, tradingAccountId={}, idempotencyKey={}",
+                        correlationId,
+                        brokerId,
+                        tradingAccountId,
+                        idempotencyKey
+                    );
+                    return toResult(existingToken);
+                }
             }
 
             // Find the trading account by ID

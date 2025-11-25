@@ -145,10 +145,18 @@ class BrokerAdminPortfolioResourceIT {
         // Create trader profiles
         traderProfileA = new TraderProfile();
         traderProfileA.setUser(traderUserA);
+        traderProfileA.setDisplayName("Trader A");
+        traderProfileA.setEmail("trader-a@broker.com");
+        traderProfileA.setKycStatus(KycStatus.APPROVED);
+        traderProfileA.setStatus(AccountStatus.ACTIVE);
         traderProfileA = traderProfileRepository.saveAndFlush(traderProfileA);
 
         traderProfileB = new TraderProfile();
         traderProfileB.setUser(traderUserB);
+        traderProfileB.setDisplayName("Trader B");
+        traderProfileB.setEmail("trader-b@broker.com");
+        traderProfileB.setKycStatus(KycStatus.APPROVED);
+        traderProfileB.setStatus(AccountStatus.ACTIVE);
         traderProfileB = traderProfileRepository.saveAndFlush(traderProfileB);
 
         // Create trading accounts for different brokers
@@ -299,6 +307,7 @@ class BrokerAdminPortfolioResourceIT {
         ledgerEntry.setAmount(new BigDecimal("1000.00"));
         ledgerEntry.setType(LedgerEntryType.DEBIT);
         ledgerEntry.setDescription("Order BUY 10 @ 100.00");
+        ledgerEntry.setCcy(Currency.INR);
         ledgerEntry.setTradingAccount(tradingAccountA);
         ledgerEntry.setCreatedAt(Instant.now());
         ledgerEntryRepository.saveAndFlush(ledgerEntry);
@@ -324,6 +333,7 @@ class BrokerAdminPortfolioResourceIT {
         ledgerEntry.setAmount(new BigDecimal("1000.00"));
         ledgerEntry.setType(LedgerEntryType.DEBIT);
         ledgerEntry.setDescription("Order BUY 10 @ 100.00");
+        ledgerEntry.setCcy(Currency.INR);
         ledgerEntry.setTradingAccount(tradingAccountB);
         ledgerEntry.setCreatedAt(Instant.now());
         ledgerEntryRepository.saveAndFlush(ledgerEntry);

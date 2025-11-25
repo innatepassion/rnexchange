@@ -26,7 +26,7 @@ class BrokerJournalAuthIT {
             """;
         mockMvc
             .perform(
-                post("/api/broker/traders/{tradingAccountId}/journal", "00000000-0000-0000-0000-000000000000")
+                post("/api/broker/traders/{tradingAccountId}/journal", 1L)
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .content(body)
@@ -43,7 +43,7 @@ class BrokerJournalAuthIT {
             """;
         mockMvc
             .perform(
-                post("/api/broker/traders/{tradingAccountId}/journal", "00000000-0000-0000-0000-000000000000")
+                post("/api/broker/traders/{tradingAccountId}/journal", 1L)
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .content(body)

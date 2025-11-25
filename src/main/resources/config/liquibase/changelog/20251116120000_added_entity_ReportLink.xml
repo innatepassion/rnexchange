@@ -47,6 +47,9 @@
             <column name="report_type"/>
         </createIndex>
     </changeSet>
-</databaseChangeLog>
 
+    <changeSet id="20251116120000-2" author="assistant">
+        <addAutoIncrement tableName="report_link" columnName="id" columnDataType="bigint"/>
+    </changeSet>
+</databaseChangeLog>
 

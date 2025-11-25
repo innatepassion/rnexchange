@@ -61,7 +61,7 @@ public class BrokerOverviewService {
             dto.setGeneratedAt(Instant.now());
             return dto;
         }
-        Broker broker = brokerOpt.get();
+        Broker broker = brokerOpt.orElseThrow();
 
         // Count distinct traders under the broker (via TradingAccount join)
         Page<?> tradersPage = traderProfileRepository.findByBrokerId(brokerId, PageRequest.of(0, 1));

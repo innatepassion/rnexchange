@@ -14,7 +14,14 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(classes = { RnexchangeApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class })
+@SpringBootTest(
+    classes = {
+        RnexchangeApp.class,
+        JacksonConfiguration.class,
+        AsyncSyncConfiguration.class,
+        com.rnexchange.config.IntegrationTestDataConfiguration.class,
+    }
+)
 @EmbeddedSQL
 public @interface IntegrationTest {
 }

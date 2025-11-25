@@ -62,7 +62,7 @@ public class BrokerSettlementServiceImpl implements BrokerSettlementService {
             LOG.warn("Broker desk not found for user '{}'; returning empty broker settlement list", login);
             return Collections.emptyList();
         }
-        BrokerDesk brokerDesk = brokerDeskOpt.get();
+        BrokerDesk brokerDesk = brokerDeskOpt.orElseThrow();
 
         if (brokerDesk.getBroker() == null) {
             LOG.warn("Broker desk for user '{}' has no associated broker; returning empty broker settlement list", login);

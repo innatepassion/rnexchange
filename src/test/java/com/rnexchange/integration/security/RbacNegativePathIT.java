@@ -3,10 +3,7 @@ package com.rnexchange.integration.security;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnexchange.IntegrationTest;
-import com.rnexchange.domain.enumeration.LedgerEntryType;
-import com.rnexchange.service.dto.LedgerEntryDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,46 +32,42 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class RbacNegativePathIT {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String LEDGER_ENTRY_REQUEST =
+        """
+        {
+          "createdAt": "2024-01-15T09:00:00Z",
+          "type": "CREDIT",
+          "amount": 100.00,
+          "ccy": "INR",
+          "tradingAccount": { "id": 1 }
+        }
+        """;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private MockMvc mockMvc;
 
     // ========== LedgerEntryResource (BROKER_ADMIN only for POST) ==========
 
     @Test
     void testCreateLedgerEntryUnauthenticated() throws Exception {
-        LedgerEntryDTO dto = new LedgerEntryDTO();
-        dto.setAmount(java.math.BigDecimal.valueOf(100.00));
-        dto.setType(LedgerEntryType.CREDIT);
-
         mockMvc
-            .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
+            .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(LEDGER_ENTRY_REQUEST))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = { "TRADER" })
     void testCreateLedgerEntryAsTrader() throws Exception {
-        LedgerEntryDTO dto = new LedgerEntryDTO();
-        dto.setAmount(java.math.BigDecimal.valueOf(100.00));
-        dto.setType(LedgerEntryType.CREDIT);
-
         mockMvc
-            .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
+            .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(LEDGER_ENTRY_REQUEST))
             .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "EXCHANGE_OPERATOR" })
     void testCreateLedgerEntryAsExchangeOperator() throws Exception {
-        LedgerEntryDTO dto = new LedgerEntryDTO();
-        dto.setAmount(java.math.BigDecimal.valueOf(100.00));
-        dto.setType(LedgerEntryType.CREDIT);
-
         mockMvc
-            .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
+            .perform(post("/api/ledger-entries").contentType(MediaType.APPLICATION_JSON).content(LEDGER_ENTRY_REQUEST))
             .andExpect(status().isForbidden());
     }
 
@@ -252,11 +245,7 @@ class RbacNegativePathIT {
             """;
 
         mockMvc
-            .perform(
-                post("/api/broker/traders/{tradingAccountId}/journal", "00000000-0000-0000-0000-000000000000")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body)
-            )
+            .perform(post("/api/broker/traders/{tradingAccountId}/journal", 1L).contentType(MediaType.APPLICATION_JSON).content(body))
             .andExpect(status().isUnauthorized());
     }
 
@@ -269,11 +258,7 @@ class RbacNegativePathIT {
             """;
 
         mockMvc
-            .perform(
-                post("/api/broker/traders/{tradingAccountId}/journal", "00000000-0000-0000-0000-000000000000")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body)
-            )
+            .perform(post("/api/broker/traders/{tradingAccountId}/journal", 1L).contentType(MediaType.APPLICATION_JSON).content(body))
             .andExpect(status().isForbidden());
     }
 
@@ -286,11 +271,7 @@ class RbacNegativePathIT {
             """;
 
         mockMvc
-            .perform(
-                post("/api/broker/traders/{tradingAccountId}/journal", "00000000-0000-0000-0000-000000000000")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body)
-            )
+            .perform(post("/api/broker/traders/{tradingAccountId}/journal", 1L).contentType(MediaType.APPLICATION_JSON).content(body))
             .andExpect(status().isForbidden());
     }
 
@@ -298,19 +279,25 @@ class RbacNegativePathIT {
 
     @Test
     void testGetBrokerOverviewUnauthenticated() throws Exception {
-        mockMvc.perform(get("/api/broker/overview").accept(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        mockMvc
+            .perform(get("/api/broker/overview").param("brokerId", "1").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = { "TRADER" })
     void testGetBrokerOverviewAsTrader() throws Exception {
-        mockMvc.perform(get("/api/broker/overview").accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc
+            .perform(get("/api/broker/overview").param("brokerId", "1").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "EXCHANGE_OPERATOR" })
     void testGetBrokerOverviewAsExchangeOperator() throws Exception {
-        mockMvc.perform(get("/api/broker/overview").accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc
+            .perform(get("/api/broker/overview").param("brokerId", "1").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 
     // ========== BrokerTradersResource (BROKER_ADMIN only) ==========
@@ -336,49 +323,49 @@ class RbacNegativePathIT {
 
     @Test
     void testStartMarketDataFeedUnauthenticated() throws Exception {
-        mockMvc.perform(post("/api/market-data/feed/start").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/marketdata/mock/start").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = { "TRADER" })
     void testStartMarketDataFeedAsTrader() throws Exception {
-        mockMvc.perform(post("/api/market-data/feed/start").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/marketdata/mock/start").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "BROKER_ADMIN" })
     void testStartMarketDataFeedAsBrokerAdmin() throws Exception {
-        mockMvc.perform(post("/api/market-data/feed/start").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/marketdata/mock/start").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "TRADER" })
     void testStopMarketDataFeedAsTrader() throws Exception {
-        mockMvc.perform(post("/api/market-data/feed/stop").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/marketdata/mock/stop").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "BROKER_ADMIN" })
     void testGetMarketDataFeedStatusAsBrokerAdmin() throws Exception {
-        mockMvc.perform(get("/api/market-data/feed/status").accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/marketdata/mock/status").accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
 
     // ========== BaselineSeedResource (EXCHANGE_OPERATOR only) ==========
 
     @Test
     void testRunBaselineSeedUnauthenticated() throws Exception {
-        mockMvc.perform(post("/api/baseline-seed").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/admin/baseline-seed/run").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = { "TRADER" })
     void testRunBaselineSeedAsTrader() throws Exception {
-        mockMvc.perform(post("/api/baseline-seed").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/admin/baseline-seed/run").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "BROKER_ADMIN" })
     void testRunBaselineSeedAsBrokerAdmin() throws Exception {
-        mockMvc.perform(post("/api/baseline-seed").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/admin/baseline-seed/run").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
 }

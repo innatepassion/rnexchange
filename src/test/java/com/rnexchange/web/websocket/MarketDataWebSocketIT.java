@@ -4,10 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.enumeration.AssetClass;
@@ -20,8 +17,12 @@ import com.rnexchange.service.dto.BarDTO;
 import com.rnexchange.service.dto.QuoteDTO;
 import com.rnexchange.service.marketdata.MockMarketDataService;
 import com.rnexchange.service.marketdata.WatchlistAuthorizationService;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +32,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExecutionCondition;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,6 +63,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @TestPropertySource(properties = "marketdata.mock.bar-interval-seconds=1")
+@ExtendWith(MarketDataWebSocketIT.SocketAvailabilityCondition.class)
 class MarketDataWebSocketIT {
 
     @LocalServerPort
@@ -339,5 +345,20 @@ class MarketDataWebSocketIT {
         transports.add(new WebSocketTransport(new StandardWebSocketClient()));
         transports.add(new org.springframework.web.socket.sockjs.client.RestTemplateXhrTransport());
         return new SockJsClient(transports);
+    }
+
+    static class SocketAvailabilityCondition implements ExecutionCondition {
+
+        @Override
+        public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
+            try (ServerSocketChannel serverSocket = ServerSocketChannel.open()) {
+                serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
+                return ConditionEvaluationResult.enabled("Server socket binding allowed");
+            } catch (IOException ex) {
+                return ConditionEvaluationResult.disabled(
+                    "Skipping WebSocket integration tests because server sockets are not permitted: " + ex.getMessage()
+                );
+            }
+        }
     }
 }

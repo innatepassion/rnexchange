@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @IntegrationTest
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(username = "broker-admin", roles = "BROKER_ADMIN")
 class LedgerEntryResourceIT {
 
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
@@ -191,7 +191,7 @@ class LedgerEntryResourceIT {
 
     @Test
     @Transactional
-    void checkTsIsRequired() throws Exception {
+    void checkCreatedAtIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null
         ledgerEntry.setCreatedAt(null);
@@ -269,8 +269,8 @@ class LedgerEntryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(ledgerEntry.getId().intValue())))
-            .andExpect(jsonPath("$.[*].ts").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].ccy").value(hasItem(DEFAULT_CCY.toString())))
             .andExpect(jsonPath("$.[*].balanceAfter").value(hasItem(sameNumber(DEFAULT_BALANCE_AFTER))))
@@ -290,8 +290,8 @@ class LedgerEntryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(ledgerEntry.getId().intValue()))
-            .andExpect(jsonPath("$.ts").value(DEFAULT_CREATED_AT.toString()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.amount").value(sameNumber(DEFAULT_AMOUNT)))
             .andExpect(jsonPath("$.ccy").value(DEFAULT_CCY.toString()))
             .andExpect(jsonPath("$.balanceAfter").value(sameNumber(DEFAULT_BALANCE_AFTER)))
@@ -316,32 +316,32 @@ class LedgerEntryResourceIT {
 
     @Test
     @Transactional
-    void getAllLedgerEntriesByTsIsEqualToSomething() throws Exception {
+    void getAllLedgerEntriesByCreatedAtIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
-        // Get all the ledgerEntryList where ts equals to
-        defaultLedgerEntryFiltering("ts.equals=" + DEFAULT_CREATED_AT, "ts.equals=" + UPDATED_CREATED_AT);
+        // Get all the ledgerEntryList where createdAt equals to
+        defaultLedgerEntryFiltering("createdAt.equals=" + DEFAULT_CREATED_AT, "createdAt.equals=" + UPDATED_CREATED_AT);
     }
 
     @Test
     @Transactional
-    void getAllLedgerEntriesByTsIsInShouldWork() throws Exception {
+    void getAllLedgerEntriesByCreatedAtIsInShouldWork() throws Exception {
         // Initialize the database
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
-        // Get all the ledgerEntryList where ts in
-        defaultLedgerEntryFiltering("ts.in=" + DEFAULT_CREATED_AT + "," + UPDATED_CREATED_AT, "ts.in=" + UPDATED_CREATED_AT);
+        // Get all the ledgerEntryList where createdAt in
+        defaultLedgerEntryFiltering("createdAt.in=" + DEFAULT_CREATED_AT + "," + UPDATED_CREATED_AT, "createdAt.in=" + UPDATED_CREATED_AT);
     }
 
     @Test
     @Transactional
-    void getAllLedgerEntriesByTsIsNullOrNotNull() throws Exception {
+    void getAllLedgerEntriesByCreatedAtIsNullOrNotNull() throws Exception {
         // Initialize the database
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
-        // Get all the ledgerEntryList where ts is not null
-        defaultLedgerEntryFiltering("ts.specified=true", "ts.specified=false");
+        // Get all the ledgerEntryList where createdAt is not null
+        defaultLedgerEntryFiltering("createdAt.specified=true", "createdAt.specified=false");
     }
 
     @Test
@@ -376,22 +376,25 @@ class LedgerEntryResourceIT {
 
     @Test
     @Transactional
-    void getAllLedgerEntriesByTypeContainsSomething() throws Exception {
+    void getAllLedgerEntriesByDescriptionContainsSomething() throws Exception {
         // Initialize the database
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
-        // Get all the ledgerEntryList where type contains
-        defaultLedgerEntryFiltering("type.contains=" + DEFAULT_TYPE, "type.contains=" + UPDATED_TYPE);
+        // Get all the ledgerEntryList where description contains
+        defaultLedgerEntryFiltering("description.contains=" + DEFAULT_DESCRIPTION, "description.contains=" + UPDATED_DESCRIPTION);
     }
 
     @Test
     @Transactional
-    void getAllLedgerEntriesByTypeNotContainsSomething() throws Exception {
+    void getAllLedgerEntriesByDescriptionNotContainsSomething() throws Exception {
         // Initialize the database
         insertedLedgerEntry = ledgerEntryRepository.saveAndFlush(ledgerEntry);
 
-        // Get all the ledgerEntryList where type does not contain
-        defaultLedgerEntryFiltering("type.doesNotContain=" + UPDATED_TYPE, "type.doesNotContain=" + DEFAULT_TYPE);
+        // Get all the ledgerEntryList where description does not contain
+        defaultLedgerEntryFiltering(
+            "description.doesNotContain=" + UPDATED_DESCRIPTION,
+            "description.doesNotContain=" + DEFAULT_DESCRIPTION
+        );
     }
 
     @Test
@@ -712,8 +715,8 @@ class LedgerEntryResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(ledgerEntry.getId().intValue())))
-            .andExpect(jsonPath("$.[*].ts").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].ccy").value(hasItem(DEFAULT_CCY.toString())))
             .andExpect(jsonPath("$.[*].balanceAfter").value(hasItem(sameNumber(DEFAULT_BALANCE_AFTER))))
@@ -898,8 +901,10 @@ class LedgerEntryResourceIT {
             .createdAt(UPDATED_CREATED_AT)
             .type(UPDATED_TYPE)
             .amount(UPDATED_AMOUNT)
+            .fee(UPDATED_FEE)
             .ccy(UPDATED_CCY)
             .balanceAfter(UPDATED_BALANCE_AFTER)
+            .description(UPDATED_DESCRIPTION)
             .reference(UPDATED_REFERENCE)
             .remarks(UPDATED_REMARKS);
 

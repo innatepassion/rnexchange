@@ -214,7 +214,7 @@ public class SettlementServiceImpl implements SettlementService {
         );
 
         if (settlementPrice.isPresent()) {
-            return settlementPrice.get().getSettlePrice();
+            return settlementPrice.orElseThrow().getSettlePrice();
         }
 
         // Fallback: use the latest available settlement price that is not after the trade date
@@ -223,7 +223,7 @@ public class SettlementServiceImpl implements SettlementService {
         );
 
         if (latestPrice.isPresent()) {
-            DailySettlementPrice latest = latestPrice.get();
+            DailySettlementPrice latest = latestPrice.orElseThrow();
             if (!latest.getRefDate().isAfter(tradeDate)) {
                 return latest.getSettlePrice();
             }

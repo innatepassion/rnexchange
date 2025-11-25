@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnexchange.IntegrationTest;
+import com.rnexchange.domain.TradingAccount;
+import com.rnexchange.repository.TradingAccountRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,21 @@ class BrokerJournalContractTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TradingAccountRepository tradingAccountRepository;
+
+    private Long anyTradingAccountId() {
+        return tradingAccountRepository
+            .findAll()
+            .stream()
+            .map(TradingAccount::getId)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No TradingAccount found for contract test"));
+    }
+
     @Test
     void shouldAcceptJournalAndReturnResultShape() throws Exception {
-        String tradingAccountId = UUID.randomUUID().toString();
+        Long tradingAccountId = anyTradingAccountId();
         String idempotencyKey = "test-key-" + UUID.randomUUID();
         String body =
             """

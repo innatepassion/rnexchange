@@ -57,7 +57,7 @@ public class StatementServiceImpl implements StatementService {
             LOG.warn("Trader profile not found for user '{}'; returning empty statement list", login);
             return Collections.emptyList();
         }
-        TraderProfile trader = traderOpt.get();
+        TraderProfile trader = traderOpt.orElseThrow();
 
         // Get all trading accounts for this trader
         List<TradingAccount> accounts = tradingAccountRepository

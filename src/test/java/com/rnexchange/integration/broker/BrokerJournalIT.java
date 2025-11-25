@@ -79,11 +79,10 @@ class BrokerJournalIT {
             """
             { "direction": "credit", "amount": 50.00, "reason": "Top-up" }
             """;
-        String pathId = UUID.randomUUID().toString();
 
         mockMvc
             .perform(
-                post("/api/broker/traders/{tradingAccountId}/journal", pathId)
+                post("/api/broker/traders/{tradingAccountId}/journal", accountId)
                     .header("Idempotency-Key", idempotencyKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)

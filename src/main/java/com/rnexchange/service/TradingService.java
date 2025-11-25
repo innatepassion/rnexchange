@@ -168,7 +168,7 @@ public class TradingService {
         // T018 [US1]: Publish position and ledger updates for real-time portfolio refresh
         Optional<Position> updatedPosition = positionRepository.findByTradingAccountAndInstrument(tradingAccount, instrument);
         if (updatedPosition.isPresent()) {
-            webSocketService.publishPositionUpdateNotification(tradingAccount.getId(), updatedPosition.get());
+            webSocketService.publishPositionUpdateNotification(tradingAccount.getId(), updatedPosition.orElseThrow());
         }
 
         // Publish latest ledger entry for cash balance updates
@@ -463,7 +463,7 @@ public class TradingService {
         // T018 [US1]: Publish position and ledger updates for real-time portfolio refresh
         Optional<Position> updatedPosition = positionRepository.findByTradingAccountAndInstrument(tradingAccount, instrument);
         if (updatedPosition.isPresent()) {
-            webSocketService.publishPositionUpdateNotification(tradingAccount.getId(), updatedPosition.get());
+            webSocketService.publishPositionUpdateNotification(tradingAccount.getId(), updatedPosition.orElseThrow());
         }
 
         // Publish latest ledger entry for cash balance updates

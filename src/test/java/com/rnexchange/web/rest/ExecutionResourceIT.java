@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnexchange.IntegrationTest;
 import com.rnexchange.domain.Execution;
 import com.rnexchange.domain.Order;
+import com.rnexchange.domain.enumeration.OrderSide;
 import com.rnexchange.repository.ExecutionRepository;
 import com.rnexchange.service.dto.ExecutionDTO;
 import com.rnexchange.service.mapper.ExecutionMapper;
@@ -41,6 +42,9 @@ class ExecutionResourceIT {
 
     private static final Instant DEFAULT_EXEC_TS = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_EXEC_TS = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+
+    private static final OrderSide DEFAULT_SIDE = OrderSide.BUY;
+    private static final OrderSide UPDATED_SIDE = OrderSide.SELL;
 
     private static final BigDecimal DEFAULT_PX = new BigDecimal(1);
     private static final BigDecimal UPDATED_PX = new BigDecimal(2);
@@ -89,7 +93,13 @@ class ExecutionResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Execution createEntity() {
-        return new Execution().execTs(DEFAULT_EXEC_TS).px(DEFAULT_PX).qty(DEFAULT_QTY).liquidity(DEFAULT_LIQUIDITY).fee(DEFAULT_FEE);
+        return new Execution()
+            .execTs(DEFAULT_EXEC_TS)
+            .side(DEFAULT_SIDE)
+            .px(DEFAULT_PX)
+            .qty(DEFAULT_QTY)
+            .liquidity(DEFAULT_LIQUIDITY)
+            .fee(DEFAULT_FEE);
     }
 
     /**
@@ -99,7 +109,13 @@ class ExecutionResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Execution createUpdatedEntity() {
-        return new Execution().execTs(UPDATED_EXEC_TS).px(UPDATED_PX).qty(UPDATED_QTY).liquidity(UPDATED_LIQUIDITY).fee(UPDATED_FEE);
+        return new Execution()
+            .execTs(UPDATED_EXEC_TS)
+            .side(UPDATED_SIDE)
+            .px(UPDATED_PX)
+            .qty(UPDATED_QTY)
+            .liquidity(UPDATED_LIQUIDITY)
+            .fee(UPDATED_FEE);
     }
 
     @BeforeEach
@@ -201,6 +217,20 @@ class ExecutionResourceIT {
         // Create the Execution, which fails.
         ExecutionDTO executionDTO = executionMapper.toDto(execution);
 
+        restExecutionMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(executionDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkSideIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        execution.setSide(null);
+
+        ExecutionDTO executionDTO = executionMapper.toDto(execution);
         restExecutionMockMvc
             .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(executionDTO)))
             .andExpect(status().isBadRequest());

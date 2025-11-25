@@ -97,6 +97,7 @@ class TraderDayTradeIT {
                 exchange.setCode("NSE");
                 exchange.setName("National Stock Exchange");
                 exchange.setStatus(ExchangeStatus.ACTIVE);
+                exchange.setTimezone("Asia/Kolkata");
                 em.persist(exchange);
                 em.flush();
 
@@ -105,6 +106,9 @@ class TraderDayTradeIT {
                 inst.setExchange(exchange);
                 inst.setName("Reliance Industries Ltd");
                 inst.setStatus("ACTIVE");
+                inst.setExchangeCode(exchange.getCode());
+                inst.setAssetClass(AssetClass.EQUITY);
+                inst.setCurrency(Currency.INR);
                 inst.setLotSize(1L);
                 inst.setTickSize(new BigDecimal("0.05"));
                 return instrumentRepository.save(inst);
@@ -118,6 +122,7 @@ class TraderDayTradeIT {
                 DailySettlementPrice price = new DailySettlementPrice();
                 price.setInstrument(instrument);
                 price.setRefDate(today);
+                price.setInstrumentSymbol(instrument.getSymbol());
                 price.setSettlePrice(new BigDecimal("2520.00")); // Settlement price for matching
                 return dailySettlementPriceRepository.save(price);
             });

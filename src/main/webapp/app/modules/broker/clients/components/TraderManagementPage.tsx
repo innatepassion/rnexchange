@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, Col, Row } from 'reactstrap';
+import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, Col, Row } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getTraderDetails, TraderDetails, TraderSummary, getTraders } from 'app/modules/broker/services/traders.service';
@@ -11,6 +11,7 @@ import { ITradingAccount } from 'app/shared/model/trading-account.model';
 import { AccountStatus } from 'app/shared/model/enumerations/account-status.model';
 import { KycStatus } from 'app/shared/model/enumerations/kyc-status.model';
 import JournalForm from './JournalForm';
+import TraderForm from './TraderForm';
 
 const TraderManagementPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -338,91 +339,7 @@ const TraderManagementPage: React.FC = () => {
       <Modal isOpen={showAddModal} toggle={() => setShowAddModal(false)} size="lg">
         <ModalHeader toggle={() => setShowAddModal(false)}>Add New Trader</ModalHeader>
         <ModalBody>
-          <Form>
-            <Row>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Display Name *</Label>
-                  <Input
-                    type="text"
-                    value={formData.displayName || ''}
-                    onChange={e => setFormData({ ...formData, displayName: e.target.value })}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Email *</Label>
-                  <Input
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Mobile</Label>
-                  <Input type="text" value={formData.mobile || ''} onChange={e => setFormData({ ...formData, mobile: e.target.value })} />
-                </FormGroup>
-              </Col>
-              <Col md="6">
-                <FormGroup>
-                  <Label>KYC Status *</Label>
-                  <Input
-                    type="select"
-                    value={formData.kycStatus || 'PENDING'}
-                    onChange={e => setFormData({ ...formData, kycStatus: e.target.value as keyof typeof KycStatus })}
-                  >
-                    {Object.keys(KycStatus).map(status => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Status *</Label>
-                  <Input
-                    type="select"
-                    value={formData.status || 'ACTIVE'}
-                    onChange={e => setFormData({ ...formData, status: e.target.value as keyof typeof AccountStatus })}
-                  >
-                    {Object.keys(AccountStatus).map(status => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-              <Col md="6">
-                <FormGroup>
-                  <Label>User</Label>
-                  <Input
-                    type="select"
-                    value={formData.user?.id?.toString() || ''}
-                    onChange={e => setFormData({ ...formData, user: users.find(u => u.id.toString() === e.target.value) || null })}
-                  >
-                    <option value="">Select a user</option>
-                    {users.map(user => (
-                      <option key={user.id} value={user.id}>
-                        {user.login}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
-          </Form>
+          <TraderForm formData={formData} users={users} onChange={setFormData} />
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={() => setShowAddModal(false)}>
@@ -438,91 +355,7 @@ const TraderManagementPage: React.FC = () => {
       <Modal isOpen={showEditModal} toggle={() => setShowEditModal(false)} size="lg">
         <ModalHeader toggle={() => setShowEditModal(false)}>Edit Trader</ModalHeader>
         <ModalBody>
-          <Form>
-            <Row>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Display Name *</Label>
-                  <Input
-                    type="text"
-                    value={formData.displayName || ''}
-                    onChange={e => setFormData({ ...formData, displayName: e.target.value })}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Email *</Label>
-                  <Input
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Mobile</Label>
-                  <Input type="text" value={formData.mobile || ''} onChange={e => setFormData({ ...formData, mobile: e.target.value })} />
-                </FormGroup>
-              </Col>
-              <Col md="6">
-                <FormGroup>
-                  <Label>KYC Status *</Label>
-                  <Input
-                    type="select"
-                    value={formData.kycStatus || 'PENDING'}
-                    onChange={e => setFormData({ ...formData, kycStatus: e.target.value as keyof typeof KycStatus })}
-                  >
-                    {Object.keys(KycStatus).map(status => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md="6">
-                <FormGroup>
-                  <Label>Status *</Label>
-                  <Input
-                    type="select"
-                    value={formData.status || 'ACTIVE'}
-                    onChange={e => setFormData({ ...formData, status: e.target.value as keyof typeof AccountStatus })}
-                  >
-                    {Object.keys(AccountStatus).map(status => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-              <Col md="6">
-                <FormGroup>
-                  <Label>User</Label>
-                  <Input
-                    type="select"
-                    value={formData.user?.id?.toString() || ''}
-                    onChange={e => setFormData({ ...formData, user: users.find(u => u.id.toString() === e.target.value) || null })}
-                  >
-                    <option value="">Select a user</option>
-                    {users.map(user => (
-                      <option key={user.id} value={user.id}>
-                        {user.login}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
-          </Form>
+          <TraderForm formData={formData} users={users} onChange={setFormData} />
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={() => setShowEditModal(false)}>

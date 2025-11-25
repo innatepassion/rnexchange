@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = RnexchangeApp.class, properties = "spring.liquibase.enabled=false")
+@SpringBootTest(classes = RnexchangeApp.class, properties = { "spring.liquibase.enabled=false", "spring.h2.console.enabled=false" })
 @ActiveProfiles("dev")
 class BaselineSeedBeanIT {
 

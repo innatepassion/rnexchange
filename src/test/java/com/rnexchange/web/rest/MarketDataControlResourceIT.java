@@ -68,7 +68,7 @@ class MarketDataControlResourceIT {
     }
 
     @Test
-    @WithMockUser(username = "exchange-operator", authorities = "EXCHANGE_OPERATOR")
+    @WithMockUser(username = "exchange-operator", roles = "EXCHANGE_OPERATOR")
     void startFeedReturnsRunningStatus() throws Exception {
         mockMvc
             .perform(post(START_URL).contentType(MediaType.APPLICATION_JSON))
@@ -79,7 +79,7 @@ class MarketDataControlResourceIT {
     }
 
     @Test
-    @WithMockUser(username = "exchange-operator", authorities = "EXCHANGE_OPERATOR")
+    @WithMockUser(username = "exchange-operator", roles = "EXCHANGE_OPERATOR")
     void stopFeedReturnsStoppedStatus() throws Exception {
         mockMvc.perform(post(START_URL).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 
@@ -90,7 +90,7 @@ class MarketDataControlResourceIT {
     }
 
     @Test
-    @WithMockUser(username = "trader-one", authorities = "TRADER")
+    @WithMockUser(username = "trader-one", roles = "TRADER")
     void traderCannotStartFeed() throws Exception {
         mockMvc.perform(post(START_URL).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }

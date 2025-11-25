@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnexchange.IntegrationTest;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,7 +28,9 @@ class BrokerTradersIT {
     @WithMockUser(username = "admin", roles = { "BROKER_ADMIN" })
     void list_shouldReturnPagedPayloadAnd200_forBrokerAdmin() throws Exception {
         var mvcResult = mockMvc
-            .perform(get("/api/broker/traders").param("page", "0").param("size", "5").accept(MediaType.APPLICATION_JSON))
+            .perform(
+                get("/api/broker/traders").param("page", "0").param("size", "5").param("brokerId", "1").accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(status().isOk())
             .andReturn();
 
@@ -43,9 +44,9 @@ class BrokerTradersIT {
     @Test
     @WithMockUser(username = "admin", roles = { "BROKER_ADMIN" })
     void details_shouldReturnDetailsShapeAnd200_forBrokerAdmin() throws Exception {
-        String traderId = UUID.randomUUID().toString();
+        Long traderId = 1L;
         var mvcResult = mockMvc
-            .perform(get("/api/broker/traders/{traderId}", traderId).accept(MediaType.APPLICATION_JSON))
+            .perform(get("/api/broker/traders/{traderId}", traderId).param("brokerId", "1").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -56,6 +57,8 @@ class BrokerTradersIT {
 
     @Test
     void list_shouldReturn401_whenUnauthenticated() throws Exception {
-        mockMvc.perform(get("/api/broker/traders").accept(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        mockMvc
+            .perform(get("/api/broker/traders").param("brokerId", "1").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnauthorized());
     }
 }

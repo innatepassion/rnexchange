@@ -5,6 +5,7 @@ import com.rnexchange.repository.BrokerRepository;
 import com.rnexchange.repository.ContractRepository;
 import com.rnexchange.repository.CorporateActionRepository;
 import com.rnexchange.repository.DailySettlementPriceRepository;
+import com.rnexchange.repository.ExchangeOperatorRepository;
 import com.rnexchange.repository.ExchangeRepository;
 import com.rnexchange.repository.ExecutionRepository;
 import com.rnexchange.repository.InstrumentRepository;
@@ -14,10 +15,13 @@ import com.rnexchange.repository.MarginRuleRepository;
 import com.rnexchange.repository.MarketHolidayRepository;
 import com.rnexchange.repository.OrderRepository;
 import com.rnexchange.repository.PositionRepository;
+import com.rnexchange.repository.ReportLinkRepository;
 import com.rnexchange.repository.RiskAlertRepository;
 import com.rnexchange.repository.SettlementBatchRepository;
 import com.rnexchange.repository.TraderProfileRepository;
 import com.rnexchange.repository.TradingAccountRepository;
+import com.rnexchange.repository.WatchlistItemRepository;
+import com.rnexchange.repository.WatchlistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,10 @@ public class BaselineTruncateService {
     private final TraderProfileRepository traderProfileRepository;
     private final BrokerRepository brokerRepository;
     private final ExchangeRepository exchangeRepository;
+    private final ExchangeOperatorRepository exchangeOperatorRepository;
+    private final WatchlistRepository watchlistRepository;
+    private final WatchlistItemRepository watchlistItemRepository;
+    private final ReportLinkRepository reportLinkRepository;
 
     public BaselineTruncateService(
         LedgerEntryRepository ledgerEntryRepository,
@@ -61,7 +69,11 @@ public class BaselineTruncateService {
         BrokerDeskRepository brokerDeskRepository,
         TraderProfileRepository traderProfileRepository,
         BrokerRepository brokerRepository,
-        ExchangeRepository exchangeRepository
+        ExchangeRepository exchangeRepository,
+        ExchangeOperatorRepository exchangeOperatorRepository,
+        WatchlistRepository watchlistRepository,
+        WatchlistItemRepository watchlistItemRepository,
+        ReportLinkRepository reportLinkRepository
     ) {
         this.ledgerEntryRepository = ledgerEntryRepository;
         this.executionRepository = executionRepository;
@@ -81,10 +93,17 @@ public class BaselineTruncateService {
         this.traderProfileRepository = traderProfileRepository;
         this.brokerRepository = brokerRepository;
         this.exchangeRepository = exchangeRepository;
+        this.exchangeOperatorRepository = exchangeOperatorRepository;
+        this.watchlistRepository = watchlistRepository;
+        this.watchlistItemRepository = watchlistItemRepository;
+        this.reportLinkRepository = reportLinkRepository;
     }
 
     @Transactional
     public void cleanup() {
+        watchlistItemRepository.deleteAllInBatch();
+        watchlistRepository.deleteAllInBatch();
+        reportLinkRepository.deleteAllInBatch();
         ledgerEntryRepository.deleteAllInBatch();
         executionRepository.deleteAllInBatch();
         lotRepository.deleteAllInBatch();
@@ -102,6 +121,7 @@ public class BaselineTruncateService {
         settlementBatchRepository.deleteAllInBatch();
         instrumentRepository.deleteAllInBatch();
         brokerRepository.deleteAllInBatch();
+        exchangeOperatorRepository.deleteAllInBatch();
         exchangeRepository.deleteAllInBatch();
     }
 }
