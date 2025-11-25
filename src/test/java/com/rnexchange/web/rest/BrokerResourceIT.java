@@ -79,6 +79,9 @@ class BrokerResourceIT {
     @Autowired
     private BaselineSeedService baselineSeedService;
 
+    @Autowired
+    private com.rnexchange.service.seed.BaselineTruncateService baselineTruncateService;
+
     @Mock
     private BrokerRepository brokerRepositoryMock;
 
@@ -280,7 +283,11 @@ class BrokerResourceIT {
     @Test
     @Transactional
     void getBrokerBaselineView() throws Exception {
-        baselineSeedService.runBaselineSeedBlocking(BaselineSeedRequest.builder().invocationId(UUID.randomUUID()).build());
+        // Clean up any existing baseline data to avoid duplicate instrument errors
+        baselineTruncateService.cleanup();
+
+        BaselineSeedRequest request = BaselineSeedRequest.builder().force(true).invocationId(UUID.randomUUID()).build();
+        baselineSeedService.runBaselineSeedBlocking(request);
 
         Broker baselineBroker = brokerRepository.findOneByCode("RN_DEMO").orElseThrow();
 
