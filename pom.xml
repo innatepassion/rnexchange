@@ -26,6 +26,7 @@
         <java.version>17</java.version>
         <node.version>v22.15.0</node.version>
         <npm.version>11.3.0</npm.version>
+        <skip.npm>false</skip.npm>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -681,6 +682,7 @@
                         <installDirectory>target</installDirectory>
                         <nodeVersion>${node.version}</nodeVersion>
                         <npmVersion>${npm.version}</npmVersion>
+                        <skip>${skip.npm}</skip>
                     </configuration>
                 </plugin>
                 <plugin>

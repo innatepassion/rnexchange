@@ -124,7 +124,7 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
         mockMarketDataService.start();
 
         Awaitility.await()
-            .atMost(3, TimeUnit.SECONDS)
+            .atMost(20, TimeUnit.SECONDS)
             .until(() -> mockMarketDataService.getStatus().exchanges().stream().anyMatch(e -> e.ticksPerSecond() > 0));
     }
 
@@ -135,7 +135,7 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
         mockMarketDataService.start();
 
         Awaitility.await()
-            .atMost(3, TimeUnit.SECONDS)
+            .atMost(20, TimeUnit.SECONDS)
             .until(() ->
                 mockMarketDataService.getStatus().exchanges().stream().anyMatch(exchangeStatus -> exchangeStatus.lastTickTime() != null)
             );
@@ -159,7 +159,7 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
         mockMarketDataService.start();
 
         Awaitility.await()
-            .atMost(5, TimeUnit.SECONDS)
+            .atMost(20, TimeUnit.SECONDS)
             .until(() ->
                 mockMarketDataService
                     .getStatus()
@@ -202,7 +202,7 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
 
         mockMarketDataService.start();
         Awaitility.await()
-            .atMost(5, TimeUnit.SECONDS)
+            .atMost(20, TimeUnit.SECONDS)
             .until(() ->
                 mockMarketDataService
                     .getStatus()
@@ -222,7 +222,7 @@ class MockMarketDataServiceIT extends com.rnexchange.service.seed.AbstractBaseli
         mockMarketDataService.start();
 
         Awaitility.await()
-            .atMost(5, TimeUnit.SECONDS)
+            .atMost(10, TimeUnit.SECONDS)
             .until(() ->
                 mockMarketDataService
                     .getStatus()

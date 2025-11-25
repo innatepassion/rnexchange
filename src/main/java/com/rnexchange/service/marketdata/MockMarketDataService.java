@@ -177,6 +177,7 @@ public class MockMarketDataService {
         lastClosedExchanges = closedExchanges;
 
         scheduleGenerator();
+        generateTicksSafe();
         eventPublisher.publishEvent(new FeedStartedEvent(new ArrayList<>(exchanges), "manual", startedAt));
         log.debug("Mock market data feed started with {} instruments across {} exchanges", instrumentStates.size(), exchanges.size());
     }
@@ -218,7 +219,15 @@ public class MockMarketDataService {
         return instruments
             .stream()
             .filter(instrument -> "ACTIVE".equalsIgnoreCase(instrument.getStatus()))
-            .collect(Collectors.toMap(Instrument::getSymbol, this::createInstrumentState));
+            .collect(
+                Collectors.toMap(Instrument::getSymbol, this::createInstrumentState, (existing, duplicate) -> {
+                    log.warn(
+                        "Duplicate instrument symbol {} detected while loading mock market data; keeping first instance",
+                        existing.getSymbol()
+                    );
+                    return existing;
+                })
+            );
     }
 
     private InstrumentState createInstrumentState(Instrument instrument) {
@@ -262,6 +271,7 @@ public class MockMarketDataService {
 
         Set<String> exchanges = instrumentStates.values().stream().map(InstrumentState::getExchangeCode).collect(Collectors.toSet());
         Set<String> closedExchanges = findClosedExchanges(exchanges);
+        closedExchanges.forEach(code -> exchangeMetrics.computeIfAbsent(code, key -> new ExchangeMetrics()).reset());
         lastClosedExchanges = closedExchanges;
 
         instrumentStates
@@ -348,11 +358,12 @@ public class MockMarketDataService {
     private ExchangeStatusDTO buildExchangeStatus(String exchangeCode, FeedState currentState) {
         ExchangeMetrics metrics = exchangeMetrics.getOrDefault(exchangeCode, new ExchangeMetrics());
         FeedState exchangeState = lastClosedExchanges.contains(exchangeCode) ? FeedState.HOLIDAY : currentState;
+        int ticksPerSecond = exchangeState == FeedState.HOLIDAY ? 0 : metrics.getTicksPerSecond();
         return new ExchangeStatusDTO(
             exchangeCode,
             exchangeState,
             metrics.getLastTickTime(),
-            metrics.getTicksPerSecond(),
+            ticksPerSecond,
             (int) instrumentStates.values().stream().filter(state -> state.getExchangeCode().equals(exchangeCode)).count()
         );
     }
@@ -393,6 +404,11 @@ public class MockMarketDataService {
 
         synchronized Instant getLastTickTime() {
             return lastTickTime;
+        }
+
+        synchronized void reset() {
+            tickTimes.clear();
+            lastTickTime = null;
         }
     }
 
